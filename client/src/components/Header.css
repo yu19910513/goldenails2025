@@ -1,0 +1,9 @@
+/* Header.css */
+header {
+    position: sticky;
+    top: 0;
+    background-color: white;  /* Optional: Make the background color stand out */
+    z-index: 1000;  /* Optional: Ensures the header stays above other content */
+    box-shadow: 0 4px 2px -2px gray;  /* Optional: Adds shadow for better visibility */
+  }
+  
