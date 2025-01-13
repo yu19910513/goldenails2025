@@ -28,7 +28,6 @@
     "concurrently": "^7.6.0"
   },
   "dependencies": {
-    "core-js": "^3.28.0",
     "if-env": "^1.0.4"
   }
 }
