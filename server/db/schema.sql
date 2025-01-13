@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS auric_db;
+CREATE DATABASE auric_db;
