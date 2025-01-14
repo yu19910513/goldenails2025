@@ -24,6 +24,10 @@
     "seed": "cd server && npm run seed",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
+  "engines": {
+  "node": "18.x",
+  "npm": "9.x"
+},
   "devDependencies": {
     "concurrently": "^7.6.0"
   },
