@@ -1,8 +1,7 @@
 import { React } from 'react'
 import Header from './components/Header';
 import Hero from './components/Hero';
-import Services from './components/Services';
-import About from './components/About';
+import TabbedView from './components/TabbedView';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
@@ -11,8 +10,7 @@ const App = () => (
   <div>
     <Header />
     <Hero />
-    <Services />
-    <About />
+    <TabbedView />
     <Contact />
     <Footer />
   </div>

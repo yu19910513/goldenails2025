@@ -1,0 +1,45 @@
+.tabbed-view-container {
+    font-family: 'Georgia', serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+  }
+  
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #555;
+    background-color: #f8f9fa;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .tab:hover {
+    background-color: #f2dede;
+  }
+  
+  .tab.active {
+    background-color: #b03a2e;
+    color: #fff;
+    border-bottom: 2px solid #b03a2e;
+    font-weight: bold;
+  }
+  
+  .tab-content {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #fff;
+  }
+  

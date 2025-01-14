@@ -1,0 +1,75 @@
+body {
+    font-family: 'Georgia', serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .menu-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .menu-title {
+    text-align: center;
+    color: #b03a2e;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .menu-card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s;
+  }
+  
+  .menu-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .menu-category {
+    font-size: 1.5em;
+    color: #b03a2e;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .menu-items {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .menu-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .menu-item:last-child {
+    border-bottom: none;
+  }
+  
+  .item-name {
+    font-size: 1.1em;
+    color: #333;
+  }
+  
+  .item-price {
+    font-size: 1.1em;
+    color: #555;
+    font-weight: bold;
+  }
+  

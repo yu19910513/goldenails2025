@@ -1,9 +1,28 @@
-/* Header.css */
-header {
-    position: sticky;
-    top: 0;
-    background-color: white;  /* Optional: Make the background color stand out */
-    z-index: 1000;  /* Optional: Ensures the header stays above other content */
-    box-shadow: 0 4px 2px -2px gray;  /* Optional: Adds shadow for better visibility */
-  }
-  
+/* Set the background color, font for the header, and make it sticky */
+.header {
+  background-color: #6a4c9c;  /* Elegant purple */
+  font-family: 'Georgia', serif;  /* Georgia font */
+  text-align: center;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;  /* Sticks the header to the top */
+  z-index: 1000;  /* Ensures the header stays above other content */
+  width: 100%;  /* Ensures it spans the full width */
+}
+
+/* Style the list of navigation links */
+.nav-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+/* Style the individual navigation links */
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+}
