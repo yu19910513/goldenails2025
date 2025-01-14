@@ -2,7 +2,7 @@ const Technician = require("./Technician");
 const Service = require("./Service");
 const Appointment = require("./Appointment");
 const Customer = require("./Customer");
-const Category = require('./category');
+const Category = require('./Category');
 
 // Technician - Service
 Technician.belongsToMany(Service, { through: "TechnicianService" });
