@@ -11,11 +11,11 @@ Appointment.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    customerId: {
+    customer_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Customer",
+        model: "customers",
         key: "id",
       },
     },
@@ -31,6 +31,7 @@ Appointment.init(
   {
     sequelize,
     modelName: "Appointment",
+    tableName: 'appointments',
     timestamps: true,
     underscored: true,
   }

@@ -33,6 +33,7 @@ Customer.init(
   {
     sequelize,
     modelName: "Customer",
+    tableName: 'customers',
     timestamps: true, // Enables createdAt and updatedAt timestamps
     underscored: true, // Converts camelCase to snake_case in DB column names
   }

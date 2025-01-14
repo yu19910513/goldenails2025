@@ -23,11 +23,11 @@ Service.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    categoryId: {
+    category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Category",
+        model: "categories",
         key: "id",
       },
     },
@@ -35,6 +35,7 @@ Service.init(
   {
     sequelize,
     modelName: "Service",
+    tableName: 'services',
     timestamps: true,
     underscored: true,
   }
