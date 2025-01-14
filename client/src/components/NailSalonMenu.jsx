@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import './NailSalonMenu.css'; // Add this stylesheet
+import ItemService from '../services/itemService';
 
 const NailSalonMenu = () => {
+  ItemService.getAll()
+      .then((res) => {
+        console.log(res.data);  
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+      });
+
   const services = [
     {
       category: 'Pedicures',

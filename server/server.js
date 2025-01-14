@@ -10,16 +10,16 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the React app build
-app.use(express.static(path.join(__dirname, '../dist')));
+// Serve static files from the React app build (For production)
+// app.use(express.static(path.join(__dirname, '../dist')));
 
 // API routes
-app.use('/api', routes);
+app.use(routes);
 
-// Catch-all route: Serve React app for unknown routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
-});
+// Catch-all route: Serve React app for unknown routes (For production)
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+// });
 
 // Sync Sequelize and start the server
 sequelize.sync({ force: false }).then(() => {

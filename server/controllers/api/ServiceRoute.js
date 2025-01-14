@@ -1,14 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const { Service } = require("../../models");
+const { Service, Category } = require("../../models");
 
 // GET all services
 router.get("/", async (req, res) => {
   try {
-    const services = await Service.findAll();
-    res.status(200).json(services);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to retrieve services" });
+    // Fetch categories along with their associated services
+    console.log("got a request!!");
+    
+    const serviceRawData = await Service.findAll({
+      attributes: ["id", "name", "price"],
+    });
+    const servicesData = serviceRawData.map(service => service.get({plain: true}));
+    res.status(200).json(servicesData);
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
