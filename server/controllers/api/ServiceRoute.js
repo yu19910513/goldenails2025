@@ -4,8 +4,6 @@ const { Service, Category } = require("../../models");
 
 router.get("/", async (req, res) => {
   try {
-    console.log("Got a request!!");
-
     // Fetch services along with their associated categories
     const serviceRawData = await Service.findAll({
       attributes: ["id", "name", "price"], // Service attributes
