@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
+    "build": "cd ../client && npm run build",
     "watch": "nodemon"
   },
   "homepage": "https://github.com/yu19910513/goldenails2025#readme",
