@@ -4,8 +4,8 @@ const Contact = () => (
       <div className="container mx-auto text-center">
         <h3 className="text-3xl font-bold mb-8">Contact Us</h3>
         <p className="mb-4">3610 Grandview St, Ste A, Gig Harbor, WA 98335</p>
-        <p className="mb-4">Call us: (253) 222-9800</p>
-        <p>Email: golden.nails.spa@example.com</p>
+        <p className="mb-4">Call us: (253)8517563</p>
+        <p>Email: golden.nails.spa@gmail.com</p>
       </div>
     </section>
   );

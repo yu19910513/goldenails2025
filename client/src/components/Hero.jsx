@@ -1,24 +1,66 @@
-const Hero = () => (
-  <section className="bg-cover bg-center h-screen text-center text-white flex items-center justify-center font-serif"
-    style={{ backgroundImage: "url('/images/spa-background.jpg')" }}>
-    <div className="bg-white bg-opacity-70 p-10 rounded-md max-w-3xl mx-auto">
-      {/* Bold and larger "Golden Nails & SPA" heading */}
-      <h2 style={{ fontFamily: 'Dancing Script, cursive', color: '#C79900' }} className="text-7xl font-extrabold mb-4 drop-shadow-2xl">
-        Golden Nails & SPA
-      </h2>
+import { useState } from "react";
 
-      <div className="mb-6">
-        {/* Increased font size and darker color for better readability */}
-        <p className="text-xl font-semibold mb-2 text-gray-800">📍 3610 Grandview St, Ste A, Gig Harbor, WA 98335</p>
-        <p className="text-xl font-semibold text-gray-800">🕒 Hours: Mon - Sat: 9 AM - 6:30 PM | Sun: Appointment Only</p>
-      </div>
+const Hero = () => {
+  const [showNote, setShowNote] = useState(false);
 
-      <div className="space-x-4">
-        <a href="tel:+12538517563" className="bg-yellow-500 text-black px-6 py-3 rounded-lg text-lg hover:bg-yellow-600 transition duration-300">Call Us</a>
-        <a href="#booking" className="bg-yellow-500 text-black px-6 py-3 rounded-lg text-lg hover:bg-yellow-600 transition duration-300">Book Now</a>
+  const handleBookNowClick = () => {
+    setShowNote(true);
+
+    // Auto-hide the note after 5 seconds
+    setTimeout(() => {
+      setShowNote(false);
+    }, 5000);
+  };
+
+  return (
+    <section
+      className="bg-cover bg-center h-screen text-center text-white flex items-center justify-end p-10 font-serif"
+      style={{ backgroundImage: "url('/images/spa-background.jpg')" }}
+    >
+      <div className="p-8 rounded-lg max-w-3xl -ml-10 animate-fadeIn md:mr-20">
+        {/* Elegant "Golden Nails & SPA" heading */}
+        <h1
+          style={{ fontFamily: "Dancing Script, cursive", color: "#C79900" }}
+          className="text-8xl font-extrabold mb-8 drop-shadow-lg animate-goldenFadeIn"
+        >
+          Golden Nails
+        </h1>
+
+        <div className="mb-8">
+          {/* Refined address and hours for readability */}
+          <p className="text-lg font-medium text-gray-700 mb-2">
+            📍 3610 Grandview St, Ste A, Gig Harbor, WA 98335
+          </p>
+          <p className="text-lg font-medium text-gray-700">
+            🕒 Mon - Sat: 9 AM - 6:30 PM | Sun: Appointment Only
+          </p>
+        </div>
+
+        <div className="flex justify-center space-x-4">
+          <a
+            href="tel:+12538517563"
+            className="border border-yellow-700 text-yellow-700 px-6 py-3 text-lg rounded-full hover:bg-yellow-700 hover:text-white transition duration-300 ease-in-out shadow-sm"
+          >
+            Call Us Now
+          </a>
+          <button
+            onClick={handleBookNowClick}
+            className="border border-yellow-700 text-yellow-700 px-6 py-3 text-lg rounded-full hover:bg-yellow-700 hover:text-white transition duration-300 ease-in-out shadow-sm"
+          >
+            Book Now
+          </button>
+        </div>
+
+        {/* Booking Note */}
+        {showNote && (
+          <div className="mt-6 bg-red-100 text-red-700 px-4 py-3 rounded shadow-md">
+            Sorry, the booking system is currently not available. Please call to
+            make an appointment.
+          </div>
+        )}
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default Hero;
