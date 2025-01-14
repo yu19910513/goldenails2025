@@ -2,22 +2,63 @@ const express = require("express");
 const router = express.Router();
 const { Service, Category } = require("../../models");
 
-// GET all services
 router.get("/", async (req, res) => {
   try {
-    // Fetch categories along with their associated services
-    console.log("got a request!!");
-    
+    console.log("Got a request!!");
+
+    // Fetch services along with their associated categories
     const serviceRawData = await Service.findAll({
-      attributes: ["id", "name", "price"],
+      attributes: ["id", "name", "price"], // Service attributes
+      include: [
+        {
+          model: Category, // Include Category model
+          attributes: ["id", "name"], // Category attributes
+        },
+      ],
     });
-    const servicesData = serviceRawData.map(service => service.get({plain: true}));
-    res.status(200).json(servicesData);
+
+    // Serialize the data
+    const servicesData = serviceRawData.map((service) =>
+      service.get({ plain: true })
+    );
+
+    // Group services by categories
+    const categorizedServices = servicesData.reduce((acc, service) => {
+      const category = service.Category;
+
+      // Check if the category already exists in the accumulator
+      const existingCategory = acc.find((cat) => cat.id === category.id);
+      if (existingCategory) {
+        existingCategory.services.push({
+          id: service.id,
+          name: service.name,
+          price: service.price,
+        });
+      } else {
+        // Add new category
+        acc.push({
+          id: category.id,
+          name: category.name,
+          services: [
+            {
+              id: service.id,
+              name: service.name,
+              price: service.price,
+            },
+          ],
+        });
+      }
+
+      return acc;
+    }, []);
+
+    res.status(200).json(categorizedServices);
   } catch (error) {
     console.error("Error fetching services:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 // GET a single service by ID
 router.get("/:id", async (req, res) => {
