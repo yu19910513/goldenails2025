@@ -1,38 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import ItemService from "../../services/ItemService";
+import formatPrice from "../../common/utils";
 
 const ServiceSelection = ({ onSelectServices, onNext }) => {
-  const [selected, setSelected] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedServices, setSelectedServices] = useState({});
 
-  const services = [
-    { id: 1, name: 'Manicure' },
-    { id: 2, name: 'Pedicure' },
-    { id: 3, name: 'Facial' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await ItemService.getAll();
+      setCategories(response.data);
+    };
+    fetchData();
+  }, []);
 
-  const toggleService = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
+  const toggleService = (categoryId, serviceId) => {
+    setSelectedServices((prev) => ({
+      ...prev,
+      [categoryId]: prev[categoryId] === serviceId ? null : serviceId,
+    }));
   };
 
   return (
-    <div>
-      <h2>Select Services</h2>
-      <ul>
-        {services.map((service) => (
-          <li key={service.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selected.includes(service.id)}
-                onChange={() => toggleService(service.id)}
-              />
-              {service.name}
-            </label>
-          </li>
+    <div className="relative">
+      <h2 className="text-3xl font-bold mb-6 text-center p-4">Select Services</h2>
+      <div className="space-y-6">
+        {categories.map((category) => (
+          <div key={category.id} className="border p-4 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4">{category.name}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {category.services.map((service) => (
+                <div
+                  key={service.id}
+                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
+                    selectedServices[category.id] === service.id
+                      ? "bg-yellow-200"
+                      : "bg-white"
+                  } ${
+                    selectedServices[category.id] &&
+                    selectedServices[category.id] !== service.id
+                      ? "opacity-50 pointer-events-none"
+                      : ""
+                  }`}
+                  onClick={() => toggleService(category.id, service.id)}
+                >
+                  <h4 className="text-lg font-bold">{service.name}</h4>
+                  <p className="text-sm text-gray-600">{formatPrice(service.price)}</p>
+                  <p className="text-sm text-gray-600">{service.time} min</p>
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
-      </ul>
-      <button onClick={() => { onSelectServices(selected); onNext(); }}>Next</button>
+      </div>
+
+      {/* Floating Next Button */}
+      <div className="fixed bottom-4 right-4">
+        <button
+          onClick={() => {
+            onSelectServices(selectedServices);
+            onNext();
+          }}
+          disabled={!Object.values(selectedServices).some((id) => id)}
+          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
+            Object.values(selectedServices).some((id) => id)
+              ? "bg-yellow-500 text-black hover:bg-yellow-600"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

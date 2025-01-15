@@ -1,23 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './NailSalonMenu.css'; // Add this stylesheet
 import ItemService from '../../services/itemService';
-
-const formatPrice = (price) => {
-  // Check for prices ending with 1 or 6
-  if (price % 10 === 1 || price % 10 === 6) {
-    return `$${price - 1}+`;
-  }
-
-  // Check for 4-digit prices (e.g., 1020)
-  if (price >= 1000) {
-    const low = Math.floor(price / 100);
-    const high = price % 100;
-    return `$${low} - ${high}`;
-  }
-
-  // Default formatting
-  return `$${price}`;
-};
+import formatPrice from '../../common/utils';
 
 const NailSalonMenu = () => {
   const [services, setServices] = useState([]);

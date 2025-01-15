@@ -6,7 +6,7 @@ router.get("/", async (req, res) => {
   try {
     // Fetch services along with their associated categories
     const serviceRawData = await Service.findAll({
-      attributes: ["id", "name", "price"], // Service attributes
+      attributes: ["id", "name", "price", "time"], // Service attributes
       include: [
         {
           model: Category, // Include Category model
