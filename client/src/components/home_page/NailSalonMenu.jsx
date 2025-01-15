@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './NailSalonMenu.css'; // Add this stylesheet
-import ItemService from '../services/itemService';
+import ItemService from '../../services/itemService';
 
 const formatPrice = (price) => {
   // Check for prices ending with 1 or 6

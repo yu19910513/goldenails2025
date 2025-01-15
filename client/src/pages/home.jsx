@@ -1,7 +1,7 @@
 import { React } from 'react'
-import Hero from '../components/Hero';
-import TabbedView from '../components/TabbedView';
-import Contact from '../components/Contact';
+import Hero from '../components/home_page/Hero';
+import TabbedView from '../components/home_page/TabbedView';
+import Contact from '../components/home_page/Contact';
 
 // Main App Component
 const Home = () => (
