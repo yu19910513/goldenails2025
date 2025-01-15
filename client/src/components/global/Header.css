@@ -1,13 +1,13 @@
 /* Set the background color, font for the header, and make it sticky */
 .header {
-  background-color: #6a4c9c;  /* Elegant purple */
-  font-family: 'Georgia', serif;  /* Georgia font */
+  background-color: #6a4c9c; /* Elegant purple */
+  font-family: 'Georgia', serif; /* Georgia font */
   text-align: center;
   padding: 20px 0;
   position: sticky;
-  top: 0;  /* Sticks the header to the top */
-  z-index: 1000;  /* Ensures the header stays above other content */
-  width: 100%;  /* Ensures it spans the full width */
+  top: 0; /* Sticks the header to the top */
+  z-index: 1000; /* Ensures the header stays above other content */
+  width: 100%; /* Ensures it spans the full width */
 }
 
 /* Style the list of navigation links */
@@ -22,7 +22,23 @@
 
 /* Style the individual navigation links */
 .nav-link {
-  color: #fff;
+  color: #fff; /* White text */
   text-decoration: none;
   font-size: 20px;
+  padding: 10px 20px;
+  transition: color 0.3s, background-color 0.3s;
+}
+
+/* Hover effect for links */
+.nav-link:hover {
+  background-color: #55347a; /* Darker purple */
+  border-radius: 5px;
+}
+
+/* Style the active link */
+.active-link {
+  color: #ffffff; /* Bold white text */
+  background-color: #8a6bb6; /* Lighter purple for contrast */
+  border-radius: 5px;
+  font-weight: bold;
 }
