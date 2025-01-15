@@ -1,19 +1,20 @@
-import { React } from 'react'
+import { React } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
-import Hero from './components/Hero';
-import TabbedView from './components/TabbedView';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Home from './pages/home';
+import Booking from './pages/booking';
 
 // Main App Component
 const App = () => (
-  <div>
+  <Router>
     <Header />
-    <Hero />
-    <TabbedView />
-    <Contact />
+    <Routes>
+      <Route path="/" element={<><Home /></>} />
+      <Route path="/booking" element={<Booking />} />
+    </Routes>
     <Footer />
-  </div>
+  </Router>
 );
 
 
