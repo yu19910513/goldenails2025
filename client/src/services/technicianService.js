@@ -2,10 +2,12 @@ import http from "../common/NodeCommon";
 
 class TechnicianService {
     getAll() {
-        const data = http.get("/technicians/");
-        console.log(data);
-        return data;
+        return http.get("/technicians/");
     }
+    getAvailableTechnicians(serviceIds) {
+        return http.post("/technicians/available", { serviceIds });
+    }
+
 }
 
 export default new TechnicianService();

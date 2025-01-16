@@ -1,8 +1,43 @@
 const express = require("express");
 const router = express.Router();
-const { Technician } = require("../../models");
+const { Technician, Service, Category } = require("../../models");
+const { Sequelize, Op } = require("sequelize");
 
-// GET all technicians
+
+/**
+ * @route GET /
+ * @description Retrieves a list of all technicians with basic details (id, name, description).
+ * @access Public
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} - A JSON response containing an array of technician data.
+ * 
+ * @throws {500} - If there is an internal server error (e.g., database failure). Example: { error: "Failed to retrieve technicians" }
+ * 
+ * @example
+ * // Request:
+ * GET /
+ * 
+ * // Success Response:
+ * [
+ *   {
+ *     "id": 1,
+ *     "name": "John Doe",
+ *     "description": "Plumbing Technician"
+ *   },
+ *   {
+ *     "id": 2,
+ *     "name": "Jane Smith",
+ *     "description": "Electrical Technician"
+ *   }
+ * ]
+ * 
+ * // Error Response (500):
+ * {
+ *   "error": "Failed to retrieve technicians"
+ * }
+ */
 router.get("/", async (req, res) => {
   try {
     const technicianRawData = await Technician.findAll({
@@ -17,6 +52,89 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve technicians" });
   }
 });
+
+
+/**
+ * @route POST /available
+ * @description Fetches technicians capable of performing all the services specified by the provided service IDs.
+ * @access Public
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request, which should contain the service IDs.
+ * @param {Array} req.body.serviceIds - An array of service IDs that the technicians must be capable of performing.
+ * 
+ * @param {Object} res - The response object.
+ * @returns {Object} - A JSON response containing either a list of technicians or an error message.
+ * 
+ * @throws {400} - If `serviceIds` is missing, not an array, or empty. Example: { message: "Service IDs are required." }
+ * @throws {500} - If there is an internal server error (e.g., database failure). Example: { message: "Internal server error." }
+ * 
+ * @example
+ * // Request:
+ * POST /available
+ * {
+ *   "serviceIds": [1, 2, 3]
+ * }
+ * 
+ * // Success Response:
+ * [
+ *   {
+ *     "id": 1,
+ *     "name": "John Doe",
+ *     "category": "Plumbing"
+ *   },
+ *   {
+ *     "id": 2,
+ *     "name": "Jane Smith",
+ *     "category": "Electrical"
+ *   }
+ * ]
+ * 
+ * // Error Response (400):
+ * {
+ *   "message": "Service IDs are required."
+ * }
+ * 
+ * // Error Response (500):
+ * {
+ *   "message": "Internal server error."
+ * }
+ */
+router.post("/available", async (req, res) => {
+  try {
+    const { serviceIds } = req.body;
+    if (!serviceIds || !Array.isArray(serviceIds) || serviceIds.length === 0) {
+      return res.status(400).json({ message: "Service IDs are required." });
+    }
+
+    // Fetch technicians capable of performing all the selected services
+    const technicians = await Technician.findAll({
+      include: [
+        {
+          model: Category,
+          through: { attributes: [] }, // Exclude join table attributes
+          include: [
+            {
+              model: Service,
+              where: { id: serviceIds },
+              attributes: [], // Exclude Service attributes from the result
+            },
+          ],
+        },
+      ],
+      group: ["Technician.id"],
+      having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${serviceIds.length}`), // Ensure all services are matched
+    });
+    return res.status(200).json(technicians);
+  } catch (error) {
+    console.error("Error fetching available technicians:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
+
+
 
 // GET a single technician by ID
 router.get("/:id", async (req, res) => {

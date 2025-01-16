@@ -20,24 +20,28 @@ const Booking = () => {
         <ServiceSelection
           onSelectServices={setSelectedServices}
           onNext={handleNextStep}
-        />
-      )}
-      {step === 2 && (
-        <AddOnSelection
-          selectedServices={selectedServices}
-          onSelectAddOns={setAddOns}
-          onNext={handleNextStep}
           onBack={handlePrevStep}
         />
       )}
-      {step === 3 && (
+
+      {step === 2 && (
         <TechnicianSelection
-          selectedServices={selectedServices}
+          selectedServices={selectedServices} // passing selected services to TechnicianSelection
           onSelectTechnicians={setSelectedTechnicians}
           onNext={handleNextStep}
           onBack={handlePrevStep}
         />
       )}
+
+      {step === 3 && (
+        <AddOnSelection
+          selectedServices={selectedServices} // passing selected services if needed
+          onSelectAddOns={setAddOns}
+          onNext={handleNextStep}
+          onBack={handlePrevStep}
+        />
+      )}
+
       {step === 4 && (
         <AvailabilitySelection
           selectedTechnicians={selectedTechnicians}
@@ -53,6 +57,7 @@ const Booking = () => {
           }}
         />
       )}
+      <div className='p-5'></div>
     </div>
   );
 };
