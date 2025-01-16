@@ -42,6 +42,7 @@ router.get("/", async (req, res) => {
               id: service.id,
               name: service.name,
               price: service.price,
+              time: service.time
             },
           ],
         });
