@@ -50,9 +50,8 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
           {technicians.map((technician) => (
             <div
               key={technician.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
-                selectedTechnician === technician.id ? "bg-yellow-200" : "bg-white"
-              }`}
+              className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedTechnician === technician.id ? "bg-yellow-200" : "bg-white"
+                }`}
               onClick={() => handleSelectTechnician(technician.id)}
             >
               <h4 className="text-lg font-bold">{technician.name}</h4>
@@ -66,10 +65,11 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
       <div className="fixed bottom-4 left-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-lg font-semibold rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
+          className="px-6 py-3 text-lg font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600"
         >
           Go Back
         </button>
+
       </div>
 
       <div className="fixed bottom-4 right-4">
@@ -79,11 +79,10 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
             onNext();
           }}
           disabled={!selectedTechnician}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
-            selectedTechnician
+          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedTechnician
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           Next
         </button>
