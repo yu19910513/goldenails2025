@@ -36,6 +36,7 @@ const Booking = () => {
 
       {step === 3 && (
         <TechnicianSelection
+          customerInfo={customerInfo}
           selectedServices={selectedServices}
           onSelectTechnicians={setSelectedTechnicians}
           onNext={handleNextStep}

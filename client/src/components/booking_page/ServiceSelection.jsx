@@ -6,7 +6,13 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   const [categories, setCategories] = useState([]);
   const [selectedServices, setSelectedServices] = useState({});
 
+  // Load selected services from localStorage if available
   useEffect(() => {
+    const storedServices = JSON.parse(localStorage.getItem('selectedServices'));
+    if (storedServices) {
+      setSelectedServices(storedServices);
+    }
+
     const fetchData = async () => {
       const response = await ItemService.getAll();
       setCategories(response.data);
@@ -14,11 +20,19 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
     fetchData();
   }, []);
 
+  // Toggle service selection
   const toggleService = (categoryId, serviceId) => {
-    setSelectedServices((prev) => ({
-      ...prev,
-      [categoryId]: prev[categoryId] === serviceId ? null : serviceId,
-    }));
+    setSelectedServices((prev) => {
+      const updatedServices = {
+        ...prev,
+        [categoryId]: prev[categoryId] === serviceId ? null : serviceId,
+      };
+      
+      // Save updated services to localStorage
+      localStorage.setItem('selectedServices', JSON.stringify(updatedServices));
+      
+      return updatedServices;
+    });
   };
 
   return (

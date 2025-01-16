@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import TechnicianService from "../../services/technicianService";
 
-const TechnicianSelection = ({ selectedServices, onSelectTechnician, onNext, onBack }) => {
+const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnician, onNext, onBack }) => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
@@ -36,7 +36,11 @@ const TechnicianSelection = ({ selectedServices, onSelectTechnician, onNext, onB
   return (
     <div className="relative">
       <h2 className="text-3xl font-bold mb-6 text-center p-4">Select Technician</h2>
-
+      {customerInfo?.name && (
+        <p className="text-lg font-medium text-center mb-6">
+          Welcome, {customerInfo.name}!
+        </p>
+      )}
       {loading ? (
         <div className="text-center py-6">Loading technicians...</div>
       ) : technicians.length === 0 ? (
