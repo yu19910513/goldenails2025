@@ -1,15 +1,11 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 
 const Hero = () => {
-  const [showNote, setShowNote] = useState(false);
+  const navigate = useNavigate(); // Initialize the navigate function
 
-  const handleBookNowClick = () => {
-    setShowNote(true);
-
-    // Auto-hide the note after 5 seconds
-    setTimeout(() => {
-      setShowNote(false);
-    }, 5000);
+  const handleBookNow = () => {
+    // Navigate to /booking and trigger any required state changes
+    navigate("/booking", { state: { isBookingActive: true } });
   };
 
   return (
@@ -18,7 +14,6 @@ const Hero = () => {
       style={{ backgroundImage: "url('/images/spa-background.jpg')" }}
     >
       <div className="p-8 rounded-lg max-w-3xl -ml-10 animate-fadeIn md:mr-20">
-        {/* Elegant "Golden Nails & SPA" heading */}
         <h1
           style={{ fontFamily: "Dancing Script, cursive", color: "#C79900" }}
           className="text-8xl font-extrabold mb-8 drop-shadow-lg animate-goldenFadeIn"
@@ -27,7 +22,6 @@ const Hero = () => {
         </h1>
 
         <div className="mb-8">
-          {/* Refined address and hours for readability */}
           <p className="text-lg font-medium text-gray-700 mb-2">
             📍 3610 Grandview St, Ste A, Gig Harbor, WA 98335
           </p>
@@ -44,20 +38,12 @@ const Hero = () => {
             Call Us Now
           </a>
           <button
-            onClick={handleBookNowClick}
+            onClick={handleBookNow}
             className="border border-yellow-700 text-yellow-700 px-6 py-3 text-lg rounded-full hover:bg-yellow-700 hover:text-white transition duration-300 ease-in-out shadow-sm"
           >
             Book Now
           </button>
         </div>
-
-        {/* Booking Note */}
-        {showNote && (
-          <div className="mt-6 bg-red-100 text-red-700 px-4 py-3 rounded shadow-md">
-            Sorry, the booking system is currently not available. Please call to
-            make an appointment.
-          </div>
-        )}
       </div>
     </section>
   );

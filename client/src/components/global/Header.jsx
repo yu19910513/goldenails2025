@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Import hooks for routing
 import "./Header.css"; // Import the external CSS
-import LeaveWarningModal from "../booking_page/LeaveWarningModal"
+import LeaveWarningModal from "../booking_page/LeaveWarningModal";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isBookingActive, setIsBookingActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for controlling hamburger menu
 
   const isActive = (path) => location.pathname === path;
 
@@ -22,6 +23,14 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    if (location.pathname === "/booking") {
+      setIsBookingActive(true);
+    } else {
+      setIsBookingActive(false);
+    }
+  }, [location.pathname]);
+
   const handleLeaveBooking = () => {
     // Clear local storage and navigate to home when user confirms exit
     localStorage.clear();
@@ -35,10 +44,22 @@ const Header = () => {
     setIsModalOpen(false);
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
+  };
+
   return (
     <header className="header">
       <nav>
-        <ul className="nav-list">
+        {/* Hamburger button for small screens */}
+        <div className="hamburger" onClick={toggleMenu}>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+        </div>
+
+        {/* Navigation links */}
+        <ul className={`nav-list ${isMenuOpen ? "open" : ""}`}>
           <li
             style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
           >
