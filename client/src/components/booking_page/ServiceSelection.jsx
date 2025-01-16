@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ItemService from "../../services/ItemService";
+import ItemService from "../../services/itemService";
 import formatPrice from "../../common/utils";
 
 const ServiceSelection = ({ onSelectServices, onNext }) => {
