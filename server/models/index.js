@@ -4,9 +4,9 @@ const Appointment = require("./Appointment");
 const Customer = require("./Customer");
 const Category = require('./Category');
 
-// Technician - Service
-Technician.belongsToMany(Service, { through: "TechnicianService" });
-Service.belongsToMany(Technician, { through: "TechnicianService" });
+// Technician - Category
+Technician.belongsToMany(Category, { through: "TechnicianCategory" });
+Category.belongsToMany(Technician, { through: "TechnicianCategory" });
 
 // Service - Category
 Service.belongsTo(Category, { foreignKey: "category_id" });

@@ -5,8 +5,14 @@ const { Technician } = require("../../models");
 // GET all technicians
 router.get("/", async (req, res) => {
   try {
-    const technicians = await Technician.findAll();
-    res.status(200).json(technicians);
+    const technicianRawData = await Technician.findAll({
+      attributes: ["id", "name", "description"], // Service attributes
+    });
+    // Serialize the data
+    const technicianData = technicianRawData.map((technician) =>
+      technician.get({ plain: true })
+    );
+    res.status(200).json(technicianData);
   } catch (err) {
     res.status(500).json({ error: "Failed to retrieve technicians" });
   }

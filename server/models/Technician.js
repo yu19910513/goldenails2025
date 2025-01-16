@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class Technician extends Model {}
+class Technician extends Model { }
 
 Technician.init(
   {
@@ -15,7 +15,12 @@ Technician.init(
       type: DataTypes.STRING,
       allowNull: false, // Name is required
     },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true, // Description is optional
+    },
   },
+
   {
     sequelize,
     modelName: "Technician",
