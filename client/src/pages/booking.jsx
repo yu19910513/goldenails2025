@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
+import PhoneNumberVerification from '../components/booking_page/PhoneNumberVerification';
 import ServiceSelection from '../components/booking_page/ServiceSelection';
-import AddOnSelection from '../components/booking_page/AddOnSelection';
 import TechnicianSelection from '../components/booking_page/TechnicianSelection';
 import AvailabilitySelection from '../components/booking_page/AvailabilitySelection';
 
 const Booking = () => {
   const [selectedServices, setSelectedServices] = useState([]);
-  const [addOns, setAddOns] = useState({});
   const [selectedTechnicians, setSelectedTechnicians] = useState([]);
   const [availability, setAvailability] = useState(null);
   const [step, setStep] = useState(1);
+  const [customerInfo, setCustomerInfo] = useState(null);
 
   const handleNextStep = () => setStep(step + 1);
   const handlePrevStep = () => setStep(step - 1);
@@ -17,26 +17,27 @@ const Booking = () => {
   return (
     <div>
       {step === 1 && (
+        <PhoneNumberVerification
+          onVerify={(customer) => {
+            setCustomerInfo(customer);
+            handleNextStep();
+          }}
+        />
+      )}
+
+      {step === 2 && (
         <ServiceSelection
+          customerInfo={customerInfo} // Pass customer info to service selection
           onSelectServices={setSelectedServices}
           onNext={handleNextStep}
           onBack={handlePrevStep}
         />
       )}
 
-      {step === 2 && (
-        <TechnicianSelection
-          selectedServices={selectedServices} // passing selected services to TechnicianSelection
-          onSelectTechnicians={setSelectedTechnicians}
-          onNext={handleNextStep}
-          onBack={handlePrevStep}
-        />
-      )}
-
       {step === 3 && (
-        <AddOnSelection
-          selectedServices={selectedServices} // passing selected services if needed
-          onSelectAddOns={setAddOns}
+        <TechnicianSelection
+          selectedServices={selectedServices}
+          onSelectTechnicians={setSelectedTechnicians}
           onNext={handleNextStep}
           onBack={handlePrevStep}
         />
@@ -49,15 +50,17 @@ const Booking = () => {
           onBack={handlePrevStep}
           onConfirm={() => {
             console.log('Appointment confirmed:', {
+              customerInfo,
               services: selectedServices,
-              addOns,
+              // addOns,
               technicians: selectedTechnicians,
               availability,
             });
           }}
         />
       )}
-      <div className='p-5'></div>
+
+      <div className="p-5"></div>
     </div>
   );
 };

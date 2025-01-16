@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ItemService from "../../services/itemService";
 import formatPrice from "../../common/utils";
 
-const ServiceSelection = ({ onSelectServices, onNext }) => {
+const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   const [categories, setCategories] = useState([]);
   const [selectedServices, setSelectedServices] = useState({});
 
@@ -23,7 +23,12 @@ const ServiceSelection = ({ onSelectServices, onNext }) => {
 
   return (
     <div className="relative">
-      <h2 className="text-3xl font-bold mb-6 text-center p-4">Select Services</h2>
+      <h2 className="text-3xl font-bold mb-2 text-center p-4">Select Services</h2>
+      {customerInfo?.name && (
+        <p className="text-lg font-medium text-center mb-6">
+          Welcome, {customerInfo.name}!
+        </p>
+      )}
       <div className="space-y-6">
         {categories.map((category) => (
           <div key={category.id} className="border p-4 rounded-lg shadow-md">
