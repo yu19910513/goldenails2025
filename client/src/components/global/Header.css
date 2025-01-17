@@ -1,92 +1,96 @@
-/* Set the background color, font for the header, and make it sticky */
+/* Header Styles */
 .header {
-  background-color: #6a4c9c; /* Elegant purple */
-  font-family: 'Optima', serif; /* Georgia font */
-  text-align: center;
-  opacity: 80%;
-  padding: 20px 0;
-  position: sticky;
-  top: 0; /* Sticks the header to the top */
-  z-index: 1000; /* Ensures the header stays above other content */
-  width: 100%; /* Ensures it spans the full width */
+  background-color: #333;
+  color: white;
+  padding: 10px;
 }
 
-/* Style the list of navigation links */
-.nav-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+nav {
   display: flex;
-  justify-content: center;
-  gap: 30px;
-}
-
-/* Style the individual navigation links */
-.nav-link {
-  color: #fff; /* White text */
-  text-decoration: none;
-  font-size: 20px;
-  padding: 10px 20px;
-  transition: color 0.3s, background-color 0.3s;
-}
-
-/* Hover effect for links */
-.nav-link:hover {
-  background-color: #55347a; /* Darker purple */
-  border-radius: 5px;
-}
-
-/* Style the active link */
-.active-link {
-  color: #ffffff; /* Bold white text */
-  background-color: #8a6bb6; /* Lighter purple for contrast */
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-/* Hamburger menu styles */
-.hamburger {
-  display: none;
-  flex-direction: column;
   justify-content: space-between;
-  width: 30px;
-  height: 25px;
+  align-items: center;
+  position: relative;
+}
+
+/* Keep Golden Nails on the left */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.nav-link:hover,
+.active-link {
+  color: #ffbb00; /* Change color on hover or when active */
+}
+
+/* Hamburger Icon */
+.hamburger {
+  display: none; /* Hide on large screens */
   cursor: pointer;
-  margin-left: auto;
-  margin-right: 20px;
+  position: absolute;
+  right: 10px; /* Position hamburger on the right */
+  top: 10px;
 }
 
-.hamburger .bar {
-  height: 5px;
-  background-color: #fff;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: white;
+  margin: 5px 0;
 }
 
-/* Media query for small screens */
+/* Navbar Links Styling */
+.nav-list {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start; /* Links are aligned to the left by default */
+}
+
+.nav-list.open {
+  display: block; /* Show on mobile when hamburger is clicked */
+}
+
+.nav-list li {
+  list-style: none;
+}
+
+.nav-list a {
+  padding: 10px;
+  font-size: 1rem;
+  color: white;
+}
+
 @media (max-width: 768px) {
-  /* Hide the nav links by default */
-  .nav-list {
-    display: none;
-    width: 100%;
-    flex-direction: column;
-    align-items: center;
-    background-color: #6a4c9c;
-    opacity: 80%;
-    position: absolute;
-    top: 60px; /* Adjust based on header height */
-    left: 0;
-    padding: 20px 0;
-    gap: 15px;
-  }
-
-  /* Show the nav links when menu is open */
-  .nav-list.open {
-    display: flex;
-  }
-
-  /* Show the hamburger menu on small screens */
+  /* Show hamburger menu on smaller screens */
   .hamburger {
-    display: flex;
+    display: block;
+  }
+
+  .nav-list {
+    display: none; /* Hide links initially */
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px;
+  }
+
+  .nav-list.open {
+    display: block; /* Open menu when hamburger is clicked */
+  }
+
+  .nav-list li {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+  }
+
+  /* Adjust links for smaller screens */
+  .nav-link {
+    padding: 15px;
+    font-size: 1.2rem;
   }
 }

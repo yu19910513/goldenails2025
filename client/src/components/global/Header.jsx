@@ -9,6 +9,7 @@ const Header = () => {
   const [isBookingActive, setIsBookingActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State for controlling hamburger menu
+  const [isMobile, setIsMobile] = useState(false); // Track screen size for responsive design
 
   const isActive = (path) => location.pathname === path;
 
@@ -30,6 +31,21 @@ const Header = () => {
       setIsBookingActive(false);
     }
   }, [location.pathname]);
+
+  // Detect screen size changes and toggle mobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth > 768) {
+        setIsMenuOpen(false); // Close the menu when resizing to a larger screen
+      }
+    };
+    
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Initial check on load
+    
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleLeaveBooking = () => {
     // Clear local storage and navigate to home when user confirms exit
@@ -59,14 +75,11 @@ const Header = () => {
         </div>
 
         {/* Navigation links */}
-        <ul className={`nav-list ${isMenuOpen ? "open" : ""}`}>
-          <li
-            style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
-          >
-            <a href="/" className={`nav-link ${isActive("/") ? "active-link" : ""}`}>
-              Home
-            </a>
-          </li>
+        <a href="/" className={`nav-link ${isActive("/") ? "active-link" : ""}`}>
+          Golden Nails
+        </a>
+
+        <ul className={`nav-list ${isMenuOpen && isMobile ? "open" : ""}`}>
           <li
             style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
           >
