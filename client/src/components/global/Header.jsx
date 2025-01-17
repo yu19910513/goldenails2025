@@ -75,9 +75,12 @@ const Header = () => {
         </div>
 
         {/* Navigation links */}
-        <a href="/" className={`nav-link ${isActive("/") ? "active-link" : ""}`}>
-          Golden Nails
-        </a>
+        <a
+  href="/"
+  className={`nav-link gold-nails ${isActive("/") ? "active-link" : ""}`}
+>
+  Golden Nails
+</a>
 
         <ul className={`nav-list ${isMenuOpen && isMobile ? "open" : ""}`}>
           <li

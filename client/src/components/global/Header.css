@@ -1,8 +1,14 @@
 /* Header Styles */
 .header {
-  background-color: #333;
-  color: white;
+  background-color: #ffffff; /* Light purple background */
+  color: rgb(0, 0, 0);
   padding: 10px;
+  position: sticky; /* Sticky header */
+  top: 0;
+  padding: 10px;
+  width: 100%;
+  z-index: 1000; /* Ensure it stays on top of other content */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: Add shadow for visibility */
 }
 
 nav {
@@ -12,17 +18,28 @@ nav {
   position: relative;
 }
 
-/* Keep Golden Nails on the left */
+/* Increase size and use a different font for Golden Nails */
 .nav-link {
-  color: white;
+  color: rgb(0, 0, 0);
   text-decoration: none;
   padding: 10px;
   font-size: 1rem;
+  font-family: 'serif', sans-serif; /* Default font */
 }
 
+/* Hover effect for nav links */
 .nav-link:hover,
 .active-link {
-  color: #ffbb00; /* Change color on hover or when active */
+  color: #000000; /* Change color on hover or when active (light pink color) */
+}
+
+/* Custom style for the "Golden Nails" link */
+.nav-link.gold-nails {
+  font-size: 1.6rem; /* Larger font size */
+  font-family: 'Pacifico', serif, 'Times New Roman', Times, serif; /* Use a different font (you can choose another one from Google Fonts) */
+  font-weight: bold; /* Bold font */
+  text-transform: uppercase; /* Optional: make the text uppercase */
+  letter-spacing: 2px; /* Optional: add some spacing between letters */
 }
 
 /* Hamburger Icon */
@@ -37,7 +54,7 @@ nav {
 .bar {
   width: 25px;
   height: 3px;
-  background-color: white;
+  background-color: rgb(77, 75, 75);
   margin: 5px 0;
 }
 
@@ -59,9 +76,10 @@ nav {
 .nav-list a {
   padding: 10px;
   font-size: 1rem;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
+/* Mobile Styles */
 @media (max-width: 768px) {
   /* Show hamburger menu on smaller screens */
   .hamburger {
@@ -74,8 +92,14 @@ nav {
     top: 60px;
     left: 0;
     width: 100%;
-    background-color: #333;
+    background-color: rgb(122, 122, 122); /* Light purple background for mobile */
+    opacity: 88%;
     padding: 10px;
+  }
+  .nav-list a {
+    padding: 10px;
+    font-size: 1rem;
+    color: white;
   }
 
   .nav-list.open {

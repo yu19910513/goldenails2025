@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import "./Hero.css";
 
 const Hero = () => {
   const navigate = useNavigate(); // Initialize the navigate function
@@ -10,7 +11,7 @@ const Hero = () => {
 
   return (
     <section
-      className="bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif"
+      className="bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif hero"
       style={{ backgroundImage: "url('/images/spa-background.jpg')" }}
     >
       <div className="p-8 rounded-lg max-w-3xl animate-fadeIn mx-auto md:mr-20">
