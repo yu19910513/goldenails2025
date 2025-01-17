@@ -1,8 +1,9 @@
 /* Set the background color, font for the header, and make it sticky */
 .header {
   background-color: #6a4c9c; /* Elegant purple */
-  font-family: 'Georgia', serif; /* Georgia font */
+  font-family: 'Optima', serif; /* Georgia font */
   text-align: center;
+  opacity: 80%;
   padding: 20px 0;
   position: sticky;
   top: 0; /* Sticks the header to the top */
