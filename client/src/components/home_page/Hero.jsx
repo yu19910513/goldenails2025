@@ -10,18 +10,18 @@ const Hero = () => {
 
   return (
     <section
-      className="bg-cover bg-center h-screen text-center text-white flex items-center justify-end p-10 font-serif"
+      className="bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif"
       style={{ backgroundImage: "url('/images/spa-background.jpg')" }}
     >
-      <div className="p-8 rounded-lg max-w-3xl  animate-fadeIn md:mr-20">
+      <div className="p-8 rounded-lg max-w-3xl animate-fadeIn mx-auto md:mr-20">
         <h1
-          style={{ fontFamily: "Didot, cursive", color: "#06402B"}}
+          style={{ fontFamily: "Didot, cursive", color: "#06402B" }}
           className="text-8xl font-extrabold mb-8 drop-shadow-lg animate-goldenFadeIn"
         >
           Golden Nails
         </h1>
 
-        <div className="mb-8" style={{ fontFamily: "Optima, cursive", color: "#06402B"}}>
+        <div className="mb-8" style={{ fontFamily: "Optima, cursive", color: "#06402B" }}>
           <p className="text-lg font-medium text-gray-700 mb-2">
             📍 3610 Grandview St, Ste A, Gig Harbor, WA 98335
           </p>
@@ -30,7 +30,7 @@ const Hero = () => {
           </p>
         </div>
 
-        <div className="flex justify-center space-x-4" style={{ fontFamily: "Optima, cursive"}}>
+        <div className="flex justify-center space-x-4" style={{ fontFamily: "Optima, cursive" }}>
           <a
             href="tel:+12538517563"
             className="border border-yellow-700 text-yellow-700 px-6 py-3 text-lg hover:bg-yellow-700 hover:text-white transition duration-300 ease-in-out shadow-sm"
