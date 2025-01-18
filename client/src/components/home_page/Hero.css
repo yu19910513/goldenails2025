@@ -1,25 +1,91 @@
 .hero {
-    max-width: 100vw; /* Prevents the image from exceeding the viewport width */
-    max-height: 100vh; /* Prevents the image from exceeding the viewport height */
-    width: auto; /* Ensures the aspect ratio is maintained */
-    height: auto; /* Ensures the aspect ratio is maintained */
-    object-fit: contain; /* Ensures the image fits within the defined dimensions */
-    background-image: url('../../../public/images/hero_white.jpg'); /* Remove the quotes */
-    background-size: cover; /* Ensures the image covers the element */
-    background-position: center; /* Centers the image */
-    background-repeat: no-repeat; /* Prevents the image from repeating */
+    max-width: 100vw;
+    /* Prevents the image from exceeding the viewport width */
+    max-height: 100vh;
+    /* Prevents the image from exceeding the viewport height */
+    width: auto;
+    /* Ensures the aspect ratio is maintained */
+    height: auto;
+    /* Ensures the aspect ratio is maintained */
+    object-fit: contain;
+    /* Ensures the image fits within the defined dimensions */
+    background-image: url('../../../public/images/hero_white.jpg');
+    /* Remove the quotes */
+    background-size: cover;
+    /* Ensures the image covers the element */
+    background-position: center;
+    /* Centers the image */
+    background-repeat: no-repeat;
+    /* Prevents the image from repeating */
 }
+
 .adBoard {
-    font-family: "Didot", Georgia, serif; /* Fallback to Georgia if Didot isn't available */
-    color: #06402B; /* Dark green color */
+    font-family: "Didot", Georgia, serif;
+    /* Fallback to Georgia if Didot isn't available */
+    color: #06402B;
+    /* Dark green color */
 }
+
+.subtext {
+    font-family: "Didot", Georgia, serif;
+    color: #06402B;
+    /* Fallback to Georgia if Didot isn't available */
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.button-group a,
+.button-group button {
+    border: 2px solid;
+    color: #A44235;
+    /* Default color for normal screens */
+    padding: 0.75rem 1.5rem;
+    font-size: 1.125rem;
+    font-family: 'Optima', sans-serif;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: 0 4px 6px #A44235(0, 0, 0, 0.1);
+}
+
+/* Hover effects */
+.button-group a:hover,
+.button-group button:hover {
+    background-color: #A44235;
+    color: white;
+}
+
 @media (max-width: 768px) {
     .hero {
-        background-image: url('../../../public/images/hero_pink.jpg'); /* Image for smaller screens */
+        background-image: url('../../../public/images/hero_pink.jpg');
+        /* Image for smaller screens */
         color: black;
     }
+
     .adBoard {
-        color: #ffffff; /* Dark green color */
+        color: #ffffff;
+        /* Dark green color */
         text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.4);
     }
+
+    .button-group a,
+    .button-group button {
+        border: 2px solid white;
+        /* White border on small screens */
+        color: white;
+        /* White text on small screens */
+    }
+
+    /* Hover effects for small screens */
+    .button-group a:hover,
+    .button-group button:hover {
+        background-color: white;
+        color: black;
+    }
+
 }
