@@ -39,7 +39,7 @@ const Hero = () => {
 
   return (
     <section className="hero bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif">
-      <div className="p-8 rounded-lg max-w-3xl animate-fadeIn mx-auto md:mr-20 mt-10">
+      <div className="p-8 rounded-lg max-w-3xl animate-fadeIn mx-auto lg:mr-20">
         <h1 className="adBoard text-5xl font-extrabold mb-8 drop-shadow-lg animate-goldenFadeIn">
           {adBoard || "Loading..."} {/* Display adBoard data or a loading message */}
         </h1>
