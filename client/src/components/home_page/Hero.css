@@ -9,7 +9,7 @@
     /* Ensures the aspect ratio is maintained */
     object-fit: contain;
     /* Ensures the image fits within the defined dimensions */
-    background-image: url('../../../public/images/hero_white.jpg');
+    background-image: url('/images/hero_white.jpg');
     /* Remove the quotes */
     background-size: cover;
     /* Ensures the image covers the element */
@@ -62,7 +62,7 @@
 
 @media (max-width: 768px) {
     .hero {
-        background-image: url('../../../public/images/hero_pink.jpg');
+        background-image: url('/images/hero_pink.jpg');
         /* Image for smaller screens */
         color: black;
     }

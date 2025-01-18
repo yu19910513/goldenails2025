@@ -1,0 +1,101 @@
+/* Container for the entire layout */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 1200px;
+    gap: 20px;
+}
+
+/* Text section styles */
+.text-section {
+    flex: 1;
+    max-width: 600px;
+    padding: 20px;
+    color: #2c2c2c;
+}
+
+.title {
+    font-family: "Optima", Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #444;
+    
+}
+
+.heading {
+    font-family: "Didot", Georgia, serif;
+    font-size: 2.5rem;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #2c2c2c;
+}
+
+
+
+.description,
+.note,
+.gratuity {
+    margin-bottom: 15px;
+    line-height: 1.8;
+    font-size: 1rem;
+}
+
+.link {
+    color: #0056b3;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.link:hover {
+    color: #003580;
+}
+
+.gratuity {
+    font-style: italic;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* Image section styles */
+.image-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    /* Optional: adds a slight curve to the image corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Optional: adds a shadow */
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .text-section {
+        max-width: 100%;
+    }
+
+    .image-section {
+        max-width: 100%;
+    }
+
+    .image {
+        max-width: 100%;
+    }
+}

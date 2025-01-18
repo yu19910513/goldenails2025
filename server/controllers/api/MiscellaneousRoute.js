@@ -30,8 +30,6 @@ router.get(`/:title`, async (req, res) => {
       }
   
       const data = miscellaneous.get({ plain: true });
-      console.log(data);
-      
       res.json(miscellaneous);
     } catch (error) {
       console.error("Error searching miscellaneous data:", error);
