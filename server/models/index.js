@@ -3,6 +3,7 @@ const Service = require("./Service");
 const Appointment = require("./Appointment");
 const Customer = require("./Customer");
 const Category = require('./Category');
+const Miscellaneous = require('./Miscellaneous');
 
 // Technician - Category
 Technician.belongsToMany(Category, { through: "TechnicianCategory" });
@@ -29,5 +30,6 @@ module.exports = {
     Service,
     Technician,
     Appointment,
-    Customer
+    Customer,
+    Miscellaneous
   };

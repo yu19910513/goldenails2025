@@ -4,5 +4,22 @@
     width: auto; /* Ensures the aspect ratio is maintained */
     height: auto; /* Ensures the aspect ratio is maintained */
     object-fit: contain; /* Ensures the image fits within the defined dimensions */
-  }
-  
+    background-image: url('../../../public/images/hero_white.jpg'); /* Remove the quotes */
+    background-size: cover; /* Ensures the image covers the element */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+}
+.adBoard {
+    font-family: "Didot", Georgia, serif; /* Fallback to Georgia if Didot isn't available */
+    color: #06402B; /* Dark green color */
+}
+@media (max-width: 768px) {
+    .hero {
+        background-image: url('../../../public/images/hero_pink.jpg'); /* Image for smaller screens */
+        color: black;
+    }
+    .adBoard {
+        color: #ffffff; /* Dark green color */
+        text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.4);
+    }
+}
