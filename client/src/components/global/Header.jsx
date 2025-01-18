@@ -87,14 +87,14 @@ const Header = () => {
             style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
           >
             <a href="#services" className={`nav-link ${isActive("#services") ? "active-link" : ""}`}>
-              Services
+              Our Services
             </a>
           </li>
           <li
             style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
           >
             <a href="#team" className={`nav-link ${isActive("#team") ? "active-link" : ""}`}>
-              Our Team
+              Appt. History
             </a>
           </li>
           <li>

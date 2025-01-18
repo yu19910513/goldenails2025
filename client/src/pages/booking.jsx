@@ -4,6 +4,7 @@ import ServiceSelection from '../components/booking_page/ServiceSelection';
 import TechnicianSelection from '../components/booking_page/TechnicianSelection';
 import AvailabilitySelection from '../components/booking_page/AvailabilitySelection';
 
+
 const Booking = () => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedTechnicians, setSelectedTechnicians] = useState([]);
@@ -15,14 +16,21 @@ const Booking = () => {
   const handlePrevStep = () => setStep(step - 1);
 
   return (
-    <div>
+    <div
+      className="min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage: "url('images/hero_white.jpg')", // Replace with your image path
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+      }}
+    >
       {step === 1 && (
         <PhoneNumberVerification
           onVerify={(customer) => {
             setCustomerInfo(customer);
             handleNextStep();
           }}
-        />
+          className="transparent-bg"/>
       )}
 
       {step === 2 && (

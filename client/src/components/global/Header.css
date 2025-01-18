@@ -8,7 +8,7 @@
   padding: 10px;
   width: 100%;
   z-index: 1000; /* Ensure it stays on top of other content */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: Add shadow for visibility */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 nav {
@@ -36,7 +36,7 @@ nav {
 /* Custom style for the "Golden Nails" link */
 .nav-link.gold-nails {
   font-size: 1.6rem; /* Larger font size */
-  font-family: 'Pacifico', serif, 'Times New Roman', Times, serif; /* Use a different font (you can choose another one from Google Fonts) */
+  font-family: 'Didot', serif, 'Times New Roman', Times, serif; /* Use a different font (you can choose another one from Google Fonts) */
   font-weight: bold; /* Bold font */
   text-transform: uppercase; /* Optional: make the text uppercase */
   letter-spacing: 2px; /* Optional: add some spacing between letters */

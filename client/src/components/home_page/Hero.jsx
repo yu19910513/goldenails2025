@@ -12,21 +12,21 @@ const Hero = () => {
   return (
     <section
       className="bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif hero"
-      style={{ backgroundImage: "url('/images/spa-background.jpg')" }}
+      style={{ backgroundImage: "url('/images/hero_white.JPG')" }}
     >
       <div className="p-8 rounded-lg max-w-3xl animate-fadeIn mx-auto md:mr-20">
         <h1
           style={{ fontFamily: "Didot, Georgia", color: "#06402B" }}
           className="text-8xl font-extrabold mb-8 drop-shadow-lg animate-goldenFadeIn"
         >
-          Golden Nails
+          Now 10% off on all services
         </h1>
 
         <div className="mb-8" style={{ fontFamily: "Optima, arial", color: "#06402B" }}>
-          <p className="text-lg font-medium text-gray-700 mb-2">
+          <p className="text-lg font-medium mb-2">
             📍 3610 Grandview St, Ste A, Gig Harbor, WA 98335
           </p>
-          <p className="text-lg font-medium text-gray-700">
+          <p className="text-lg font-medium">
             🕒 Mon - Sat: 9 AM - 6:30 PM | Sun: Appointment Only
           </p>
         </div>
