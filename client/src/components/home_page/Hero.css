@@ -5,7 +5,7 @@
     /* Prevents the image from exceeding the viewport height */
     width: auto;
     /* Ensures the aspect ratio is maintained */
-    height:900px;
+    height:750px;
     /* Ensures the aspect ratio is maintained */
     object-fit: contain;
     /* Ensures the image fits within the defined dimensions */
