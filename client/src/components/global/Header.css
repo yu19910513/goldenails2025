@@ -8,7 +8,7 @@
   padding: 10px;
   width: 100%;
   z-index: 1000; /* Ensure it stays on top of other content */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 nav {
@@ -56,6 +56,24 @@ nav {
   height: 3px;
   background-color: rgb(77, 75, 75);
   margin: 5px 0;
+  transition: all 0.3s ease; /* Add transition for smooth animation */
+}
+
+/* When the hamburger is clicked and the menu is open */
+.hamburger.open .bar:nth-child(1) {
+  transform: rotate(45deg);
+  position: absolute;
+  top: 0;
+}
+
+.hamburger.open .bar:nth-child(2) {
+  opacity: 0; /* Hide the middle bar */
+}
+
+.hamburger.open .bar:nth-child(3) {
+  transform: rotate(-45deg);
+  position: absolute;
+  bottom: 0;
 }
 
 /* Navbar Links Styling */

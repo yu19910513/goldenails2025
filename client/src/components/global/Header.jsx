@@ -40,10 +40,10 @@ const Header = () => {
         setIsMenuOpen(false); // Close the menu when resizing to a larger screen
       }
     };
-    
+
     window.addEventListener("resize", handleResize);
     handleResize(); // Initial check on load
-    
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -68,31 +68,24 @@ const Header = () => {
     <header className="header">
       <nav>
         {/* Hamburger button for small screens */}
-        <div className="hamburger" onClick={toggleMenu}>
+        <div className={`hamburger ${isMenuOpen ? "open" : ""}`} onClick={toggleMenu}>
           <div className="bar"></div>
           <div className="bar"></div>
           <div className="bar"></div>
         </div>
 
         {/* Navigation links */}
-        <a
-  href="/"
-  className={`nav-link gold-nails ${isActive("/") ? "active-link" : ""}`}
->
-  Golden Nails
-</a>
+        <a href="/" className={`nav-link gold-nails ${isActive("/") ? "active-link" : ""}`}>
+          Golden Nails
+        </a>
 
         <ul className={`nav-list ${isMenuOpen && isMobile ? "open" : ""}`}>
-          <li
-            style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
-          >
+          <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="/ourservices" className={`nav-link ${isActive("/ourservices") ? "active-link" : ""}`}>
               Our Services
             </a>
           </li>
-          <li
-            style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
-          >
+          <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="#team" className={`nav-link ${isActive("#team") ? "active-link" : ""}`}>
               Appt. History
             </a>
