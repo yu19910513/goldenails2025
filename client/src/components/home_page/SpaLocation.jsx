@@ -5,14 +5,14 @@ const SpaLocation = () => {
   return (
     <div className="spa-container">
       <div className="social-section">
-      
-          <img src="images/gigharbor.png" alt="Rooms Open" className="social-image" />
-          <div className="textsection">
-            <h1 className="locationheading">Charming, Coastal, Peaceful</h1>
-            <p className="locationdescription">
-              Golden Nails & Spa, located in the heart of Gig Harbor, WA, offers a serene escape with premium nail and spa services. Whether you're looking for a relaxing manicure, pedicure, or spa treatment, our cozy atmosphere guarantees an exceptional experience, just a short distance from downtown.          </p>
-          </div>
- 
+
+        <img src="images/gigharbor.png" alt="Rooms Open" className="social-image" />
+        <div className="textsection">
+          <h1 className="locationheading">Charming, Coastal, Peaceful</h1>
+          <p className="locationdescription">
+            Golden Nails & Spa is nestled in the heart of picturesque Gig Harbor, WA, surrounded by charming waterfront views and a welcoming community. Conveniently located just minutes from downtown, our spa is the perfect destination to relax and enjoy the vibrant yet tranquil atmosphere of this coastal town.
+          </p>
+        </div>
       </div>
 
       <div className="map-section">
