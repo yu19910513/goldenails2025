@@ -1,31 +1,51 @@
-/* General Container */
-.spa-container {
-  padding: 20px;
-  font-family: 'Optima', Arial, sans-serif;
-  text-align: center;
-}
-
 /* Social Section */
 .social-section {
   margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 20px;
+  max-width: 1200px;
+  gap: 20px;
 }
 
 .social-heading {
+  font-family: "Didot", Georgia, serif;
   font-size: 24px;
   color: #333;
 }
 
-.social-images {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+
 
 .social-image {
   width: 30%;
+  /* Image occupies 1/3 of the container */
   border-radius: 8px;
   object-fit: cover;
+}
+
+.textsection {
+  /* flex: 1; */
+  max-width: 600px;
+  padding: 20px;
+  color: #2c2c2c;
+}
+
+.locationheading {
+  font-family: "Didot", Georgia, serif;
+  font-size: 2rem;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  color: #2c2c2c;
+}
+
+.locationdescription {
+  width: auto;
+  /* Text occupies 2/3 of the container */
+  text-align: left;
+  /* margin-left: 10px; */
 }
 
 /* Map Section */
@@ -89,5 +109,28 @@ p {
   width: 1px;
   height: 100%;
   background-color: #ddd;
-  margin: 0 10px; /* Adds space between sections and the divider */
+  margin: 0 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .social-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 0px;
+  }
+
+  .textsection {
+    max-width: 100%;
+  }
+
+  .social-image{
+ 
+    display: none;
+  }
+ 
+  .locationdescription {
+    width: auto;
+    text-align: center;
+
+  }
 }
