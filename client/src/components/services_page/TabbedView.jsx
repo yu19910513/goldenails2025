@@ -13,13 +13,13 @@ const TabbedView = () => {
           className={`tab ${activeTab === 'menu' ? 'active' : ''}`}
           onClick={() => setActiveTab('menu')}
         >
-          Our Services
+          OUR SERVICES
         </div>
         <div
           className={`tab ${activeTab === 'technicians' ? 'active' : ''}`}
           onClick={() => setActiveTab('technicians')}
         >
-          Meet Our Technicians
+          MEET OUR TECHNICIAN
         </div>
       </div>
       <div className="tab-content" id='tabs'>

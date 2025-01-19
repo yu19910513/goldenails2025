@@ -1,6 +1,6 @@
 const formatPrice = (price) => {
     // Check for prices ending with 1 or 6
-    if (price % 10 === 1 || price % 10 === 6) {
+    if (price % 10 === 1 || price % 10 === 6 || price % 10 === 9) {
       return `$${price - 1}+`;
     }
   

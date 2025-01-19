@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './NailSalonMenu.css'; // Add this stylesheet
+import './NailSalonMenu.css';
 import ItemService from '../../services/itemService';
 import formatPrice from '../../common/utils';
 
@@ -11,11 +11,11 @@ const NailSalonMenu = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await ItemService.getAll(); // Fetch services from the API
-        setServices(response.data); // Set the services data
+        const response = await ItemService.getAll();
+        setServices(response.data);
       } catch (err) {
-        console.error("Error:", err);
-        setError("Failed to fetch services.");
+        console.error('Error:', err);
+        setError('Failed to fetch services.');
       } finally {
         setLoading(false);
       }
@@ -24,26 +24,26 @@ const NailSalonMenu = () => {
     fetchServices();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="menu-container">
-      <div className="menu-grid">
-        {services.map((category) => (
-          <div className="menu-card" key={category.id}>
-            <h2 className="menu-category">{category.name}</h2>
-            <ul className="menu-items">
+      {services.map((category) => (
+        <div className="menu-section" key={category.id}>
+          <h2 className="menu-category">{category.name}</h2>
+          <table className="menu-table">
+            <tbody>
               {category.services.map((service) => (
-                <li className="menu-item" key={service.id}>
-                  <span className="item-name">{service.name}</span>
-                  <span className="item-price">{formatPrice(service.price)}</span>
-                </li>
+                <tr key={service.id}>
+                  <td className="item-name">{service.name}</td>
+                  <td className="item-price">{formatPrice(service.price)}</td>
+                </tr>
               ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 };
