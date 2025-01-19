@@ -1,0 +1,72 @@
+.hero-container {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: auto;
+    height: 500px;
+    object-fit: contain;
+    background-image: url('/images/hero_service.JPG'); /* Original image */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-repeat: no-repeat;
+    color: white;
+    text-align: center;
+    position: relative; /* Required for ::before */
+    overflow: hidden; /* Prevent pseudo-element overflow */
+}
+
+.hero-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+    opacity: 0; /* Start fully transparent */
+    animation: fadeInGradient 1.5s ease-in-out forwards;
+    z-index: 1; /* Ensure it sits above the background */
+}
+
+.hero-title, .hero-subtitle {
+    opacity: 0; /* Initially hidden */
+    animation: fadeInText 1.5s ease-in-out forwards;
+    z-index: 2; /* Ensure text is above the gradient */
+    position: relative; /* Ensure stacking works */
+}
+
+.hero-title {
+    font-family: "Didot", Georgia, serif;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); /* Subtle text shadow */
+}
+
+.hero-subtitle {
+    font-family: 'Optima', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+}
+
+/* Keyframes for text fade-in */
+@keyframes fadeInText {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Keyframes for gradient fade-in */
+@keyframes fadeInGradient {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

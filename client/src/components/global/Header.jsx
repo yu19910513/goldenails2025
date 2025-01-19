@@ -86,7 +86,7 @@ const Header = () => {
           <li
             style={{ display: isBookingActive ? "none" : "block" }} // Hide links when booking is active
           >
-            <a href="#services" className={`nav-link ${isActive("#services") ? "active-link" : ""}`}>
+            <a href="/ourservices" className={`nav-link ${isActive("/ourservices") ? "active-link" : ""}`}>
               Our Services
             </a>
           </li>

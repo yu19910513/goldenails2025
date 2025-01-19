@@ -1,6 +1,6 @@
 import { React } from 'react'
 import Hero from '../components/home_page/Hero';
-import TabbedView from '../components/home_page/TabbedView';
+import TabbedView from '../components/services_page/TabbedView';
 import Contact from '../components/home_page/Contact';
 import NailServiceIntro from '../components/home_page/NailServiceIntro';
 
@@ -9,7 +9,6 @@ const Home = () => (
   <div>
     <Hero />
     <NailServiceIntro />
-    <TabbedView />
     <Contact />
   </div>
 );
