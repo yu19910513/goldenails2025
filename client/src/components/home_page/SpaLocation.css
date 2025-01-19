@@ -1,0 +1,93 @@
+/* General Container */
+.spa-container {
+  padding: 20px;
+  font-family: 'Optima', Arial, sans-serif;
+  text-align: center;
+}
+
+/* Social Section */
+.social-section {
+  margin-bottom: 20px;
+}
+
+.social-heading {
+  font-size: 24px;
+  color: #333;
+}
+
+.social-images {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.social-image {
+  width: 30%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Map Section */
+.map-section {
+  margin: 20px 0;
+}
+
+.map-iframe {
+  width: 100%;
+  height: 350px;
+  border: 0;
+  border-radius: 8px;
+}
+
+/* Info Section */
+.info-section {
+  margin-top: 20px;
+}
+
+.info-columns {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.quick-links ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.quick-links li {
+  margin: 5px 0;
+}
+
+.quick-links a {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.quick-links a:hover {
+  text-decoration: underline;
+}
+
+.getting-here,
+.hours {
+  text-align: left;
+}
+
+h3 {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+p {
+  margin: 5px 0;
+}
+
+/* Vertical Divider */
+.divider {
+  width: 1px;
+  height: 100%;
+  background-color: #ddd;
+  margin: 0 10px; /* Adds space between sections and the divider */
+}
