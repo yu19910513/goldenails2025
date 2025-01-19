@@ -32,8 +32,7 @@ const NailServiceIntro = () => {
         </p>
         <p className="gratuity">
           <em>
-            We have added a 3.5% automatic gratuity to all of our nail services, allowing you to easily show appreciation for our talented technicians. This gratuity is in addition to the price of the service, so you can relax without worrying about tipping. If you'd like to adjust the gratuity, please feel free to do so at the front desk.
-          </em>
+          We gladly accept cash, checks, and credit cards for payment. However, due to the fees associated with credit card transactions, we apply a 3.5% additional charge on all credit card payments.          </em>
         </p>
       </div>
       <div className="image-section" onClick={handleImageClick}>

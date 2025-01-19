@@ -67,6 +67,7 @@ router.get("/", async (req, res) => {
           attributes: ["id", "name"], // Category attributes
         },
       ],
+      order: [["category_id", "ASC"], ["id", "ASC"]],
     });
 
     // Serialize the data
