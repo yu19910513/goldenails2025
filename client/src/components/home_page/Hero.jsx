@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import miscellaneousService from "../../services/miscellaneousService";
 import "./Hero.css";
@@ -6,11 +5,6 @@ import "./Hero.css";
 const Hero = () => {
   const [adBoard, setAdBoard] = useState("Loading ad content..."); // Default loading state for adBoard
   const [subtext, setSubtext] = useState(""); // Default loading state for subtext
-  const navigate = useNavigate(); // Initialize the navigate function
-
-  const handleBookNow = () => {
-    navigate("/booking", { state: { isBookingActive: true } });
-  };
 
   useEffect(() => {
     const fetchAdBoardData = async () => {
@@ -59,7 +53,7 @@ const Hero = () => {
 
         <div className="button-group">
           <a href="tel:+12538517563">Call Us Now</a>
-          <button onClick={handleBookNow}>Book Now</button>
+          <a href="/booking">Book Now</a>
         </div>
       </div>
     </section>

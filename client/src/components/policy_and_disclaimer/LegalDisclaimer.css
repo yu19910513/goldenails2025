@@ -1,0 +1,42 @@
+/* LegalDisclaimer.css */
+.legal-disclaimer-page {
+    background-color: #e5e7eb
+}
+
+.legal-disclaimer-container {
+    padding: 20px;
+    background-color: #fafafa;
+    color: #333;
+    max-width: 900px;
+    margin: 10px auto;
+}
+
+h1,
+h2 {
+    font-family: 'Didot', serif, 'Times New Roman', Times, serif;
+    color: #1a202c;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-2xl {
+    font-size: 1.5rem;
+}
+
+.font-bold {
+    font-weight: bold;
+}
