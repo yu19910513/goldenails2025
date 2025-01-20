@@ -21,15 +21,13 @@
 
 .adBoard {
     font-family: "Didot", Georgia, serif;
-    /* Fallback to Georgia if Didot isn't available */
+    line-height: 1.5;
     color: #06402B;
-    /* Dark green color */
 }
 
 .subtext {
     font-family: "Didot", Georgia, serif;
     color: #06402B;
-    /* Fallback to Georgia if Didot isn't available */
 }
 
 .button-group {
