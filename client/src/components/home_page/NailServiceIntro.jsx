@@ -1,23 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./NailServiceIntro.css";
 
 const NailServiceIntro = () => {
   const images = [
     "images/nail_3.PNG", // First image
     "images/nail_2.PNG", // Second image
-    "images/nail_1.PNG", // Third image (add as many as you need)
+    "images/nail_1.PNG", // Third image
   ];
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Initialize with the first image
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageRef = useRef(null); // Reference for the image
+  const textRef = useRef(null); // Reference for the text section
+  const [isImageVisible, setIsImageVisible] = useState(false); // Track image visibility
+  const [isTextVisible, setIsTextVisible] = useState(false); // Track text visibility
 
   const handleImageClick = () => {
-    // Increment the index to show the next image
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
 
+  // Set up the IntersectionObserver to detect when the image and text enter the viewport
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === imageRef.current && entry.isIntersecting) {
+            setIsImageVisible(true);
+          }
+          if (entry.target === textRef.current && entry.isIntersecting) {
+            setIsTextVisible(true);
+          }
+        });
+      },
+      { threshold: 0.4 } // Trigger when 50% of the element is visible
+    );
+
+    if (imageRef.current) observer.observe(imageRef.current);
+    if (textRef.current) observer.observe(textRef.current);
+
+    return () => {
+      if (imageRef.current) observer.unobserve(imageRef.current);
+      if (textRef.current) observer.unobserve(textRef.current);
+    };
+  }, []);
+
   return (
     <div className="container">
-      <div className="text-section">
+      <div ref={textRef} className={`text-section ${isTextVisible ? "fade-in-left" : ""}`}>
         <h2 className="title">Elegant Beauty</h2>
         <h1 className="heading">Nail Services</h1>
         <p className="description">
@@ -32,14 +60,16 @@ const NailServiceIntro = () => {
         </p>
         <p className="gratuity">
           <em>
-          We gladly accept cash, checks, and credit cards for payment. However, due to the fees associated with credit card transactions, we apply a 3.5% additional charge on all credit card payments.          </em>
+            We gladly accept cash, checks, and credit cards for payment. However, due to the fees associated with credit card transactions, we apply a 3.5% additional charge on all credit card payments.
+          </em>
         </p>
       </div>
       <div className="image-section" onClick={handleImageClick}>
         <img
-          src={images[currentImageIndex]} // Dynamically load the current image based on the index
+          ref={imageRef}
+          src={images[currentImageIndex]}
           alt="Nail Services"
-          className="image"
+          className={`image ${isImageVisible ? "fade-in-right" : ""}`}
         />
       </div>
     </div>

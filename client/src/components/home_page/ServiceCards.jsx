@@ -23,7 +23,6 @@ const ServiceCards = () => {
       pricing: { Eyebrows: 15, Bikini: 40, Back: 60 },
       image: "https://www.lashandcompany.com/mi-dearborn/wp-content/uploads/sites/6/2021/05/wax-2.png",
     },
-    // Add more services here...
   ];
 
   return (
@@ -41,7 +40,7 @@ const ServiceCards = () => {
               <ul>
                 {Object.entries(service.pricing).map(([key, price]) => (
                   <li key={key}>
-                    {key === "Basic" || key === "Deluxe" || key === "Signature"
+                    {isNaN(key)
                       ? `${key.charAt(0).toUpperCase() + key.slice(1)}: $${price}`
                       : `${key} min: $${price}`}
                   </li>
