@@ -77,9 +77,7 @@
     height: auto;
     object-fit: cover;
     border-radius: 10px;
-    /* Optional: adds a slight curve to the image corners */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    /* Optional: adds a shadow */
 }
 
 /* Responsive adjustments */
