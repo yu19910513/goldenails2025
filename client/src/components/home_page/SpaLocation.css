@@ -1,5 +1,10 @@
 /* Social Section */
 .spa-container {
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 1200px;
+  gap: 20px;
   padding: 20px;
   font-family: 'Optima', Arial, sans-serif;
   /* text-align: center; */
@@ -8,6 +13,7 @@
   color: #333333;
   /* White text for readability */
 }
+
 .social-section {
   margin: 0 auto 20px;
   display: flex;
@@ -124,7 +130,7 @@ p {
   .divider {
     width: 100%;
     height: 2px;
-    background: linear-gradient(to right,#b0b0b0, #bbb, #b0b0b0);
+    background: linear-gradient(to right, #b0b0b0, #bbb, #b0b0b0);
     margin: 15px 0;
     border-radius: 5px;
   }

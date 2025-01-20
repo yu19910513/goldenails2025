@@ -1,17 +1,33 @@
 /* General container styling */
+.page-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  
+}
+
 .menu-container {
-  padding: 2rem;
+  max-width: 1200px;
   font-family: 'Arial', sans-serif;
   color: #333;
   background-color: #f9f9f9;
+  width: 100%;  /* Make sure the container takes the full width of the screen */
+  display: flex;
+  flex-direction: row;
+  padding: 2rem; /* Adds spacing inside the container */
+  box-sizing: border-box; /* Ensures padding is included in the width calculation */
+  margin: 0; /* Remove any margin */
 }
 
 /* Each category section */
 .menu-section {
   margin-bottom: 2rem;
   text-align: left;
+  width: 100%; /* Ensure sections take the full width of their parent */
 }
 
+/* Menu category style */
 .menu-category {
   font-family: "Didot", Georgia, serif;
   font-weight: bold;
@@ -25,7 +41,7 @@
 /* Table layout */
 .menu-table {
   font-family: "Optima", arial;
-  width: 100%;
+  width: 100%; /* Ensure table takes the full width of the container */
   border-collapse: collapse;
   margin-top: 0.5rem;
 }
@@ -61,13 +77,26 @@
 
 /* Highlight row on hover */
 .menu-table tbody tr:hover {
-  background-color: #f5f5f5; /* Light gray background */
-  transition: background-color 0.3s ease; /* Smooth transition */
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
 }
 
 /* Optional: Change text color on hover */
 .menu-table tbody tr:hover .item-name,
 .menu-table tbody tr:hover .item-price {
-  color: #d6336c; /* Highlight text with a matching accent color */
-  font-weight: 600; /* Make text bold */
+  color: #d6336c;
+  font-weight: 600;
+}
+
+/* Mobile responsiveness (smaller screens) */
+@media screen and (max-width: 768px) {
+  .menu-container {
+    padding: 1rem; /* Reduce padding on smaller screens */
+    display: block;
+  }
+
+  .menu-table {
+    width: 100%; /* Ensure the table takes up the full width on mobile */
+    padding-left: 0; /* Remove any left padding */
+  }
 }

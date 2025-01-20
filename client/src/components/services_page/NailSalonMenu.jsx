@@ -28,6 +28,7 @@ const NailSalonMenu = () => {
   if (error) return <div className="error">{error}</div>;
 
   return (
+    <div className='page-container'>
     <div className="menu-container">
       {services.map((category) => (
         <div className="menu-section" key={category.id}>
@@ -44,6 +45,7 @@ const NailSalonMenu = () => {
           </table>
         </div>
       ))}
+    </div>
     </div>
   );
 };
