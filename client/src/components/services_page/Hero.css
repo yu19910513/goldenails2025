@@ -31,6 +31,7 @@
 }
 
 .hero-title, .hero-subtitle {
+    color: #FFF;
     opacity: 0; /* Initially hidden */
     animation: fadeInText 1.5s ease-in-out forwards;
     z-index: 2; /* Ensure text is above the gradient */
