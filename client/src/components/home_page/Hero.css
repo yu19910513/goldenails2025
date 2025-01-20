@@ -39,22 +39,41 @@
     margin-top: 1rem;
 }
 
-.button-group button
-{
-border: 2px solid;
-color: #A44235;
-/* Default color for normal screens */
-padding: 0.75rem 1.5rem;
-font-size: 1.125rem;
-font-family: 'Optima', sans-serif;
-text-align: center;
-cursor: pointer;
-transition: background-color 0.3s, color 0.3s;
-box-shadow: 0 4px 6px #A44235(0, 0, 0, 0.1);
+.button-group a {
+    border: 2px solid;
+    color: #A44235;
+    /* Default color for normal screens */
+    padding: 0.75rem 1rem;
+    font-size: 1.125rem;
+    font-family: 'Optima', sans-serif;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: 0 4px 6px #A44235(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    /* Ensures padding and borders are included in size */
+    width: 150px;
+    /* Fixed width for buttons */
+    height: auto;
+    /* Allow height to adjust based on content */
+    min-height: 50px;
+    /* Ensure a consistent minimum height */
+    word-wrap: break-word;
+    /* Wrap long words to fit within the button */
+    overflow: hidden;
+    /* Prevent content from overflowing */
+    display: flex;
+    /* Flex container for better alignment */
+    align-items: center;
+    /* Center text vertically */
+    justify-content: center;
+    /* Center text horizontally */
+    text-decoration: none;
+    /* Remove underline */
 }
 
 /* Hover effects */
-.button-group button:hover {
+.button-group a:hover {
     background-color: #A44235;
     color: white;
 }
@@ -72,15 +91,21 @@ box-shadow: 0 4px 6px #A44235(0, 0, 0, 0.1);
         text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.4);
     }
 
-    .button-group button {
+    .button-group a {
         border: 2px solid white;
         /* White border on small screens */
         color: white;
         /* White text on small screens */
+        width: 150px;
+        /* Keep the same width */
+        height: 50px;
+        /* Keep the same height */
+        line-height: 50px;
+        /* Maintain vertical alignment */
     }
 
     /* Hover effects for small screens */
-    .button-group button:hover {
+    .button-group a:hover {
         background-color: white;
         color: black;
     }
