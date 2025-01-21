@@ -82,12 +82,12 @@ const PhoneNumberVerification = ({ onVerify }) => {
         <div className="mb-4">
           <input
             type="text"
-            // placeholder="Enter Phone Number"
+            placeholder="Enter Phone Number"
             value={phone}
             onChange={handlePhoneChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            placeholder="🚫 Temporarily Unavailable"
-            disabled
+            // placeholder="🚫 Temporarily Unavailable"
+            // disabled
           />
         </div>
 

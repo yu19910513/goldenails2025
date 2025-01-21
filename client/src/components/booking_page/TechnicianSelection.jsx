@@ -9,7 +9,7 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
   useEffect(() => {
     const fetchTechnicians = async () => {
       setLoading(true);
-      try {
+      try { 
         const selectedServiceIds = Object.values(selectedServices).filter(Boolean);
         if (selectedServiceIds.length > 0) {
           const response = await TechnicianService.getAvailableTechnicians(selectedServiceIds);

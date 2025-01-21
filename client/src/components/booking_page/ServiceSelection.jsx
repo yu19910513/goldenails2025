@@ -23,17 +23,22 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   // Toggle service selection
   const toggleService = (categoryId, serviceId) => {
     setSelectedServices((prev) => {
-      const updatedServices = {
-        ...prev,
-        [categoryId]: prev[categoryId] === serviceId ? null : serviceId,
-      };
-      
-      // Save updated services to localStorage
-      localStorage.setItem('selectedServices', JSON.stringify(updatedServices));
-      
-      return updatedServices;
+      const categoryServices = prev[categoryId] || [];
+      const updatedServices = categoryServices.includes(serviceId)
+        ? categoryServices.filter((id) => id !== serviceId) // Deselect service
+        : [...categoryServices, serviceId]; // Select service
+  
+      const newState = { ...prev };
+      if (updatedServices.length > 0) {
+        newState[categoryId] = updatedServices;
+      } else {
+        delete newState[categoryId];
+      }
+      localStorage.setItem("selectedServices", JSON.stringify(newState));
+      return newState;
     });
   };
+  
 
   return (
     <div className="relative">
@@ -51,16 +56,10 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
               {category.services.map((service) => (
                 <div
                   key={service.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
-                    selectedServices[category.id] === service.id
+                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedServices[category.id]?.includes(service.id)
                       ? "bg-yellow-200"
                       : "bg-white"
-                  } ${
-                    selectedServices[category.id] &&
-                    selectedServices[category.id] !== service.id
-                      ? "opacity-50 pointer-events-none"
-                      : ""
-                  }`}
+                    }`}
                   onClick={() => toggleService(category.id, service.id)}
                 >
                   <h4 className="text-lg font-bold">{service.name}</h4>
@@ -80,12 +79,13 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
             onSelectServices(selectedServices);
             onNext();
           }}
-          disabled={!Object.values(selectedServices).some((id) => id)}
+          disabled={!Object.values(selectedServices).some((services) => services && Array.isArray(services) && services.length > 0)}
           className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
-            Object.values(selectedServices).some((id) => id)
+            Object.values(selectedServices).some((services) => services && Array.isArray(services) && services.length > 0)
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
+          
         >
           Next
         </button>

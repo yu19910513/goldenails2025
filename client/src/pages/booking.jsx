@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PhoneNumberVerification from '../components/booking_page/PhoneNumberVerification';
 import ServiceSelection from '../components/booking_page/ServiceSelection';
 import TechnicianSelection from '../components/booking_page/TechnicianSelection';
 import AvailabilitySelection from '../components/booking_page/AvailabilitySelection';
-
 
 const Booking = () => {
   const [selectedServices, setSelectedServices] = useState([]);
@@ -12,14 +11,30 @@ const Booking = () => {
   const [step, setStep] = useState(1);
   const [customerInfo, setCustomerInfo] = useState(null);
 
-  const handleNextStep = () => setStep(step + 1);
-  const handlePrevStep = () => setStep(step - 1);
+  // Restore state from localStorage on mount
+  useEffect(() => {
+    const storedCustomerInfo = JSON.parse(localStorage.getItem('customerInfo'));
+
+    if (storedCustomerInfo) {
+      setCustomerInfo(storedCustomerInfo);
+      setStep(2); // Jump to Step 2 if customerInfo exists
+    }
+  }, []);
+
+  // Save state to localStorage whenever it updates
+  useEffect(() => {
+    localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+  }, [customerInfo]);
+
+
+  const handleNextStep = () => setStep((prevStep) => prevStep + 1);
+  const handlePrevStep = () => setStep((prevStep) => prevStep - 1);
 
   return (
     <div
       className="min-h-screen bg-cover bg-center"
       style={{
-        backgroundImage: "url('images/hero_white.jpg')", // Replace with your image path
+        backgroundImage: "url('images/hero_white.jpg')",
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
       }}
@@ -30,12 +45,13 @@ const Booking = () => {
             setCustomerInfo(customer);
             handleNextStep();
           }}
-          className="transparent-bg"/>
+          className="transparent-bg"
+        />
       )}
 
       {step === 2 && (
         <ServiceSelection
-          customerInfo={customerInfo} // Pass customer info to service selection
+          customerInfo={customerInfo}
           onSelectServices={setSelectedServices}
           onNext={handleNextStep}
           onBack={handlePrevStep}
@@ -61,7 +77,6 @@ const Booking = () => {
             console.log('Appointment confirmed:', {
               customerInfo,
               services: selectedServices,
-              // addOns,
               technicians: selectedTechnicians,
               availability,
             });
