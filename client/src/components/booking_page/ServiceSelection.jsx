@@ -8,7 +8,7 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
 
   // Load selected services from localStorage if available
   useEffect(() => {
-    const storedServices = JSON.parse(localStorage.getItem('selectedServices'));
+    const storedServices = JSON.parse(localStorage.getItem("selectedServices"));
     if (storedServices) {
       setSelectedServices(storedServices);
     }
@@ -21,13 +21,15 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   }, []);
 
   // Toggle service selection
-  const toggleService = (categoryId, serviceId) => {
+  const toggleService = (categoryId, service) => {
     setSelectedServices((prev) => {
       const categoryServices = prev[categoryId] || [];
-      const updatedServices = categoryServices.includes(serviceId)
-        ? categoryServices.filter((id) => id !== serviceId) // Deselect service
-        : [...categoryServices, serviceId]; // Select service
-  
+      const isServiceSelected = categoryServices.some((s) => s.id === service.id);
+
+      const updatedServices = isServiceSelected
+        ? categoryServices.filter((s) => s.id !== service.id) // Deselect service
+        : [...categoryServices, { id: service.id, name: service.name, time: service.time }]; // Select service
+            
       const newState = { ...prev };
       if (updatedServices.length > 0) {
         newState[categoryId] = updatedServices;
@@ -38,7 +40,6 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
       return newState;
     });
   };
-  
 
   return (
     <div className="relative">
@@ -56,11 +57,12 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
               {category.services.map((service) => (
                 <div
                   key={service.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedServices[category.id]?.includes(service.id)
+                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
+                    selectedServices[category.id]?.some((s) => s.id === service.id)
                       ? "bg-yellow-200"
                       : "bg-white"
-                    }`}
-                  onClick={() => toggleService(category.id, service.id)}
+                  }`}
+                  onClick={() => toggleService(category.id, service)}
                 >
                   <h4 className="text-lg font-bold">{service.name}</h4>
                   <p className="text-sm text-gray-600">{formatPrice(service.price)}</p>
@@ -76,16 +78,19 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
       <div className="fixed bottom-4 right-4">
         <button
           onClick={() => {
-            onSelectServices(selectedServices);
+            onSelectServices(selectedServices);            
             onNext();
           }}
-          disabled={!Object.values(selectedServices).some((services) => services && Array.isArray(services) && services.length > 0)}
+          disabled={!Object.values(selectedServices).some(
+            (services) => services && Array.isArray(services) && services.length > 0
+          )}
           className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
-            Object.values(selectedServices).some((services) => services && Array.isArray(services) && services.length > 0)
+            Object.values(selectedServices).some(
+              (services) => services && Array.isArray(services) && services.length > 0
+            )
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
-          
         >
           Next
         </button>

@@ -6,7 +6,7 @@ import AvailabilitySelection from '../components/booking_page/AvailabilitySelect
 
 const Booking = () => {
   const [selectedServices, setSelectedServices] = useState([]);
-  const [selectedTechnicians, setSelectedTechnicians] = useState([]);
+  const [selectedTechnician, setSelectedTechnician] = useState([]);
   const [availability, setAvailability] = useState(null);
   const [step, setStep] = useState(1);
   const [customerInfo, setCustomerInfo] = useState(null);
@@ -62,7 +62,7 @@ const Booking = () => {
         <TechnicianSelection
           customerInfo={customerInfo}
           selectedServices={selectedServices}
-          onSelectTechnicians={setSelectedTechnicians}
+          onSelectTechnician={setSelectedTechnician}
           onNext={handleNextStep}
           onBack={handlePrevStep}
         />
@@ -71,7 +71,8 @@ const Booking = () => {
       {step === 4 && (
         <AvailabilitySelection
           customerInfo={customerInfo}
-          selectedTechnicians={selectedTechnicians}
+          selectedServices={selectedServices}
+          selectedTechnician={selectedTechnician}
           onSelectAvailability={setAvailability}
           onBack={handlePrevStep}
           onConfirm={() => {

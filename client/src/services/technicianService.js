@@ -4,8 +4,8 @@ class TechnicianService {
     getAll() {
         return http.get("/technicians/");
     }
-    getAvailableTechnicians(serviceIds) {
-        return http.post("/technicians/available", { serviceIds });
+    getAvailableTechnicians(categoryIds) {
+        return http.post("/technicians/available", { categoryIds });
     }
 
 }

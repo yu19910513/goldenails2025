@@ -5,132 +5,85 @@ const { Sequelize, Op } = require("sequelize");
 
 
 /**
- * @route GET /
- * @description Retrieves a list of all technicians with basic details (id, name, description).
- * @access Public
- * 
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @returns {Object} - A JSON response containing an array of technician data.
- * 
- * @throws {500} - If there is an internal server error (e.g., database failure). Example: { error: "Failed to retrieve technicians" }
- * 
- * @example
- * // Request:
- * GET /
- * 
- * // Success Response:
- * [
- *   {
- *     "id": 1,
- *     "name": "John Doe",
- *     "description": "Plumbing Technician"
- *   },
- *   {
- *     "id": 2,
- *     "name": "Jane Smith",
- *     "description": "Electrical Technician"
- *   }
- * ]
- * 
- * // Error Response (500):
- * {
- *   "error": "Failed to retrieve technicians"
- * }
- */
-router.get("/", async (req, res) => {
-  try {
-    const technicianRawData = await Technician.findAll({
-      attributes: ["id", "name", "description"], // Service attributes
-    });
-    // Serialize the data
-    const technicianData = technicianRawData.map((technician) =>
-      technician.get({ plain: true })
-    );
-    res.status(200).json(technicianData);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to retrieve technicians" });
-  }
-});
-
-
-/**
- * @route POST /available
- * @description Fetches technicians capable of performing all the services specified by the provided service IDs.
- * @access Public
- * 
- * @param {Object} req - The request object.
- * @param {Object} req.body - The body of the request, which should contain the service IDs.
- * @param {Array} req.body.serviceIds - An array of service IDs that the technicians must be capable of performing.
- * 
- * @param {Object} res - The response object.
- * @returns {Object} - A JSON response containing either a list of technicians or an error message.
- * 
- * @throws {400} - If `serviceIds` is missing, not an array, or empty. Example: { message: "Service IDs are required." }
- * @throws {500} - If there is an internal server error (e.g., database failure). Example: { message: "Internal server error." }
- * 
- * @example
- * // Request:
  * POST /available
+ * 
+ * Endpoint to fetch technicians who can perform services across all the specified categories.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {Array<number>} req.body.categoryIds - An array of category IDs to filter technicians by.
+ * @param {Object} res - The response object.
+ * 
+ * @returns {Object} JSON response with either:
+ *  - A 200 status code and a list of technicians matching the criteria, or
+ *  - A 400 status code if the request body is invalid, or
+ *  - A 500 status code if an internal server error occurs.
+ * 
+ * @throws {Error} - Logs any unexpected errors during execution.
+ * 
+ * Example Request:
  * {
- *   "serviceIds": [1, 2, 3]
+ *   "categoryIds": [1, 2, 3]
  * }
  * 
- * // Success Response:
+ * Example Successful Response:
  * [
  *   {
  *     "id": 1,
- *     "name": "John Doe",
- *     "category": "Plumbing"
+ *     "name": "Technician A",
+ *     "categories": [
+ *       { "id": 1, "name": "Category 1" },
+ *       { "id": 2, "name": "Category 2" }
+ *     ]
  *   },
  *   {
  *     "id": 2,
- *     "name": "Jane Smith",
- *     "category": "Electrical"
+ *     "name": "Technician B",
+ *     "categories": [
+ *       { "id": 1, "name": "Category 1" },
+ *       { "id": 2, "name": "Category 2" },
+ *       { "id": 3, "name": "Category 3" }
+ *     ]
  *   }
  * ]
  * 
- * // Error Response (400):
- * {
- *   "message": "Service IDs are required."
- * }
- * 
- * // Error Response (500):
- * {
- *   "message": "Internal server error."
- * }
+ * Example Error Responses:
+ * - 400: { "message": "Category IDs are required." }
+ * - 500: { "message": "Internal server error." }
  */
+
 router.post("/available", async (req, res) => {
   try {
-    const { serviceIds } = req.body;
-    if (!serviceIds || !Array.isArray(serviceIds) || serviceIds.length === 0) {
-      return res.status(400).json({ message: "Service IDs are required." });
+    const { categoryIds } = req.body;
+
+    // Validate the request body
+    if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) {
+      return res.status(400).json({ message: "Category IDs are required." });
     }
 
-    // Fetch technicians capable of performing all the selected services
+    // Fetch technicians capable of performing services in all the selected categories
     const technicians = await Technician.findAll({
       include: [
         {
           model: Category,
+          where: { id: categoryIds }, // Match the provided category IDs
           through: { attributes: [] }, // Exclude join table attributes
-          include: [
-            {
-              model: Service,
-              where: { id: serviceIds },
-              attributes: [], // Exclude Service attributes from the result
-            },
-          ],
         },
       ],
       group: ["Technician.id"],
-      having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${serviceIds.length}`), // Ensure all services are matched
+      having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${categoryIds.length}`), // Ensure all categories are matched
     });
+
+    // Log the result for debugging purposes
+    console.log(technicians);
+
     return res.status(200).json(technicians);
   } catch (error) {
     console.error("Error fetching available technicians:", error);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
+
 
 
 

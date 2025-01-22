@@ -3,7 +3,8 @@ import AppointmentService from "../../services/appointmentService";
 
 const AvailabilitySelection = ({
   customerInfo,
-  selectedTechnicians,
+  selectedServices,
+  selectedTechnician,
   onSelectAvailability,
   onBack,
   onConfirm,
@@ -15,8 +16,8 @@ const AvailabilitySelection = ({
   const businessHours = { start: 9, end: 18 }; // 9 AM to 6 PM
 
   useEffect(() => {
-    if (selectedTechnicians > 0) {
-      AppointmentService.findByTechId(selectedTechnicians)
+    if (selectedTechnician > 0) {
+      AppointmentService.findByTechId(selectedTechnician)
         .then((response) => {
           setAppointments(response.data);
           setLoading(false);
@@ -26,10 +27,10 @@ const AvailabilitySelection = ({
           setLoading(false);
         });
     }
-  }, [selectedTechnicians]);
+  }, [selectedTechnician]);
 
   useEffect(() => {
-    if (appointments.length > 0 && selectedDate) {
+    if (selectedDate) {
       calculateAvailableSlots();
     }
   }, [appointments, selectedDate]);
@@ -40,43 +41,43 @@ const AvailabilitySelection = ({
     if (appointments.length === 0) {
       console.log("No appointments found.");
     } else {
+      // Filter appointments for the selected date
       const filteredAppointments = appointments.filter(
         (appointment) =>
           new Date(appointment.date).toISOString().split("T")[0] === selectedDate
       );
   
       filteredAppointments.forEach((appointment) => {
-        const { start_service_time, services } = appointment;
-        const duration = Array.isArray(services)
-          ? services.reduce((total, service) => total + (service.time || 0), 0)
+        const { start_service_time, Services } = appointment;
+  
+        // Calculate the total duration of the selected services
+        const duration = Array.isArray(Services)
+          ? Services.reduce((total, service) => {
+              const time = Number(service.time) || 0; // Ensure time is a valid number
+              return total + time; // Sum up service durations
+            }, 0)
           : 0;
   
+        // Calculate the appointment's start and end time
         const startTime = new Date(`${selectedDate}T${start_service_time}`);
-        const endTime = new Date(startTime.getTime() + duration * 60000);
+        const endTime = new Date(startTime.getTime() + duration * 60000); // Convert duration to milliseconds
         occupiedSlots.push({ startTime, endTime });
       });
     }
   
     console.log("Occupied Slots:", occupiedSlots);
   
-    // Manually creating a valid Date for start of the day
+    // Manually create start and end of the day date objects
     const [year, month, day] = selectedDate.split("-");
-    const validDate = new Date(year, month - 1, day, businessHours.start, 0, 0);
-  
-    if (isNaN(validDate.getTime())) {
-      console.log(selectedDate);
-      console.log(businessHours);
-      console.error("Invalid selectedDate format or value:", selectedDate);
-      return;
-    }
-  
-    const startOfDay = validDate;
+    const startOfDay = new Date(year, month - 1, day, businessHours.start, 0, 0);
     const endOfDay = new Date(year, month - 1, day, businessHours.end, 0, 0);
   
     console.log("Start of Day:", startOfDay);
     console.log("End of Day:", endOfDay);
   
     const slots = [];
+  
+    // Loop through each 30-minute slot during the business hours
     for (
       let slotStart = startOfDay;
       slotStart < endOfDay;
@@ -86,8 +87,10 @@ const AvailabilitySelection = ({
   
       const isAvailable = !occupiedSlots.some(
         (occupied) =>
-          (slotStart >= occupied.startTime && slotStart < occupied.endTime) ||
-          (slotEnd > occupied.startTime && slotEnd <= occupied.endTime)
+          // Check if the time slot overlaps with any existing appointment
+          (slotStart >= occupied.startTime && slotStart < occupied.endTime) || // Slot starts during the appointment
+          (slotEnd > occupied.startTime && slotEnd <= occupied.endTime) || // Slot ends during the appointment
+          (slotStart < occupied.endTime && slotEnd > occupied.startTime) // Slot fully overlaps the appointment
       );
   
       if (isAvailable) {
@@ -99,6 +102,7 @@ const AvailabilitySelection = ({
     setAvailableSlots(slots);
   };
   
+
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
@@ -120,7 +124,7 @@ const AvailabilitySelection = ({
           Welcome, {customerInfo.name}!
         </p>
       )}
-      
+
       {/* Date Selection */}
       <div className="date-selection mb-4 text-center">
         <label htmlFor="date" className="text-lg font-medium mr-2">

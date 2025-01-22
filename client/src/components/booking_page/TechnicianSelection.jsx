@@ -4,21 +4,23 @@ import TechnicianService from "../../services/technicianService";
 const TechnicianSelection = ({
   customerInfo,
   selectedServices,
-  onSelectTechnicians, // This is plural
+  onSelectTechnician,
   onNext,
   onBack,
 }) => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
-
+  
   useEffect(() => {
+
     const fetchTechnicians = async () => {
       setLoading(true);
       try {
-        const selectedServiceIds = Object.values(selectedServices).filter(Boolean);
-        if (selectedServiceIds.length > 0) {
-          const response = await TechnicianService.getAvailableTechnicians(selectedServiceIds);
+        // Extract service IDs from selectedServices
+        const selectedCategoryIds = Object.keys(selectedServices);
+        if (selectedCategoryIds.length > 0) {
+          const response = await TechnicianService.getAvailableTechnicians(selectedCategoryIds);     
           setTechnicians(response?.data || []);
         } else {
           setTechnicians([]);
@@ -30,7 +32,7 @@ const TechnicianSelection = ({
       }
     };
 
-    if (Object.values(selectedServices).some(Boolean)) {
+    if (Object.values(selectedServices).some((services) => services.length > 0)) {
       fetchTechnicians();
     }
   }, [selectedServices]);
@@ -61,7 +63,7 @@ const TechnicianSelection = ({
               }`}
               onClick={() => {
                 handleSelectTechnician(technician.id);
-                onSelectTechnicians(technician.id); // Update this line
+                onSelectTechnician(technician.id); // Keep the selected technician updated
               }}
             >
               <h4 className="text-lg font-bold">{technician.name}</h4>
@@ -84,7 +86,7 @@ const TechnicianSelection = ({
       <div className="fixed bottom-4 right-4">
         <button
           onClick={() => {
-            onSelectTechnicians(selectedTechnician); // Update this line as well
+            onSelectTechnician(selectedTechnician);
             onNext();
           }}
           disabled={!selectedTechnician}
