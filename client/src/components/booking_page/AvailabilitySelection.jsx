@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService"; // Make sure this service includes the 'create' method
-import { calculateTotalAmount, calculateTotalTime } from "../../common/utils";
+import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots } from "../../common/utils";
 
 const AvailabilitySelection = ({
   customerInfo,
@@ -10,7 +10,7 @@ const AvailabilitySelection = ({
   onBack,
   onConfirm,
 }) => {
-  const [appointments, setAppointments] = useState([]);
+  const [existingAppointments, setExistingAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null); // Selected date for filtering
@@ -21,7 +21,7 @@ const AvailabilitySelection = ({
     if (selectedTechnician != null) {
       AppointmentService.findByTechId(selectedTechnician.id)
         .then((response) => {
-          setAppointments(response.data);
+          setExistingAppointments(response.data);
           setLoading(false);
         })
         .catch((error) => {
@@ -33,69 +33,11 @@ const AvailabilitySelection = ({
 
   useEffect(() => {
     if (selectedDate) {
-      calculateAvailableSlots();
+      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, businessHours));
     }
-  }, [appointments, selectedDate]);
+  }, [existingAppointments, selectedDate]);
 
-  const calculateAvailableSlots = () => {
-    const occupiedSlots = [];
-
-    if (appointments.length === 0) {
-      console.log("No appointments found.");
-    } else {
-      const filteredAppointments = appointments.filter(
-        (appointment) =>
-          new Date(appointment.date).toISOString().split("T")[0] === selectedDate
-      );
-
-      filteredAppointments.forEach((appointment) => {
-        const { start_service_time, Services } = appointment;
-
-        const duration = Array.isArray(Services)
-          ? Services.reduce((total, service) => {
-              const time = Number(service.time) || 0;
-              return total + time;
-            }, 0)
-          : 0;
-
-        const startTime = new Date(`${selectedDate}T${start_service_time}`);
-        const endTime = new Date(startTime.getTime() + duration * 60000);
-        occupiedSlots.push({ startTime, endTime });
-      });
-    }
-
-    const [year, month, day] = selectedDate.split("-");
-    const startOfDay = new Date(year, month - 1, day, businessHours.start, 0, 0);
-    const endOfDay = new Date(year, month - 1, day, businessHours.end, 0, 0);
-
-    const slots = [];
-    const selectedServicesDuration = calculateTotalTime(selectedServices);
-    const currentTime = new Date();
-
-    for (
-      let slotStart = startOfDay;
-      slotStart <= endOfDay;
-      slotStart = new Date(slotStart.getTime() + 30 * 60000)
-    ) {
-      const slotEnd = new Date(slotStart.getTime() + selectedServicesDuration * 60000);
-
-      if (slotEnd > endOfDay) break;
-
-      if (slotStart < currentTime) continue;
-
-      const isAvailable = !occupiedSlots.some(
-        (occupied) =>
-          (slotStart >= occupied.startTime && slotStart < occupied.endTime) ||
-          (slotEnd > occupied.startTime && slotEnd <= occupied.endTime) ||
-          (slotStart < occupied.endTime && slotEnd > occupied.startTime)
-      );
-
-      if (isAvailable) {
-        slots.push(slotStart);
-      }
-    }
-    setAvailableSlots(slots);
-  };
+  
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);

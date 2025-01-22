@@ -107,7 +107,92 @@ const calculateTotalAmount = (selectedServices) => {
 }
 
 
+/**
+ * Calculates available time slots for a selected date and technician, considering existing appointments and selected services.
+ * The function assumes appointments are represented by objects containing service start times and service durations.
+ * It filters out slots that conflict with existing appointments and ensures that only available slots are returned.
+ *
+ * @param {Array} appointments - An array of appointment objects. Each appointment object must contain:
+ *   - `date` (string): The appointment date in "YYYY-MM-DD" format.
+ *   - `start_service_time` (string): The start time of the service in "HH:mm" format.
+ *   - `Services` (Array): An array of service objects with a `time` property indicating the duration of the service in minutes.
+ *
+ * @param {Object} selectedServices - An object representing the selected services, where keys are service IDs and values are service details.
+ *   The function assumes `time` is specified in minutes.
+ *
+ * @param {string} selectedDate - The date in "YYYY-MM-DD" format for which to calculate available slots.
+ *
+ * @param {Object} businessHours - An object containing business hours with `start` (number) and `end` (number) properties
+ *   representing the business start and end hours (in 24-hour format).
+ *
+ * @returns {Array} An array of Date objects representing the start time of each available slot.
+ *   The slots are calculated in 30-minute intervals, considering the duration of the selected services.
+ *   Only slots that do not conflict with existing appointments are included.
+ */
+const calculateAvailableSlots = (appointments, selectedServices, selectedDate, businessHours) => {
+  const occupiedSlots = [];
+
+  if (appointments.length === 0) {
+    console.log("No appointments found.");
+  } else {
+    const filteredAppointments = appointments.filter(
+      (appointment) =>
+        new Date(appointment.date).toISOString().split("T")[0] === selectedDate
+    );
+
+    filteredAppointments.forEach((appointment) => {
+      const { start_service_time, Services } = appointment;
+
+      const duration = Array.isArray(Services)
+        ? Services.reduce((total, service) => {
+            const time = Number(service.time) || 0;
+            return total + time;
+          }, 0)
+        : 0;
+
+      const startTime = new Date(`${selectedDate}T${start_service_time}`);
+      const endTime = new Date(startTime.getTime() + duration * 60000);
+      occupiedSlots.push({ startTime, endTime });
+    });
+  }
+
+  const [year, month, day] = selectedDate.split("-");
+  const startOfDay = new Date(year, month - 1, day, businessHours.start, 0, 0);
+  const endOfDay = new Date(year, month - 1, day, businessHours.end, 0, 0);
+
+  const slots = [];
+  const selectedServicesDuration = calculateTotalTime(selectedServices);
+  const currentTime = new Date();
+
+  for (
+    let slotStart = startOfDay;
+    slotStart <= endOfDay;
+    slotStart = new Date(slotStart.getTime() + 30 * 60000)
+  ) {
+    const slotEnd = new Date(slotStart.getTime() + selectedServicesDuration * 60000);
+
+    if (slotEnd > endOfDay) break;
+
+    if (slotStart < currentTime) continue;
+
+    const isAvailable = !occupiedSlots.some(
+      (occupied) =>
+        (slotStart >= occupied.startTime && slotStart < occupied.endTime) ||
+        (slotEnd > occupied.startTime && slotEnd <= occupied.endTime) ||
+        (slotStart < occupied.endTime && slotEnd > occupied.startTime)
+    );
+
+    if (isAvailable) {
+      slots.push(slotStart);
+    }
+  }
+  return slots;
+};
 
 
 
-export { formatPrice, calculateTotalTime, calculateTotalAmount };
+
+
+
+
+export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots };
