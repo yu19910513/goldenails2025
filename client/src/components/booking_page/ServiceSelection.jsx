@@ -28,7 +28,7 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
 
       const updatedServices = isServiceSelected
         ? categoryServices.filter((s) => s.id !== service.id) // Deselect service
-        : [...categoryServices, { id: service.id, name: service.name, time: service.time }]; // Select service
+        : [...categoryServices, { id: service.id, name: service.name, time: service.time, price: service.price }]; // Select service
 
       const newState = { ...prev };
       if (updatedServices.length > 0) {

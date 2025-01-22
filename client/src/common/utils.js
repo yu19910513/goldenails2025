@@ -68,8 +68,46 @@ const calculateTotalTime = (selectedServices) => {
       totalTime += services.reduce((sum, service) => sum + (service.time || 0), 0);
     }
   }
-
   return totalTime;
 };
 
-export { formatPrice, calculateTotalTime };
+/**
+ * Calculates the total amount for selected services.
+ * 
+ * The function iterates over the `selectedServices` object, which is expected to have
+ * categories as keys and an array of service objects as values. Each service object should
+ * have a `price` property. The total price of all services is summed and returned.
+ * 
+ * @param {Object} selectedServices - An object where keys are category IDs and values are arrays of service objects.
+ * Each service object should contain a `price` property representing the service's cost.
+ * @throws {Error} Will throw an error if `selectedServices` is not an object or if any service list is not an array.
+ * @throws {Error} Will throw an error if a service object does not have a valid `price` property.
+ * 
+ * @returns {number} The total amount of all selected services.
+ */
+const calculateTotalAmount = (selectedServices) => {
+  if (typeof selectedServices !== 'object' || selectedServices === null) {
+    throw new Error("Invalid input. `selectedServices` must be an object.");
+  }
+
+  let totalAmount = 0;
+
+  for (const categoryId in selectedServices) {
+    if (selectedServices.hasOwnProperty(categoryId)) {
+      const services = selectedServices[categoryId];
+
+      if (!Array.isArray(services)) {
+        throw new Error(`Invalid services list for category ${categoryId}. Expected an array.`);
+      }
+
+      totalAmount += services.reduce((sum, service) => sum + (service.price || 0), 0);
+    }
+  }
+  return totalAmount;
+}
+
+
+
+
+
+export { formatPrice, calculateTotalTime, calculateTotalAmount };

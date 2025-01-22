@@ -20,7 +20,7 @@ const TechnicianSelection = ({
         // Extract service IDs from selectedServices
         const selectedCategoryIds = Object.keys(selectedServices);
         if (selectedCategoryIds.length > 0) {
-          const response = await TechnicianService.getAvailableTechnicians(selectedCategoryIds);     
+          const response = await TechnicianService.getAvailableTechnicians(selectedCategoryIds);
           setTechnicians(response?.data || []);
         } else {
           setTechnicians([]);
@@ -37,8 +37,10 @@ const TechnicianSelection = ({
     }
   }, [selectedServices]);
 
-  const handleSelectTechnician = (technicianId) => {
-    setSelectedTechnician((prev) => (prev === technicianId ? null : technicianId));
+  const handleSelectTechnician = (technician) => {
+    setSelectedTechnician((prev) =>
+      prev?.id === technician.id ? null : { id: technician.id, name: technician.name }
+    );
   };
 
   return (
@@ -58,17 +60,16 @@ const TechnicianSelection = ({
           {technicians.map((technician) => (
             <div
               key={technician.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
-                selectedTechnician === technician.id ? "bg-yellow-200" : "bg-white"
-              }`}
+              className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedTechnician?.id === technician.id ? "bg-yellow-200" : "bg-white"
+                }`}
               onClick={() => {
-                handleSelectTechnician(technician.id);
-                onSelectTechnician(technician.id); // Keep the selected technician updated
+                handleSelectTechnician(technician);  // Pass the full technician object
+                onSelectTechnician({ id: technician.id, name: technician.name }); // Pass the selected technician object
               }}
             >
               <h4 className="text-lg font-bold">{technician.name}</h4>
-              <p className="text-sm text-gray-600">Experience: {technician.experience} years</p>
-              <p className="text-sm text-gray-600">Rating: {technician.rating} / 5</p>
+              {/* <p className="text-sm text-gray-600">Experience: {technician.experience} years</p>
+              <p className="text-sm text-gray-600">Rating: {technician.rating} / 5</p> */}
             </div>
           ))}
         </div>
@@ -90,11 +91,10 @@ const TechnicianSelection = ({
             onNext();
           }}
           disabled={!selectedTechnician}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
-            selectedTechnician
+          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedTechnician
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           Next
         </button>
