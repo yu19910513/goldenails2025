@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { Appointment, Technician, Service } = require("../../models");
+const { Appointment, Technician, Service} = require("../../models");
+const { Op } = require("sequelize");
 
 /**
  * @route GET /appointments/search
@@ -69,6 +70,49 @@ router.get("/search", async (req, res) => {
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ error: "Failed to fetch appointments." });
+  }
+});
+
+
+router.post("/", async (req, res) => {
+  const { customer_id, date, start_service_time, technician_id, service_ids } = req.body;
+
+  try {
+    // Check if the appointment already exists for the same date and time
+    const existingAppointment = await Appointment.findOne({
+      where: {
+        date: date,
+        start_service_time: start_service_time,
+      },
+    });
+
+    if (existingAppointment) {
+      return res.status(400).json({ message: "Appointment already exists for the selected time." });
+    }
+
+    // Create a new appointment record
+    const newAppointment = await Appointment.create({
+      customer_id,
+      date,
+      start_service_time,
+    });
+
+    // Associate the appointment with technicians (many-to-many through AppointmentTechnician)
+    if (technician_id && technician_id.length > 0) {
+      await newAppointment.addTechnicians(technician_id); // This will create records in the AppointmentTechnician table
+    }
+
+    // Associate the appointment with services (many-to-many through AppointmentService)
+    if (service_ids && service_ids.length > 0) {
+      await newAppointment.addServices(service_ids); // This will create records in the AppointmentService table
+    }
+
+    
+    // Return the newly created appointment
+    return res.status(201).json(newAppointment);
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 

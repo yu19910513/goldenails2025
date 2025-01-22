@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AppointmentService from "../../services/appointmentService";
+import AppointmentService from "../../services/appointmentService"; // Make sure this service includes the 'create' method
 import { calculateTotalAmount, calculateTotalTime } from "../../common/utils";
 
 const AvailabilitySelection = ({
@@ -10,13 +10,12 @@ const AvailabilitySelection = ({
   onBack,
   onConfirm,
 }) => {
-  console.log(selectedServices);
-
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null); // Selected date for filtering
   const businessHours = { start: 9, end: 18 }; // 9 AM to 6 PM
+  const [selectedSlot, setSelectedSlot] = useState(null); // Store selected slot for appointment
 
   useEffect(() => {
     if (selectedTechnician != null) {
@@ -70,9 +69,7 @@ const AvailabilitySelection = ({
     const endOfDay = new Date(year, month - 1, day, businessHours.end, 0, 0);
 
     const slots = [];
-
     const selectedServicesDuration = calculateTotalTime(selectedServices);
-
     const currentTime = new Date();
 
     for (
@@ -105,7 +102,33 @@ const AvailabilitySelection = ({
   };
 
   const handleSlotSelect = (slot) => {
+    setSelectedSlot(slot); // Store selected time slot
     onSelectAvailability(slot);
+  };
+
+  const handleConfirm = () => {
+    if (!selectedSlot || !selectedDate || !selectedTechnician) return;
+
+    const appointmentData = {
+      customer_id: customerInfo.id, // Assuming the customer has an ID
+      date: selectedDate,
+      start_service_time: selectedSlot.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      technician_id: [selectedTechnician.id], // Assuming technician has an ID
+      service_ids: Object.values(selectedServices).flatMap(category =>
+        category.map(service => service.id)), // Attach selected services
+    };
+    AppointmentService.create(appointmentData)
+      .then((response) => {
+        // Handle successful appointment creation
+        console.log("Appointment created:", response.data);
+        onConfirm(response.data); // Call onConfirm with created appointment data
+      })
+      .catch((error) => {
+        console.error("Error creating appointment:", error);
+      });
   };
 
   if (loading) {
@@ -205,12 +228,9 @@ const AvailabilitySelection = ({
 
       <div className="fixed bottom-4 right-4">
         <button
-          onClick={() => {
-            onSelectAvailability(selectedDate);
-            onConfirm();
-          }}
-          disabled={!selectedDate || availableSlots.length === 0}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedDate && availableSlots.length > 0
+          onClick={handleConfirm}
+          disabled={!selectedSlot || !selectedDate || !selectedTechnician}
+          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedSlot && selectedDate && selectedTechnician
             ? "bg-yellow-500 text-black hover:bg-yellow-600"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
