@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
+import { calculateTotalTime } from "../../common/utils";
 
 const AvailabilitySelection = ({
   customerInfo,
@@ -50,12 +51,12 @@ const AvailabilitySelection = ({
       filteredAppointments.forEach((appointment) => {
         const { start_service_time, Services } = appointment;
   
-        // Calculate the total duration of the selected services
+        // Calculate the total duration of the existing appointment's services
         const duration = Array.isArray(Services)
           ? Services.reduce((total, service) => {
-              const time = Number(service.time) || 0; // Ensure time is a valid number
-              return total + time; // Sum up service durations
-            }, 0)
+            const time = Number(service.time) || 0; // Ensure time is a valid number
+            return total + time;
+          }, 0)
           : 0;
   
         // Calculate the appointment's start and end time
@@ -77,13 +78,25 @@ const AvailabilitySelection = ({
   
     const slots = [];
   
-    // Loop through each 30-minute slot during the business hours
+    // Calculate the total duration of the selected services in minutes
+    const selectedServicesDuration = calculateTotalTime(selectedServices);
+  
+    // Get the current time to compare against the available slots
+    const currentTime = new Date();
+  
+    // Loop through each slot during the business hours
     for (
       let slotStart = startOfDay;
-      slotStart < endOfDay;
+      slotStart <= endOfDay;
       slotStart = new Date(slotStart.getTime() + 30 * 60000) // Increment by 30 minutes
     ) {
-      const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
+      const slotEnd = new Date(slotStart.getTime() + selectedServicesDuration * 60000); // Use selected services duration
+  
+      // Ensure the slot does not exceed business hours
+      if (slotEnd > endOfDay) break;
+  
+      // Ensure the slot hasn't already passed
+      if (slotStart < currentTime) continue; // Skip past slots
   
       const isAvailable = !occupiedSlots.some(
         (occupied) =>
@@ -97,11 +110,11 @@ const AvailabilitySelection = ({
         slots.push(slotStart);
       }
     }
-  
-    console.log("Generated Slots:", slots);
     setAvailableSlots(slots);
   };
   
+
+
 
 
   const handleDateChange = (event) => {
@@ -136,8 +149,10 @@ const AvailabilitySelection = ({
           value={selectedDate || ""}
           onChange={handleDateChange}
           className="border rounded p-2"
+          min={new Date().toISOString().split("T")[0]} // Restrict past dates
         />
       </div>
+
 
       {/* Time Slots */}
       <div className="slots-container text-center">

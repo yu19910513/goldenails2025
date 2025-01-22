@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './NailSalonMenu.css';
 import ItemService from '../../services/itemService';
-import formatPrice from '../../common/utils';
+import { formatPrice } from '../../common/utils';
 
 const NailSalonMenu = () => {
   const [services, setServices] = useState([]);
@@ -29,23 +29,23 @@ const NailSalonMenu = () => {
 
   return (
     <div className='page-container'>
-    <div className="menu-container">
-      {services.map((category) => (
-        <div className="menu-section" key={category.id}>
-          <h2 className="menu-category">{category.name}</h2>
-          <table className="menu-table">
-            <tbody>
-              {category.services.map((service) => (
-                <tr key={service.id}>
-                  <td className="item-name">{service.name}</td>
-                  <td className="item-price">{formatPrice(service.price)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
-    </div>
+      <div className="menu-container">
+        {services.map((category) => (
+          <div className="menu-section" key={category.id}>
+            <h2 className="menu-category">{category.name}</h2>
+            <table className="menu-table">
+              <tbody>
+                {category.services.map((service) => (
+                  <tr key={service.id}>
+                    <td className="item-name">{service.name}</td>
+                    <td className="item-price">{formatPrice(service.price)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

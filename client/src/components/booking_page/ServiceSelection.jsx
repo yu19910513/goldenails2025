@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ItemService from "../../services/itemService";
-import formatPrice from "../../common/utils";
+import { formatPrice } from "../../common/utils";
 
 const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   const [categories, setCategories] = useState([]);
@@ -29,7 +29,7 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
       const updatedServices = isServiceSelected
         ? categoryServices.filter((s) => s.id !== service.id) // Deselect service
         : [...categoryServices, { id: service.id, name: service.name, time: service.time }]; // Select service
-            
+
       const newState = { ...prev };
       if (updatedServices.length > 0) {
         newState[categoryId] = updatedServices;
@@ -57,11 +57,10 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
               {category.services.map((service) => (
                 <div
                   key={service.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
-                    selectedServices[category.id]?.some((s) => s.id === service.id)
+                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedServices[category.id]?.some((s) => s.id === service.id)
                       ? "bg-yellow-200"
                       : "bg-white"
-                  }`}
+                    }`}
                   onClick={() => toggleService(category.id, service)}
                 >
                   <h4 className="text-lg font-bold">{service.name}</h4>
@@ -78,19 +77,18 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
       <div className="fixed bottom-4 right-4">
         <button
           onClick={() => {
-            onSelectServices(selectedServices);            
+            onSelectServices(selectedServices);
             onNext();
           }}
           disabled={!Object.values(selectedServices).some(
             (services) => services && Array.isArray(services) && services.length > 0
           )}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
-            Object.values(selectedServices).some(
-              (services) => services && Array.isArray(services) && services.length > 0
-            )
+          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${Object.values(selectedServices).some(
+            (services) => services && Array.isArray(services) && services.length > 0
+          )
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           Next
         </button>
