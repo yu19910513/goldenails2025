@@ -7,7 +7,7 @@ import AvailabilitySelection from '../components/booking_page/AvailabilitySelect
 const Booking = () => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState([]);
-  const [availability, setAvailability] = useState(null);
+  const [slot, setSlot] = useState(null);
   const [step, setStep] = useState(1);
   const [customerInfo, setCustomerInfo] = useState(null);
 
@@ -73,14 +73,14 @@ const Booking = () => {
           customerInfo={customerInfo}
           selectedServices={selectedServices}
           selectedTechnician={selectedTechnician}
-          onSelectAvailability={setAvailability}
+          onSelectSlot={setSlot}
           onBack={handlePrevStep}
           onConfirm={() => {
             console.log('Appointment confirmed:', {
               customerInfo,
               services: selectedServices,
-              technicians: selectedTechnicians,
-              availability,
+              technician: selectedTechnician,
+              slot,
             });
           }}
         />

@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from "react";
-import AppointmentService from "../../services/appointmentService"; // Make sure this service includes the 'create' method
+import AppointmentService from "../../services/appointmentService";
 import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots } from "../../common/utils";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook for navigation
 
 const AvailabilitySelection = ({
   customerInfo,
   selectedServices,
   selectedTechnician,
-  onSelectAvailability,
+  onSelectSlot,
   onBack,
   onConfirm,
 }) => {
   const [existingAppointments, setExistingAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null); // Selected date for filtering
+  const [selectedDate, setSelectedDate] = useState(null);
   const businessHours = { start: 9, end: 18 }; // 9 AM to 6 PM
-  const [selectedSlot, setSelectedSlot] = useState(null); // Store selected slot for appointment
+  const [selectedSlot, setSelectedSlot] = useState(null); // Store selected time slot for appointment
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // Index of selected slot for styling
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   useEffect(() => {
     if (selectedTechnician != null) {
@@ -37,36 +40,47 @@ const AvailabilitySelection = ({
     }
   }, [existingAppointments, selectedDate]);
 
-  
-
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
 
-  const handleSlotSelect = (slot) => {
-    setSelectedSlot(slot); // Store selected time slot
-    onSelectAvailability(slot);
+  const handleSlotSelect = (slot, index) => {
+    if (selectedSlotIndex === index) {
+      // Deselect the slot
+      setSelectedSlot(null);
+      setSelectedSlotIndex(null);
+      onSelectSlot(null);
+    } else {
+      // Select the slot
+      setSelectedSlot(slot);
+      setSelectedSlotIndex(index);
+      onSelectSlot(slot);
+    }
   };
 
   const handleConfirm = () => {
     if (!selectedSlot || !selectedDate || !selectedTechnician) return;
 
     const appointmentData = {
-      customer_id: customerInfo.id, // Assuming the customer has an ID
+      customer_id: customerInfo.id,
       date: selectedDate,
       start_service_time: selectedSlot.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      technician_id: [selectedTechnician.id], // Assuming technician has an ID
+      technician_id: [selectedTechnician.id],
       service_ids: Object.values(selectedServices).flatMap(category =>
-        category.map(service => service.id)), // Attach selected services
+        category.map(service => service.id)),
     };
+
     AppointmentService.create(appointmentData)
       .then((response) => {
-        // Handle successful appointment creation
         console.log("Appointment created:", response.data);
-        onConfirm(response.data); // Call onConfirm with created appointment data
+        onConfirm(response.data);
+
+        // Clear local storage and navigate to home page
+        localStorage.clear();
+        navigate("/"); // Navigate to the home page
       })
       .catch((error) => {
         console.error("Error creating appointment:", error);
@@ -87,11 +101,9 @@ const AvailabilitySelection = ({
       )}
 
       <div className="flex flex-col sm:flex-row sm:space-x-8 sm:space-y-0 space-y-8">
-        {/* Card for selected services and technician */}
         {selectedTechnician && (
           <div className="bg-white p-6 border rounded-lg shadow-lg sm:w-1/2 w-full">
             <h3 className="text-xl font-bold mb-4">Your Selection</h3>
-
             <div className="mb-2">
               <strong>Technician:</strong> {selectedTechnician.name}
             </div>
@@ -117,7 +129,6 @@ const AvailabilitySelection = ({
           </div>
         )}
 
-        {/* Date and Time Slot Selection */}
         <div className="sm:w-1/2 w-full">
           <div className="date-selection mb-4 text-center">
             <label htmlFor="date" className="text-lg font-medium mr-2">
@@ -139,8 +150,8 @@ const AvailabilitySelection = ({
                 availableSlots.map((slot, index) => (
                   <button
                     key={index}
-                    className="slot border rounded p-2 m-2 bg-blue-500 text-white hover:bg-blue-700"
-                    onClick={() => handleSlotSelect(slot)}
+                    className={`slot border rounded p-2 m-2 ${selectedSlotIndex === index ? "bg-gray-500" : "bg-blue-500"} text-white hover:bg-blue-700`}
+                    onClick={() => handleSlotSelect(slot, index)}
                   >
                     {slot.toLocaleTimeString([], {
                       hour: "2-digit",
@@ -158,7 +169,6 @@ const AvailabilitySelection = ({
         </div>
       </div>
 
-      {/* Floating Back and Confirm Buttons */}
       <div className="fixed bottom-4 left-4">
         <button
           onClick={onBack}
