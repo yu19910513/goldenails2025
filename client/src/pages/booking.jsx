@@ -70,6 +70,7 @@ const Booking = () => {
 
       {step === 4 && (
         <AvailabilitySelection
+          customerInfo={customerInfo}
           selectedTechnicians={selectedTechnicians}
           onSelectAvailability={setAvailability}
           onBack={handlePrevStep}

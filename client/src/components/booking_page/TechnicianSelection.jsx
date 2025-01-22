@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import TechnicianService from "../../services/technicianService";
 
-const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnician, onNext, onBack }) => {
+const TechnicianSelection = ({
+  customerInfo,
+  selectedServices,
+  onSelectTechnicians, // This is plural
+  onNext,
+  onBack,
+}) => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
@@ -9,11 +15,11 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
   useEffect(() => {
     const fetchTechnicians = async () => {
       setLoading(true);
-      try { 
+      try {
         const selectedServiceIds = Object.values(selectedServices).filter(Boolean);
         if (selectedServiceIds.length > 0) {
           const response = await TechnicianService.getAvailableTechnicians(selectedServiceIds);
-          setTechnicians(response.data);
+          setTechnicians(response?.data || []);
         } else {
           setTechnicians([]);
         }
@@ -50,9 +56,13 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
           {technicians.map((technician) => (
             <div
               key={technician.id}
-              className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedTechnician === technician.id ? "bg-yellow-200" : "bg-white"
-                }`}
-              onClick={() => handleSelectTechnician(technician.id)}
+              className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${
+                selectedTechnician === technician.id ? "bg-yellow-200" : "bg-white"
+              }`}
+              onClick={() => {
+                handleSelectTechnician(technician.id);
+                onSelectTechnicians(technician.id); // Update this line
+              }}
             >
               <h4 className="text-lg font-bold">{technician.name}</h4>
               <p className="text-sm text-gray-600">Experience: {technician.experience} years</p>
@@ -69,20 +79,20 @@ const TechnicianSelection = ({ customerInfo, selectedServices, onSelectTechnicia
         >
           Go Back
         </button>
-
       </div>
 
       <div className="fixed bottom-4 right-4">
         <button
           onClick={() => {
-            onSelectTechnician(selectedTechnician);
+            onSelectTechnicians(selectedTechnician); // Update this line as well
             onNext();
           }}
           disabled={!selectedTechnician}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedTechnician
+          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${
+            selectedTechnician
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+          }`}
         >
           Next
         </button>

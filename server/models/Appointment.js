@@ -23,7 +23,7 @@ Appointment.init(
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
-    startServiceTime: {
+    start_service_time: {
       type: DataTypes.TIME,
       allowNull: false,
     },
