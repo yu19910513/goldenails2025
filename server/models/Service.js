@@ -23,6 +23,11 @@ Service.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    add_on: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false, // Set default value to false
+    },    
     category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

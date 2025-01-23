@@ -3,7 +3,7 @@ import http from "../common/NodeCommon"; // Make sure this is correctly configur
 class AppointmentService {
   // Fetch appointments by technician ID
   findByTechId(technicianId) {
-    return http.get(`/appointments/search?tech_id=${technicianId}`);
+    return http.get(`/appointments/upcoming?tech_id=${technicianId}`);
   }
 
   // Create a new appointment

@@ -4,45 +4,49 @@ const { Appointment, Technician, Service} = require("../../models");
 const { Op } = require("sequelize");
 
 /**
- * @route GET /appointments/search
- * @description Fetch appointments for a specific technician using their technician ID.
- * @queryParam {string} tech_id - The technician's ID to search for appointments.
+ * @route GET /upcoming
+ * @description Fetches upcoming appointments for a specified technician.
+ * @param {Object} req - Express request object.
+ * @param {string} req.query.tech_id - The ID of the technician whose appointments are to be fetched.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON response containing the list of upcoming appointments or an error message.
  * 
- * @returns {Object} 200 - A list of appointments that match the technician ID.
- * @returns {Object} 400 - If the technician ID is missing or invalid.
- * @returns {Object} 500 - If an error occurs while fetching the appointments.
+ * @throws {400} - Invalid or missing technician ID in the request query.
+ * @throws {500} - Internal server error if fetching appointments fails.
  * 
  * @example
- * // Example request:
- * GET /appointments/search?tech_id=123
+ * // Request
+ * GET /upcoming?tech_id=123
  * 
- * // Example response (200 OK):
+ * // Success Response
+ * HTTP/1.1 200 OK
  * [
  *   {
  *     "id": 1,
- *     "date": "2023-12-01",
- *     "start_service_time": "09:00",
- *     "services": [
- *       { "id": 1, "name": "Service 1", "time": 30 },
- *       { "id": 2, "name": "Service 2", "time": 45 }
- *     ],
- *     "technician": { "id": 123, "name": "Technician Name" }
+ *     "date": "2025-01-23T14:00:00Z",
+ *     "Technician": {
+ *       "id": 123,
+ *       "name": "John Doe"
+ *     },
+ *     "Services": [
+ *       {
+ *         "id": 45,
+ *         "name": "Haircut",
+ *         "time": 30
+ *       }
+ *     ]
  *   }
  * ]
  * 
  * @example
- * // Example response (400 Bad Request):
- * {
- *   "error": "Invalid or missing technician ID."
- * }
+ * // Error Response
+ * HTTP/1.1 400 Bad Request
+ * { "error": "Invalid or missing technician ID." }
  * 
- * @example
- * // Example response (500 Internal Server Error):
- * {
- *   "error": "Failed to fetch appointments."
- * }
+ * HTTP/1.1 500 Internal Server Error
+ * { "error": "Failed to fetch appointments." }
  */
-router.get("/search", async (req, res) => {
+router.get("/upcoming ", async (req, res) => {
   const { tech_id } = req.query;
 
   if (!tech_id) {
@@ -51,6 +55,11 @@ router.get("/search", async (req, res) => {
 
   try {
     const appointments = await Appointment.findAll({
+      where: {
+        date: {
+          [Op.gte]: new Date(), // Exclude appointments with past dates
+        },
+      },
       include: [
         {
           model: Technician,
@@ -73,7 +82,19 @@ router.get("/search", async (req, res) => {
   }
 });
 
-
+/**
+ * @route POST /
+ * @description Create a new appointment for a customer
+ * @access Public
+ * 
+ * @param {Object} req - The request object containing the appointment data.
+ * @param {Object} res - The response object used to send the status and result.
+ * 
+ * @returns {Object} - Returns the newly created appointment or an error message.
+ * 
+ * @throws {400} - If an appointment already exists for the same date and start service time.
+ * @throws {500} - If there is an internal server error during the creation process.
+ */
 router.post("/", async (req, res) => {
   const { customer_id, date, start_service_time, technician_id, service_ids } = req.body;
 
