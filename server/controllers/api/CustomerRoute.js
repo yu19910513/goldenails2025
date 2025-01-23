@@ -37,6 +37,43 @@ router.get("/search", async (req, res) => {
 });
 
 /**
+ * @route GET /validate
+ * @description Validates a customer by their phone number and name.
+ * @queryParam {string} phone - The phone number of the customer.
+ * @queryParam {string} name - The name of the customer.
+ * @returns {Object} The customer data if validation is successful.
+ * @throws {400} If phone or name is missing.
+ * @throws {404} If no customer is found with the provided phone and name.
+ * @throws {500} If an error occurs during the database query.
+ */
+router.get("/validate", async (req, res) => {
+  const { phone, name } = req.query;
+
+  // Validate input
+  if (!phone || !name || phone.trim() === "" || name.trim() === "") {
+    return res.status(400).json({ error: "Either phone or name is missing or invalid." });
+  }
+
+  try {
+    const customer = await Customer.findOne({
+      where: { phone: phone.trim(), name: name.trim() },
+    });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found." });
+    }
+
+    // Optionally filter sensitive data before sending the response
+    const { id, phone: customerPhone, name: customerName } = customer;
+    res.json({ id, phone: customerPhone, name: customerName });
+  } catch (error) {
+    console.error("Error searching for customer:", error);
+    res.status(500).json({ error: "An error occurred while searching for the customer." });
+  }
+});
+
+
+/**
  * @route POST /
  * @description Creates a new customer or updates an existing customer's details.
  * @param {Object} req - The request object.

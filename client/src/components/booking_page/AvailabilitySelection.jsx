@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
 import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots } from "../../common/utils";
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook for navigation
 
 const AvailabilitySelection = ({
   customerInfo,
@@ -18,7 +17,6 @@ const AvailabilitySelection = ({
   const businessHours = { start: 9, end: 18 }; // 9 AM to 6 PM
   const [selectedSlot, setSelectedSlot] = useState(null); // Store selected time slot for appointment
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // Index of selected slot for styling
-  const navigate = useNavigate(); // Initialize useNavigate hook
 
   useEffect(() => {
     if (selectedTechnician != null) {

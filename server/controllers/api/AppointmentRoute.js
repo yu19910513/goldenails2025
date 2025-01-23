@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { Appointment, Technician, Service} = require("../../models");
+const { Appointment, Technician, Service } = require("../../models");
 const { Op } = require("sequelize");
+const { groupAppointments } = require("../../util/util")
 
 /**
  * @route GET /appointments/upcoming
@@ -83,6 +84,52 @@ router.get("/upcoming", async (req, res) => {
 });
 
 /**
+ * @route GET /customer_history
+ * @description Fetches a customer's appointment history, groups appointments into future, present, and past, 
+ * and sorts each group by most recent date first.
+ * @queryParam {string} customer_id - The ID of the customer whose appointment history is being fetched.
+ * @returns {Object} JSON response with grouped and sorted appointments:
+ *  - future: Array of future appointments.
+ *  - present: Array of today's appointments.
+ *  - past: Array of past appointments.
+ * 
+ * @throws {400} If customer_id is invalid or missing.
+ * @throws {500} If there's an error fetching appointments.
+ */
+router.get("/customer_history", async (req, res) => {
+  const { customer_id } = req.query;
+
+  if (!customer_id) {
+    return res.status(400).json({ error: "Invalid or missing customer ID." });
+  }
+
+  try {
+    const appointments = await Appointment.findAll({
+      where: {
+        customer_id: customer_id,
+      },
+      include: [
+        {
+          model: Technician,
+          attributes: ["id", "name"], // Select relevant technician fields
+          through: { attributes: [] }, // Exclude join table details
+        },
+        {
+          model: Service,
+          attributes: ["id", "name", "time", "price"], // Include service duration for calculations
+          through: { attributes: [] }, // Exclude join table details
+        },
+      ],
+    });
+    res.status(200).json(groupAppointments(appointments));
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ error: "Failed to fetch appointments." });
+  }
+});
+
+
+/**
  * @route POST /
  * @description Create a new appointment for a customer
  * @access Public
@@ -128,7 +175,7 @@ router.post("/", async (req, res) => {
       await newAppointment.addServices(service_ids); // This will create records in the AppointmentService table
     }
 
-    
+
     // Return the newly created appointment
     return res.status(201).json(newAppointment);
   } catch (error) {
