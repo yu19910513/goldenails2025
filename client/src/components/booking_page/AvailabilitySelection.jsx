@@ -80,7 +80,6 @@ const AvailabilitySelection = ({
 
         // Clear local storage and navigate to home page
         localStorage.clear();
-        navigate("/"); // Navigate to the home page
       })
       .catch((error) => {
         console.error("Error creating appointment:", error);
