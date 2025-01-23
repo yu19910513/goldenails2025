@@ -4,7 +4,7 @@ const { Appointment, Technician, Service} = require("../../models");
 const { Op } = require("sequelize");
 
 /**
- * @route GET /upcoming
+ * @route GET /appointments/upcoming
  * @description Fetches upcoming appointments for a specified technician.
  * @param {Object} req - Express request object.
  * @param {string} req.query.tech_id - The ID of the technician whose appointments are to be fetched.
@@ -46,7 +46,7 @@ const { Op } = require("sequelize");
  * HTTP/1.1 500 Internal Server Error
  * { "error": "Failed to fetch appointments." }
  */
-router.get("/upcoming ", async (req, res) => {
+router.get("/upcoming", async (req, res) => {
   const { tech_id } = req.query;
 
   if (!tech_id) {

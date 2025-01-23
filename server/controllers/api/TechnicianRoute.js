@@ -123,9 +123,6 @@ router.post("/available", async (req, res) => {
       having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${categoryIds.length}`), // Ensure all categories are matched
     });
 
-    // Log the result for debugging purposes
-    console.log(technicians);
-
     return res.status(200).json(technicians);
   } catch (error) {
     console.error("Error fetching available technicians:", error);
