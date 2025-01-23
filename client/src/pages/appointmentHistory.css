@@ -1,0 +1,34 @@
+.future-appointment {
+    background-color: lightgreen;
+}
+
+.present-appointment {
+    background-color: lightblue;
+}
+
+.past-appointment {
+    background-color: lightcoral;
+}
+
+.appointment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.appointment-table th,
+.appointment-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.tabs button {
+    margin: 0 10px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.tabs button:hover {
+    background-color: #ccc;
+}

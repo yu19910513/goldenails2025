@@ -4,6 +4,7 @@ import Header from './components/global/Header';
 import Footer from './components/global/Footer';
 import Home from './pages/home';
 import Booking from './pages/booking';
+import AppointmentHistory from './pages/appointmentHistory';
 import ServicesMenu from './pages/servicemenu';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
 import PrivacyPolicy from './components/policy_and_disclaimer/PrivacyPolicy';
@@ -14,6 +15,7 @@ const App = () => (
     <Header />
     <Routes>
       <Route path="/" element={<><Home /></>} />
+      <Route path="/appointmenthistory" element={<><AppointmentHistory /></>} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
       <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
