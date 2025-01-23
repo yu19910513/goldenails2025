@@ -51,7 +51,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
       return;
     }
 
-    let newCustomer = { phone, name, email: email || null };
+    let newCustomer = { phone, name: name.trim().toUpperCase(), email: email || null };
 
     // Validate email format if provided
     if (email && !validateEmail(email)) {

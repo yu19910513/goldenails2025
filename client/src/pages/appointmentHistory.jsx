@@ -19,7 +19,7 @@ const AppointmentHistory = () => {
         setError(null);
 
         try {
-            const response = await CustomerService.validateUsingNumberAndName(phoneNumber, enteredName);
+            const response = await CustomerService.validateUsingNumberAndName(phoneNumber, enteredName.trim().toUpperCase());
             const customer = response.data;
             console.log(response.data);
 
@@ -71,7 +71,7 @@ const AppointmentHistory = () => {
                 <tbody>
                     {appointmentsList.map((appointment, index) => (
                         <tr key={index} className={getAppointmentClass(appointment)}>
-                            <td>{new Date(appointment.date).toLocaleString()}</td>
+                            <td>{appointment.date}, {appointment.start_service_time}</td>
                             <td>{appointment.Technicians[0].name}</td>
                             <td>
                                 {appointment.Services.map((service, idx) => (
@@ -102,10 +102,15 @@ const AppointmentHistory = () => {
                     <div>
                         <label>Phone Number:</label>
                         <input
-                            type="text"
+                            type="tel"
                             value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            onChange={(e) => {
+                                // Only allow numeric input (0-9)
+                                const value = e.target.value.replace(/\D/g, '');
+                                setPhoneNumber(value);
+                            }}
                             required
+                            pattern="[0-9]*" // Optional: Helps on mobile devices to bring up the numeric keypad
                         />
                     </div>
                     <div>
@@ -123,7 +128,7 @@ const AppointmentHistory = () => {
                 </form>
             ) : (
                 <div>
-                    <h3>Welcome back, {enteredName}!</h3>
+                    <h3>Welcome back, {enteredName.toUpperCase()}!</h3>
                     <div className="tabs">
                         <button onClick={() => handleTabChange('present')}>Now</button>
                         <button onClick={() => handleTabChange('future')}>Future</button>

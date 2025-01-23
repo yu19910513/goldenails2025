@@ -86,8 +86,8 @@ const Header = () => {
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="#team" className={`nav-link ${isActive("#team") ? "active-link" : ""}`}>
-              Appt. History
+            <a href="/appointmenthistory" className={`nav-link ${isActive("#team") ? "active-link" : ""}`}>
+              Appointment History
             </a>
           </li>
           <li>

@@ -1,34 +1,117 @@
-.future-appointment {
-    background-color: lightgreen;
-}
-
-.present-appointment {
-    background-color: lightblue;
-}
-
-.past-appointment {
-    background-color: lightcoral;
-}
-
-.appointment-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.appointment-table th,
-.appointment-table td {
-    padding: 8px;
-    border: 1px solid #ddd;
-}
-
-.tabs button {
-    margin: 0 10px;
+.appointment-history {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  label {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  input {
     padding: 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-}
-
-.tabs button:hover {
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  button:hover {
+    background-color: #218838;
+  }
+  
+  button:disabled {
     background-color: #ccc;
-}
+    cursor: not-allowed;
+  }
+  
+  .error {
+    color: red;
+    font-size: 1rem;
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .tabs {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .tabs button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .tabs button:hover {
+    background-color: #0056b3;
+  }
+  
+  .appointment-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  .appointment-table th,
+  .appointment-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .appointment-table th {
+    background-color: #f8f9fa;
+  }
+  
+  .appointment-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .future-appointment {
+    background-color: #e3f2fd;
+  }
+  
+  .present-appointment {
+    background-color: #fff3cd;
+  }
+  
+  .past-appointment {
+    background-color: #f8d7da;
+  }
+  
