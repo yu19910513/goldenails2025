@@ -1,9 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { calculateTotalTime } from "../../common/utils";
 import "./AppointmentConfirmation.css"; // Import the CSS file
 
 const AppointmentConfirmation = ({ appointmentDetails }) => {
-    console.log(appointmentDetails);
+    const navigate = useNavigate();
 
     // Extract service names
     const serviceNames = Object.values(appointmentDetails.services).flatMap((category) =>
@@ -70,7 +71,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             </div>
             <button
                 className="home-button"
-                onClick={() => window.location.assign("/")}
+                onClick={() => navigate("/")}
             >
             </button>
         </div>
