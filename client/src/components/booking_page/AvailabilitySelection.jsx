@@ -99,7 +99,7 @@ const AvailabilitySelection = ({
 
       <div className="flex flex-col sm:flex-row sm:space-x-8 sm:space-y-0 space-y-8">
         {selectedTechnician && (
-          <div className="bg-white p-6 border rounded-lg shadow-lg sm:w-1/2 w-full">
+          <div className="bg-white p-6 border rounded-lg shadow-lg sm:w-1/2 w-full max-h-[500px]">
             <h3 className="text-xl font-bold mb-4">Your Selection</h3>
             <div className="mb-2">
               <strong>Technician:</strong> {selectedTechnician.name}
@@ -147,7 +147,7 @@ const AvailabilitySelection = ({
                 availableSlots.map((slot, index) => (
                   <button
                     key={index}
-                    className={`slot border rounded p-2 m-2 ${selectedSlotIndex === index ? "bg-gray-500" : "bg-blue-500"} text-white hover:bg-blue-700`}
+                    className={`slot border rounded p-2 m-2 max-w-[100px] ${selectedSlotIndex === index ? "bg-gray-500" : "bg-blue-500"} text-white hover:bg-blue-700`}
                     onClick={() => handleSlotSelect(slot, index)}
                   >
                     {slot.toLocaleTimeString([], {

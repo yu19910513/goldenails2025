@@ -81,6 +81,11 @@
   .tabs button:hover {
     background-color: #0056b3;
   }
+
+  .tabs button.active {
+    background-color: #475a6f;
+    border-color: #004085;
+}
   
   .appointment-table {
     width: 100%;

@@ -12,6 +12,7 @@ const AppointmentHistory = () => {
     const [error, setError] = useState(null);
     const [tab, setTab] = useState('present'); // Default tab is 'now'
 
+
     // Handle form submission for phone and name
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -130,10 +131,24 @@ const AppointmentHistory = () => {
                 <div>
                     <h3>Welcome back, {enteredName.toUpperCase()}!</h3>
                     <div className="tabs">
-                        <button onClick={() => handleTabChange('present')}>Now</button>
-                        <button onClick={() => handleTabChange('future')}>Future</button>
-                        <button onClick={() => handleTabChange('past')}>Past</button>
-                    </div>
+                        <button
+                            className={tab === 'present' ? 'active' : ''}
+                            onClick={() => handleTabChange('present')}
+                        >
+                            Today's
+                        </button>
+                        <button
+                            className={tab === 'future' ? 'active' : ''}
+                            onClick={() => handleTabChange('future')}
+                        >
+                            Future Appts.
+                        </button>
+                        <button
+                            className={tab === 'past' ? 'active' : ''}
+                            onClick={() => handleTabChange('past')}
+                        >
+                            Appt. History
+                        </button>          </div>
                     <div>
                         {tab === 'present' && renderAppointments(appointments.present)}
                         {tab === 'future' && renderAppointments(appointments.future)}
