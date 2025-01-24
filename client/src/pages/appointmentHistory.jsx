@@ -100,6 +100,9 @@ const AppointmentHistory = () => {
             {/* Form for phone number and name */}
             {!customerId ? (
                 <form onSubmit={handleSubmit}>
+                    <p className="instruction">
+                        Please enter the phone number and name used when scheduling your appointment to access your appointment history.
+                    </p>
                     <div>
                         <label>Phone Number:</label>
                         <input
@@ -126,6 +129,9 @@ const AppointmentHistory = () => {
                     <button type="submit" disabled={loading}>
                         {loading ? 'Loading...' : 'Enter'}
                     </button>
+                    <p className="note">
+                        For assistance with accessing your appointment history, please contact our Gig Harbor location at (253) 851-7563.
+                    </p>
                 </form>
             ) : (
                 <div>

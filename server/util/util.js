@@ -31,9 +31,9 @@ const groupAppointments = (appointments) => {
         }
     });
 
-    // Sort each group by date (descending)
+    // Sort each group by date (ascending)
     Object.keys(groupedAppointments).forEach((group) => {
-        groupedAppointments[group].sort((a, b) => new Date(b.date) - new Date(a.date));
+        groupedAppointments[group].sort((a, b) => new Date(a.date) - new Date(b.date));
     });
 
     return groupedAppointments;

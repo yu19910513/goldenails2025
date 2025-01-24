@@ -42,7 +42,7 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative max-w-[1200px] mx-auto p-4">
       <h2 className="text-3xl font-bold mb-2 text-center p-4">Select Services</h2>
       {customerInfo?.name && (
         <p className="text-lg font-medium text-center mb-6">

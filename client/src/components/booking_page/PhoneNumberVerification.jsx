@@ -69,10 +69,14 @@ const PhoneNumberVerification = ({ onVerify }) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100" style={{backgroundColor: "transparent"}}>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100" style={{ backgroundColor: "transparent" }}>
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Phone Number Verification</h2>
-
+        {/* <h2 className="text-2xl font-bold text-center mb-6">Phone Number Verification</h2> */}
+        {/* Welcome and Instructions */}
+        <h2 className="text-2xl font-bold text-center mb-4">Welcome to the Booking Page</h2>
+        <p className="text-gray-700 mb-6 text-center">
+          Enter your phone number to get started! Returning customers will be directed to the service menu after verification. If you're new, we’ll need your name and, optionally, your email if you’d like to stay updated with newsletters featuring promotions and discounts. Your phone number and name will also provide access to your appointment history on our website. Have questions? Reach out to us at (253) 222-9800—we’re here to help!
+        </p>
         {/* Error message */}
         {errorMessage && (
           <div className="text-red-500 text-center mb-4">{errorMessage}</div>
@@ -91,7 +95,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
 
         <button
           onClick={handleVerify}
-          className="w-full py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition"
+          className="w-full py-2 bg-yellow-500 text-white font-semibold rounded-lg border-2 border-yellow-600 hover:bg-yellow-600 hover:border-yellow-700 transition"
         >
           Verify
         </button>
