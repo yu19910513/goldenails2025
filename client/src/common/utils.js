@@ -106,29 +106,57 @@ const calculateTotalAmount = (selectedServices) => {
   return totalAmount;
 }
 
-
 /**
- * Calculates available time slots based on appointments, selected services, 
- * selected date, business hours, and technician unavailability.
+ * Calculates available time slots for appointments based on the selected date, business hours, and technician availability.
+ * Takes into account technician-specific unavailability dates.
  * 
- * @param {Array<Object>} appointments - List of existing appointments.
- * @param {Array<Object>} selectedServices - Selected services with their durations.
- * @param {string} selectedDate - The selected date in "YYYY-MM-DD" format.
- * @param {Object} businessHours - Object containing business start and end hours.
- * @param {string} technician_unavailability - Comma-separated string of unavailable weekdays (e.g., "0,6").
- * @returns {Array<Date>} - Array of available time slots as Date objects.
+ * @param {Array} appointments - A list of existing appointments. Each appointment should have a `date`, `start_service_time`, and `Services` array.
+ * @param {Array} selectedServices - An array of selected services for the appointment, where each service should have a `time` (duration) in minutes.
+ * @param {string} selectedDate - The date for which available slots are to be calculated, formatted as "YYYY-MM-DD".
+ * @param {Object} businessHours - An object containing `start` and `end` properties representing the business's opening and closing hours in 24-hour format.
+ * @param {Object} technician - The technician object containing information about their name and unavailability. It has a `name` property and `unavailability` property for custom date ranges.
+ * 
+ * @returns {Array} - An array of available time slots, represented as `Date` objects. Each slot is 30 minutes long and can fit the selected services.
+ * 
+ * @example
+ * const appointments = [
+ *   { date: "2025-01-24", start_service_time: "10:00", Services: [{ time: 60 }] },
+ *   { date: "2025-01-24", start_service_time: "11:30", Services: [{ time: 30 }] }
+ * ];
+ * const selectedServices = [{ time: 60 }];
+ * const selectedDate = "2025-01-24";
+ * const businessHours = { start: 9, end: 17 };
+ * const technician = { name: "Lisa", unavailability: "" }; // Custom unavailability dates based on name
+ * 
+ * const availableSlots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
+ * console.log(availableSlots);
  */
 const calculateAvailableSlots = (
   appointments,
   selectedServices,
   selectedDate,
   businessHours,
-  technician_unavailability
+  technician
 ) => {
   const occupiedSlots = [];
 
+  const unavailabilityRanges = {
+    Lisa: { start: "2025-02-21", end: "2025-03-15" },
+    Jenny: { start: "2025-02-03", end: "2025-03-17" }
+  };
+
+  const unavailableRange = unavailabilityRanges[technician.name];
+  if (unavailableRange) {
+    const unavailableStart = new Date(unavailableRange.start);
+    const unavailableEnd = new Date(unavailableRange.end);
+
+    const selectedDateObj = new Date(selectedDate);
+    if (selectedDateObj >= unavailableStart && selectedDateObj <= unavailableEnd) {
+      return []; // Return no slots if selected date is in the technician's unavailability range
+    }
+  }
   // Parse the technician's unavailability into a set of unavailable weekdays (0=Sunday, 6=Saturday)
-  const unavailableDays = technician_unavailability
+  const unavailableDays = technician.unavailability
     .split(",")
     .map(Number)
     .filter((day) => !isNaN(day) && day >= 0 && day <= 6);
@@ -195,6 +223,7 @@ const calculateAvailableSlots = (
 
   return slots;
 };
+
 
 
 
