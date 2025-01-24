@@ -19,6 +19,21 @@ Technician.init(
       type: DataTypes.TEXT,
       allowNull: true, // Description is optional
     },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        is: /^[0-9]{10,15}$/, // Ensures phone number is between 10-15 digits
+      },
+    },
+    unavailability: {
+      type: DataTypes.STRING, // Use STRING for compatibility
+      allowNull: true,
+      validate: {
+        is: /^[0-6](,[0-6])*$/, // Validates comma-separated integers from 0 to 6
+      },
+    },
+
   },
 
   {

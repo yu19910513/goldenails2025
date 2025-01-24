@@ -11,7 +11,7 @@ const TechnicianSelection = ({
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState(null);
-  
+
   useEffect(() => {
 
     const fetchTechnicians = async () => {
@@ -39,7 +39,9 @@ const TechnicianSelection = ({
 
   const handleSelectTechnician = (technician) => {
     setSelectedTechnician((prev) =>
-      prev?.id === technician.id ? null : { id: technician.id, name: technician.name }
+      prev?.id === technician.id ? null : {
+        id: technician.id, name: technician.name, unavailability: technician.unavailability
+      }
     );
   };
 
@@ -92,8 +94,8 @@ const TechnicianSelection = ({
           }}
           disabled={!selectedTechnician}
           className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedTechnician
-              ? "bg-yellow-500 text-black hover:bg-yellow-600"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "bg-yellow-500 text-black hover:bg-yellow-600"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
         >
           Next

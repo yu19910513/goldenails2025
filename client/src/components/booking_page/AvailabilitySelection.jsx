@@ -34,7 +34,7 @@ const AvailabilitySelection = ({
 
   useEffect(() => {
     if (selectedDate) {
-      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, businessHours));
+      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, businessHours, selectedTechnician.unavailability));
     }
   }, [existingAppointments, selectedDate]);
 

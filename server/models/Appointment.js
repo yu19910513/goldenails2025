@@ -27,6 +27,10 @@ Appointment.init(
       type: DataTypes.TIME,
       allowNull: false,
     },
+    note: {
+      type: DataTypes.TEXT,
+      allowNull: true, // Description is optional
+    },
   },
   {
     sequelize,

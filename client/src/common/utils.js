@@ -108,29 +108,31 @@ const calculateTotalAmount = (selectedServices) => {
 
 
 /**
- * Calculates available time slots for a selected date and technician, considering existing appointments and selected services.
- * The function assumes appointments are represented by objects containing service start times and service durations.
- * It filters out slots that conflict with existing appointments and ensures that only available slots are returned.
- *
- * @param {Array} appointments - An array of appointment objects. Each appointment object must contain:
- *   - `date` (string): The appointment date in "YYYY-MM-DD" format.
- *   - `start_service_time` (string): The start time of the service in "HH:mm" format.
- *   - `Services` (Array): An array of service objects with a `time` property indicating the duration of the service in minutes.
- *
- * @param {Object} selectedServices - An object representing the selected services, where keys are service IDs and values are service details.
- *   The function assumes `time` is specified in minutes.
- *
- * @param {string} selectedDate - The date in "YYYY-MM-DD" format for which to calculate available slots.
- *
- * @param {Object} businessHours - An object containing business hours with `start` (number) and `end` (number) properties
- *   representing the business start and end hours (in 24-hour format).
- *
- * @returns {Array} An array of Date objects representing the start time of each available slot.
- *   The slots are calculated in 30-minute intervals, considering the duration of the selected services.
- *   Only slots that do not conflict with existing appointments are included.
+ * Calculates available time slots based on appointments, selected services, 
+ * selected date, business hours, and technician unavailability.
+ * 
+ * @param {Array<Object>} appointments - List of existing appointments.
+ * @param {Array<Object>} selectedServices - Selected services with their durations.
+ * @param {string} selectedDate - The selected date in "YYYY-MM-DD" format.
+ * @param {Object} businessHours - Object containing business start and end hours.
+ * @param {string} technician_unavailability - Comma-separated string of unavailable weekdays (e.g., "0,6").
+ * @returns {Array<Date>} - Array of available time slots as Date objects.
  */
-const calculateAvailableSlots = (appointments, selectedServices, selectedDate, businessHours) => {
+const calculateAvailableSlots = (
+  appointments,
+  selectedServices,
+  selectedDate,
+  businessHours,
+  technician_unavailability
+) => {
   const occupiedSlots = [];
+
+  // Parse the technician's unavailability into a set of unavailable weekdays (0=Sunday, 6=Saturday)
+  const unavailableDays = technician_unavailability
+    .split(",")
+    .map(Number)
+    .filter((day) => !isNaN(day) && day >= 0 && day <= 6);
+  const selectedWeekday = (new Date(selectedDate).getDay() + 1) % 7;
 
   if (appointments.length === 0) {
     console.log("No appointments found.");
@@ -145,9 +147,9 @@ const calculateAvailableSlots = (appointments, selectedServices, selectedDate, b
 
       const duration = Array.isArray(Services)
         ? Services.reduce((total, service) => {
-            const time = Number(service.time) || 0;
-            return total + time;
-          }, 0)
+          const time = Number(service.time) || 0;
+          return total + time;
+        }, 0)
         : 0;
 
       const startTime = new Date(`${selectedDate}T${start_service_time}`);
@@ -160,7 +162,7 @@ const calculateAvailableSlots = (appointments, selectedServices, selectedDate, b
   const startOfDay = new Date(year, month - 1, day, businessHours.start, 0, 0);
   const endOfDay = new Date(year, month - 1, day, businessHours.end, 0, 0);
 
-  const slots = [];
+  let slots = [];
   const selectedServicesDuration = calculateTotalTime(selectedServices);
   const currentTime = new Date();
 
@@ -186,8 +188,15 @@ const calculateAvailableSlots = (appointments, selectedServices, selectedDate, b
       slots.push(slotStart);
     }
   }
+  // If the selected date's weekday is in the unavailable days, return no slots
+  if (unavailableDays.includes(selectedWeekday)) {
+    slots = [];
+  }
+
   return slots;
 };
+
+
 
 
 
