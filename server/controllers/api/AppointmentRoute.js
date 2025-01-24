@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Appointment, Technician, Service } = require("../../models");
 const { Op } = require("sequelize");
-const { groupAppointments } = require("../../util/util")
+const { groupAppointments, sendMessage } = require("../../util/util")
 
 /**
  * @route GET /appointments/upcoming
@@ -143,7 +143,7 @@ router.get("/customer_history", async (req, res) => {
  * @throws {500} - If there is an internal server error during the creation process.
  */
 router.post("/", async (req, res) => {
-  const { customer_id, date, start_service_time, technician_id, service_ids } = req.body;
+  const { customer_id, date, start_service_time, technician_id, service_ids} = req.body;
 
   try {
     // Check if the appointment already exists for the same date and time
@@ -174,7 +174,6 @@ router.post("/", async (req, res) => {
     if (service_ids && service_ids.length > 0) {
       await newAppointment.addServices(service_ids); // This will create records in the AppointmentService table
     }
-
 
     // Return the newly created appointment
     return res.status(201).json(newAppointment);

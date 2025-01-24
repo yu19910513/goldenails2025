@@ -1,3 +1,6 @@
+import twilio from 'twilio';
+import dotenv from 'dotenv';
+dotenv.config();
 /**
  * Groups appointments into future, present, and past, and sorts each group by most recent date first.
  * 
@@ -39,4 +42,15 @@ const groupAppointments = (appointments) => {
     return groupedAppointments;
 };
 
-export { groupAppointments };
+const sendMessage = (RecipientPhoneNumber, message) => {
+    const client = new twilio(process.env.TWILLIO_SID, process.env.TWILLIO_TOKEN);
+    client.messages.create({
+        body: message,        // Message content
+        from: '+18447541698',       // Your Twilio phone number
+        to: `+1${RecipientPhoneNumber}`      // Recipient's phone number
+    })
+        .then(message => console.log(`Message sent with SID: ${message.sid}`))
+        .catch(err => console.log('Error sending message:', err));
+}
+
+export { groupAppointments, sendMessage };
