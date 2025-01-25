@@ -224,6 +224,21 @@ const calculateAvailableSlots = (
   return slots;
 };
 
+/**
+ * Converts a given date object to a string in Washington State (Pacific Time) timezone.
+ *
+ * @param {Date} slotObject - The date object to be converted.
+ * @returns {string} - The formatted time string in HH:mm:ss format.
+ */
+const waTimeString = (slotObject) => {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles', // Pacific Time timezone
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, // Use 24-hour format
+  }).format(slotObject);
+};
 
 
 
@@ -233,4 +248,6 @@ const calculateAvailableSlots = (
 
 
 
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots };
+
+
+export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString };
