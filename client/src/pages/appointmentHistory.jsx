@@ -22,8 +22,6 @@ const AppointmentHistory = () => {
         try {
             const response = await CustomerService.validateUsingNumberAndName(phoneNumber, enteredName.trim().toUpperCase());
             const customer = response.data;
-            console.log(response.data);
-
             if (customer) {
                 setCustomerId(customer.id);
                 fetchAppointments(customer.id); // If customer found, fetch appointments
@@ -42,7 +40,6 @@ const AppointmentHistory = () => {
     const fetchAppointments = async (customerId) => {
         try {
             const response = await AppointmentService.customer_history(customerId);
-            console.log(response.data);
             const allAppointments = response.data;
             setAppointments(allAppointments);
         } catch (error) {
