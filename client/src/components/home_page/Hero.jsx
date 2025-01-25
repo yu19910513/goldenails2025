@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import miscellaneousService from "../../services/miscellaneousService";
+import MiscellaneousService from "../../services/miscellaneousService";
 import "./Hero.css";
 
 const Hero = () => {
@@ -9,7 +9,7 @@ const Hero = () => {
   useEffect(() => {
     const fetchAdBoardData = async () => {
       try {
-        const adBoardResponse = await miscellaneousService.find("adBoard");
+        const adBoardResponse = await MiscellaneousService.find("adBoard");
         setAdBoard(adBoardResponse.data.context || "Default ad board message");
       } catch (error) {
         console.error("Error fetching adBoard data:", error);
@@ -19,7 +19,7 @@ const Hero = () => {
 
     const fetchSubtextData = async () => {
       try {
-        const subtextResponse = await miscellaneousService.find("subtext");
+        const subtextResponse = await MiscellaneousService.find("subtext");
         setSubtext(subtextResponse.data.context || "");
       } catch (error) {
         console.error("Error fetching subtext data:", error);

@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { calculateTotalTime } from "../../common/utils";
 import "./AppointmentConfirmation.css"; // Import the CSS file
+import MiscellaneousService from "../../services/miscellaneousService";
 
 const AppointmentConfirmation = ({ appointmentDetails }) => {
     const navigate = useNavigate();
-
     // Extract service names
     const serviceNames = Object.values(appointmentDetails.services).flatMap((category) =>
         category.map((service) => service.name)
@@ -44,6 +44,42 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
         })
         : "N/A";
 
+
+    const messageEngine = () => {
+        const messageData = {
+            customer_number: appointmentDetails.customerInfo.phone,
+            customer_message: `Dear ${appointmentDetails.customerInfo.name}, your appointment at Golden Nails Gig Harbor for ${serviceNames.join(
+                ", "
+            )} on ${formattedDate} from ${formattedSlot} to ${endTime} is confirmed. Thank you!`,
+            owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
+                ", ")} `,
+        };
+        if (localStorage.getItem("checker") != null) {
+            MiscellaneousService.smsAppointmentConfirmation(messageData)
+                .then(() => console.log("SMS sent successfully"))
+                .catch((error) => console.error("Failed to send SMS:", error));
+        }
+        localStorage.setItem("checker", "not null");
+    }
+
+    useEffect(() => {
+        const fetchPermission = async () => {
+            try {
+                const permissionResponse = await MiscellaneousService.find("smsFeature");
+                console.log(permissionResponse.data.context);
+                if (permissionResponse.data && permissionResponse.data.context == "on") {
+                    messageEngine();
+                }
+
+            } catch (error) {
+                console.error("Error fetching permission data:", error);
+            }
+        };
+
+        fetchPermission();
+    }, []);
+
+
     return (
         <div className="appointment-confirmation-container">
             <h2 className="title">Appointment Confirmed</h2>
@@ -71,7 +107,10 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             </div>
             <button
                 className="home-button"
-                onClick={() => navigate("/")}
+                onClick={() => {
+                    localStorage.clear();
+                    navigate("/")
+                }}
             >
             </button>
         </div>

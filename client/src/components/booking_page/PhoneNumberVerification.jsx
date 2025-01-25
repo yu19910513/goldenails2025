@@ -75,7 +75,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
         {/* Welcome and Instructions */}
         <h2 className="text-2xl font-bold text-center mb-4">Welcome to the Booking Page</h2>
         <p className="text-gray-700 mb-6 text-center">
-          Enter your phone number to get started! Returning customers will be directed to the service menu after verification. If you're new, we’ll need your name and, optionally, your email if you’d like to stay updated with newsletters featuring promotions and discounts. Your phone number and name will also provide access to your appointment history on our website. Have questions? Reach out to us at (253) 222-9800—we’re here to help!
+          Enter your phone number to get started! Returning customers will be directed to the service menu after verification. If you're new, we’ll need your name and, optionally, your email if you’d like to stay updated with newsletters featuring promotions and discounts. Your phone number and name will also provide access to your appointment history on our website. Have questions? Reach out to us at (253) 851-7563—we’re here to help!
         </p>
         {/* Error message */}
         {errorMessage && (

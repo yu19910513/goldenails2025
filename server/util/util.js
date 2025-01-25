@@ -42,6 +42,16 @@ const groupAppointments = (appointments) => {
     return groupedAppointments;
 };
 
+/**
+ * Sends a message using Twilio's API.
+ *
+ * @param {string} RecipientPhoneNumber - The recipient's phone number (10-digit format without country code).
+ * @param {string} message - The content of the message to be sent.
+ * @throws {Error} Will log an error if the message fails to send.
+ *
+ * @example
+ * sendMessage('1234567890', 'Hello, this is a test message!');
+ */
 const sendMessage = (RecipientPhoneNumber, message) => {
     const client = new twilio(process.env.TWILLIO_SID, process.env.TWILLIO_TOKEN);
     client.messages.create({
