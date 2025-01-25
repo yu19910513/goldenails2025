@@ -4,6 +4,36 @@ import http from "../common/NodeCommon";
  * A service class for managing appointments.
  */
 class AppointmentService {
+
+/**
+ * Fetches grouped appointments for a specific date.
+ *
+ * This function validates the date format to ensure it follows the `YYYY-MM-DD` format.
+ * It then makes an HTTP GET request to the `/appointments/:date` endpoint.
+ *
+ * @param {string} date - The date for which appointments are to be fetched (format: YYYY-MM-DD).
+ * @returns {Promise<Object>} A promise resolving to the grouped appointments data.
+ * @throws {Error} Throws an error if the provided date is not in the valid format.
+ *
+ * @example
+ * getTechnicianGroupedAppointments("2025-01-24")
+ *   .then((data) => {
+ *     console.log("Appointments:", data);
+ *   })
+ *   .catch((error) => {
+ *     console.error("Error:", error.message);
+ *   });
+ */
+  getTechnicianGroupedAppointments(date) {
+    // Validate the date format (optional but recommended)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      throw new Error("Invalid date format. Expected YYYY-MM-DD.");
+    }
+  
+    // Perform the GET request to fetch appointments for the given date
+    return http.get(`/appointments/${date}`);
+  }
+  
   /**
    * Fetch upcoming appointments by technician ID.
    * 

@@ -51,6 +51,8 @@ const formatPrice = (price) => {
  * calculateTotalTime(selectedServices); // 4
  */
 const calculateTotalTime = (selectedServices) => {
+  console.log(selectedServices);
+  
   if (typeof selectedServices !== 'object' || selectedServices === null) {
     throw new Error("Invalid input. `selectedServices` must be an object.");
   }
@@ -70,6 +72,24 @@ const calculateTotalTime = (selectedServices) => {
   }
   return totalTime;
 };
+
+/**
+ * Calculates the total time for an appointment based on its services.
+ *
+ * @param {Array} services - An array of service objects. Each object is expected to have a `time` property that represents the time required for the service in minutes.
+ * @returns {number} The total time of all services combined, in minutes.
+ *
+ * @example
+ * const services = [
+ *   { id: 1, name: "Manicure", time: 30 },
+ *   { id: 2, name: "Pedicure", time: 45 },
+ * ];
+ * const totalTime = calculateTotalTimePerAppointment(services); // Returns 75
+ */
+const calculateTotalTimePerAppointment = (services) => {
+  return services.reduce((total, service) => total + service.time, 0);
+};
+
 
 /**
  * Calculates the total amount for selected services.
@@ -268,4 +288,4 @@ const now = () => {
 
 
 
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now };
+export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment };

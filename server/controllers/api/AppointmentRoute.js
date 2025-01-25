@@ -88,6 +88,84 @@ router.get("/upcoming", async (req, res) => {
 });
 
 /**
+ * GET /:date
+ * Fetches appointments for a specified date and groups them by technician.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.params - Parameters passed in the request URL.
+ * @param {string} req.params.date - The date parameter in YYYY-MM-DD format.
+ * @param {Object} res - The response object.
+ *
+ * @returns {void} Responds with a JSON array of grouped appointments by technician.
+ * Each technician object includes:
+ *  - id: Technician ID
+ *  - name: Technician name
+ *  - appointments: Array of appointments associated with the technician
+ *
+ * @throws {Object} Returns a 400 error if the date parameter is missing or invalid.
+ * @throws {Object} Returns a 500 error if fetching appointments fails.
+ */
+router.get("/:date", async (req, res) => {
+  try {
+    // Extract the date from query parameters
+    const { date } = req.params;
+    // Validate the date
+    if (!date) {
+      return res.status(400).json({ error: "Date parameter is required." });
+    }
+    // Fetch appointments for the specified date
+    const appointments = await Appointment.findAll({
+      where: {
+        date: date
+      },
+      include: [
+        {
+          model: Technician,
+          attributes: ["id", "name"], // Select relevant technician fields
+          through: { attributes: [] }, // Exclude join table details
+        },
+        {
+          model: Service,
+          attributes: ["id", "name", "time"], // Include service details
+          through: { attributes: [] }, // Exclude join table details
+        },
+      ],
+    });
+
+    // Group appointments by technician
+    const groupedByTechnician = appointments.reduce((acc, appointment) => {
+      // Ensure the appointment has associated technicians
+      if (!appointment.Technicians || appointment.Technicians.length === 0) return acc;
+
+      appointment.Technicians.forEach((technician) => {
+        // Check if this technician is already in the accumulator
+        if (!acc[technician.id]) {
+          acc[technician.id] = {
+            id: technician.id,
+            name: technician.name,
+            appointments: [],
+          };
+        }
+
+        // Add the appointment to the technician's appointments array
+        acc[technician.id].appointments.push(appointment);
+      });
+
+      return acc;
+    }, {});
+
+    // Convert grouped data into an array
+    const groupedArray = Object.values(groupedByTechnician);
+
+    res.status(200).json(groupedArray);
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ error: "Failed to fetch appointments." });
+  }
+});
+
+
+/**
  * @route GET /customer_history
  * @description Fetches all non-deleted appointments for a specific customer.
  * @param {Object} req - Express request object.
