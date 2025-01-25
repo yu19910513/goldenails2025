@@ -63,4 +63,4 @@ const sendMessage = (RecipientPhoneNumber, message) => {
         .catch(err => console.log('Error sending message:', err));
 }
 
-export { groupAppointments, sendMessage };
+module.exports = { groupAppointments, sendMessage };
