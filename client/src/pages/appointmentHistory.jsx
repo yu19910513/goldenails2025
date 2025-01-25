@@ -88,7 +88,7 @@ const AppointmentHistory = () => {
 
     // Get the class for each row based on appointment status
     const getAppointmentClass = (appointment) => {
-        const appointmentDate = new Date(appointment.date);
+        const appointmentDate = new Date(appointment.date+'T00:00:00');
         const now = new Date();
         if (appointmentDate > now) return 'future-appointment';
         if (appointmentDate.toDateString() === now.toDateString()) return 'present-appointment';

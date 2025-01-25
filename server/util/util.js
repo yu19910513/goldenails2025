@@ -22,7 +22,7 @@ const groupAppointments = (appointments) => {
     };
 
     appointments.forEach((appointment) => {
-        const appointmentDate = new Date(appointment.date);
+        const appointmentDate = new Date(appointment.date+'T00:00:00');
         appointmentDate.setHours(0, 0, 0, 0); // Normalize appointment date
 
         if (appointmentDate > today) {
