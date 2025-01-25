@@ -1,5 +1,5 @@
-import twilio from 'twilio';
-import dotenv from 'dotenv';
+const twilio = require('twilio');
+const dotenv = require('dotenv');
 dotenv.config();
 /**
  * Groups appointments into future, present, and past, and sorts each group by most recent date first.
