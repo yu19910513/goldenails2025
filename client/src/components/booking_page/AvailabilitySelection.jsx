@@ -9,6 +9,7 @@ const AvailabilitySelection = ({
   onSelectSlot,
   onBack,
   onConfirm,
+  reloadComponent
 }) => {
   const [existingAppointments, setExistingAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,12 @@ const AvailabilitySelection = ({
   const [selectedSlot, setSelectedSlot] = useState(null); // Store selected time slot for appointment
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // Index of selected slot for styling
 
+
   useEffect(() => {
+    if (localStorage.getItem("selectedDate") != null) {
+      setSelectedDate(localStorage.getItem("selectedDate"));
+    }
+
     if (selectedTechnician != null) {
       AppointmentService.findByTechId(selectedTechnician.id)
         .then((response) => {
@@ -39,6 +45,7 @@ const AvailabilitySelection = ({
   }, [existingAppointments, selectedDate]);
 
   const handleDateChange = (event) => {
+    localStorage.setItem("selectedDate", event.target.value);
     setSelectedDate(event.target.value);
   };
 
@@ -67,17 +74,20 @@ const AvailabilitySelection = ({
       service_ids: Object.values(selectedServices).flatMap(category =>
         category.map(service => service.id)),
     };
-    
     AppointmentService.create(appointmentData)
       .then((response) => {
         console.log("Appointment created:", response.data);
         onConfirm(response.data);
-
-        // Clear local storage and navigate to home page
         localStorage.clear();
       })
       .catch((error) => {
-        console.error("Error creating appointment:", error);
+        if (error.response && error.response.status === 400) {
+          const { message, conflictingSlot } = error.response.data;
+          alert(`${message} Conflicting time: ${conflictingSlot}`);
+          reloadComponent();
+        } else {
+          console.error("Error creating appointment:", error);
+        }
       });
   };
 
@@ -134,7 +144,7 @@ const AvailabilitySelection = ({
               value={selectedDate || ""}
               onChange={handleDateChange}
               className="border rounded p-2"
-              min={new Date().toISOString().split("T")[0]} // Restrict past dates
+              min={new Date().toLocaleDateString('en-CA')} // Restrict past dates
             />
           </div>
 

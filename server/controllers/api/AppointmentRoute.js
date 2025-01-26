@@ -148,6 +148,10 @@ router.post("/", async (req, res) => {
   try {
     // Check if the appointment already exists for the same date and time
     const existingAppointment = await Appointment.findOne({
+      include: [{
+        model: Technician,
+        where: { id: technician_id },
+      }],
       where: {
         date: date,
         start_service_time: start_service_time,
@@ -155,8 +159,12 @@ router.post("/", async (req, res) => {
     });
 
     if (existingAppointment) {
-      return res.status(400).json({ message: "Appointment already exists for the selected time." });
+      return res.status(400).json({
+        message: "Appointment already exists for the selected time.",
+        conflictingSlot: existingAppointment.start_service_time, // Include the conflicting time
+      });
     }
+    
 
     // Create a new appointment record
     const newAppointment = await Appointment.create({

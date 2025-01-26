@@ -12,7 +12,11 @@ const Booking = () => {
   const [step, setStep] = useState(1);
   const [customerInfo, setCustomerInfo] = useState(null);
   const [confirmedAppointment, setConfirmedAppointment] = useState(null);
+  const [key, setKey] = useState(0);
 
+  const reloadComponent = () => {
+    setKey((prevKey) => prevKey + 1); // Increment the key to force remount
+  };
   // Restore state from localStorage on mount
   useEffect(() => {
     const storedCustomerInfo = JSON.parse(localStorage.getItem('customerInfo'));
@@ -70,6 +74,7 @@ const Booking = () => {
 
       {step === 4 && (
         <AvailabilitySelection
+          key={key}  // Add key here to trigger re-mount
           customerInfo={customerInfo}
           selectedServices={selectedServices}
           selectedTechnician={selectedTechnician}
@@ -85,6 +90,7 @@ const Booking = () => {
             setConfirmedAppointment(appointmentDetails);
             handleNextStep();
           }}
+          reloadComponent={reloadComponent} // Pass the reload function
         />
       )}
 
