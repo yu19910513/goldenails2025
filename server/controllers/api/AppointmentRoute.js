@@ -130,57 +130,137 @@ router.get("/customer_history", async (req, res) => {
 
 
 /**
- * @route POST /
- * @description Create a new appointment for a customer
- * @access Public
+ * POST / Create a new appointment.
+ *
+ * This endpoint creates a new appointment by validating the input data,
+ * ensuring there are no time conflicts with existing appointments, and 
+ * associating the appointment with the specified services and technicians.
+ *
+ * @async
+ * @function
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The request body.
+ * @param {number} req.body.customer_id - ID of the customer making the appointment.
+ * @param {string} req.body.date - The date of the appointment in YYYY-MM-DD format.
+ * @param {string} req.body.start_service_time - Start time of the appointment in HH:MM format.
+ * @param {number} req.body.technician_id - ID of the technician assigned to the appointment.
+ * @param {number[]} req.body.service_ids - Array of service IDs included in the appointment.
+ * @param {Object} res - The response object.
  * 
- * @param {Object} req - The request object containing the appointment data.
- * @param {Object} res - The response object used to send the status and result.
- * 
- * @returns {Object} - Returns the newly created appointment or an error message.
- * 
- * @throws {400} - If an appointment already exists for the same date and start service time.
- * @throws {500} - If there is an internal server error during the creation process.
+ * @returns {Object} The created appointment object or an error message.
+ *
+ * @throws {400 Bad Request} If required fields are missing, have invalid formats, or if the new appointment overlaps with an existing one.
+ * @throws {500 Internal Server Error} If an unexpected error occurs during processing.
+ *
+ * @example
+ * // Request Body:
+ * {
+ *   "customer_id": 123,
+ *   "date": "2025-01-25",
+ *   "start_service_time": "14:00",
+ *   "technician_id": [456],
+ *   "service_ids": [1, 2, 3]
+ * }
+ *
+ * // Response (201 Created):
+ * {
+ *   "id": 789,
+ *   "customer_id": 123,
+ *   "date": "2025-01-25",
+ *   "start_service_time": "14:00",
+ *   "createdAt": "2025-01-25T12:00:00Z",
+ *   "updatedAt": "2025-01-25T12:00:00Z"
+ * }
+ *
+ * // Error (400 Bad Request):
+ * {
+ *   "message": "Appointment overlaps with an existing appointment.",
+ *   "conflictingSlot": "14:00"
+ * }
+ *
+ * // Error (500 Internal Server Error):
+ * {
+ *   "message": "Internal server error."
+ * }
  */
 router.post("/", async (req, res) => {
-  const { customer_id, date, start_service_time, technician_id, service_ids} = req.body;
+  const { customer_id, date, start_service_time, technician_id, service_ids } = req.body;
 
   try {
-    // Check if the appointment already exists for the same date and time
-    const existingAppointment = await Appointment.findOne({
-      include: [{
-        model: Technician,
-        where: { id: technician_id },
-      }],
-      where: {
-        date: date,
-        start_service_time: start_service_time,
-      },
+    // Validate date and start_service_time
+    if (!date || !start_service_time) {
+      return res.status(400).json({ message: "Date and start service time are required." });
+    }
+
+    // Combine date and time into a single Date object
+    const start_service_time_obj = new Date(`${date}T${start_service_time}`);
+    if (isNaN(start_service_time_obj.getTime())) {
+      return res.status(400).json({ message: "Invalid date or time format." });
+    }
+
+    // Fetch service times for the new appointment
+    const services = await Service.findAll({
+      where: { id: service_ids },
+      attributes: ["id", "time"], // Using "time" instead of "duration"
     });
 
-    if (existingAppointment) {
-      return res.status(400).json({
-        message: "Appointment already exists for the selected time.",
-        conflictingSlot: existingAppointment.start_service_time, // Include the conflicting time
-      });
+    if (!services || services.length !== service_ids.length) {
+      return res.status(400).json({ message: "Some services are invalid or not found." });
     }
-    
 
-    // Create a new appointment record
+    const totalServiceTime = services.reduce((sum, service) => sum + service.time, 0);
+    const end_service_time = new Date(start_service_time_obj.getTime() + totalServiceTime * 60000);
+
+    // Fetch all existing appointments for the technician on the same date
+    const existingAppointments = await Appointment.findAll({
+      include: [
+        {
+          model: Technician,
+          where: { id: technician_id },
+        },
+        {
+          model: Service,
+          attributes: ["time"], // Fetch service times for each appointment
+          through: { attributes: [] }, // Exclude through table attributes
+        },
+      ],
+      where: { date },
+    });
+
+    // Check for time overlaps
+    for (const appointment of existingAppointments) {
+      const appointmentStart = new Date(`${appointment.date}T${appointment.start_service_time}`);
+      const appointmentTime = appointment.Services.reduce((sum, service) => sum + service.time, 0);
+      const appointmentEnd = new Date(appointmentStart.getTime() + appointmentTime * 60000);
+
+      // Check if the new appointment overlaps with this one
+      if (
+        (start_service_time_obj >= appointmentStart && start_service_time_obj < appointmentEnd) ||
+        (end_service_time > appointmentStart && end_service_time <= appointmentEnd) ||
+        (start_service_time_obj <= appointmentStart && end_service_time >= appointmentEnd)
+      ) {
+        return res.status(400).json({
+          message: "Appointment overlaps with an existing appointment.",
+          conflictingSlot: start_service_time,
+        });
+      }
+    }
+
+    // Create the new appointment
     const newAppointment = await Appointment.create({
       customer_id,
       date,
       start_service_time,
     });
 
-    // Associate the appointment with technicians (many-to-many through AppointmentTechnician)
+    // Associate the new appointment with technicians
     if (technician_id && technician_id.length > 0) {
-      await newAppointment.addTechnicians(technician_id); // This will create records in the AppointmentTechnician table
+      await newAppointment.addTechnicians(technician_id);
     }
 
-    // Associate the appointment with services (many-to-many through AppointmentService)
+    // Associate the new appointment with services
     if (service_ids && service_ids.length > 0) {
-      await newAppointment.addServices(service_ids); // This will create records in the AppointmentService table
+      await newAppointment.addServices(service_ids);
     }
 
     // Return the newly created appointment
@@ -190,6 +270,8 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+
 
 
 module.exports = router;
