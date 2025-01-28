@@ -178,7 +178,7 @@ const AvailabilitySelection = ({
       <div className="fixed bottom-4 left-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-lg font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+          className="px-6 py-3 text-lg font-semibold rounded-full bg-blue-500 text-white hover:bg-blue-700"
         >
           Back
         </button>
@@ -188,7 +188,7 @@ const AvailabilitySelection = ({
         <button
           onClick={handleConfirm}
           disabled={!selectedSlot || !selectedDate || !selectedTechnician}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${selectedSlot && selectedDate && selectedTechnician
+          className={`px-6 py-3 text-lg font-semibold rounded-full transition-colors ${selectedSlot && selectedDate && selectedTechnician
             ? "bg-yellow-500 text-black hover:bg-yellow-600"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}

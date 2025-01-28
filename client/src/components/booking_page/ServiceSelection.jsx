@@ -57,15 +57,15 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
               {category.services.map((service) => (
                 <div
                   key={service.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedServices[category.id]?.some((s) => s.id === service.id)
+                  className={`relative p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedServices[category.id]?.some((s) => s.id === service.id)
                       ? "bg-yellow-200"
                       : "bg-white"
                     }`}
                   onClick={() => toggleService(category.id, service)}
                 >
-                  <h4 className="text-lg font-bold">{service.name}</h4>
-                  <p className="text-sm text-gray-600">{formatPrice(service.price)}</p>
-                  <p className="text-sm text-gray-600">{service.time} min</p>
+                  <h4 className="absolute top-2 left-2 text-lg font-bold">{service.name}</h4>
+                  <p className="absolute top-2 right-2 text-sm text-gray-600">{formatPrice(service.price)}</p>
+                  <p className="mt-5 text-sm text-gray-600">{service.time} min</p>
                 </div>
               ))}
             </div>
@@ -83,7 +83,7 @@ const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
           disabled={!Object.values(selectedServices).some(
             (services) => services && Array.isArray(services) && services.length > 0
           )}
-          className={`px-6 py-3 text-lg font-semibold rounded-lg transition-colors ${Object.values(selectedServices).some(
+          className={`px-6 py-3 text-lg font-semibold rounded-full transition-colors ${Object.values(selectedServices).some(
             (services) => services && Array.isArray(services) && services.length > 0
           )
               ? "bg-yellow-500 text-black hover:bg-yellow-600"
