@@ -97,7 +97,9 @@ const AvailabilitySelection = ({
 
   return (
     <div className="availability-selection max-w-[1000px] mx-auto p-4">
-      <h2 className="text-center text-2xl font-bold mb-6">Select Availability</h2>
+      <h2 className="text-center text-2xl font-bold mb-6">
+        Select {selectedTechnician.name.includes(' ') ? '' : `${selectedTechnician.name}'s`} Availability
+      </h2>
       {customerInfo?.name && (
         <p className="text-lg font-medium text-center mb-6">
           Welcome, {customerInfo.name}!

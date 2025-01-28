@@ -67,12 +67,15 @@ const TechnicianSelection = ({
           Welcome, {customerInfo.name}!
         </p>
       )}
+      <p className="text-center text-lg text-gray-600 mb-4">
+        Please select a technician to view their availability and book your appointment. If you have no preference, feel free to choose "No Preference," and we will match you with the best available technician.
+      </p>
       {loading ? (
         <div className="text-center py-6">Loading technicians...</div>
       ) : technicians.length === 0 ? (
         <div className="text-center py-6">No technicians available for the selected services.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center">
           {technicians.map((technician) => {
             // Skip rendering the technician if the name matches the offline worker
             if (offlineWorker && technician.name === offlineWorker.context) {

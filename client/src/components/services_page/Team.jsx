@@ -29,13 +29,19 @@ const Team = () => {
   return (
     <div className="technician-container">
       <div className="technician-grid">
-        {technicians.map((technician, index) => (
-          <div className="technician-card" key={index}>
-            <img src="/images/headshot_placeholder.jpg" alt={`${technician.name}`} className="technician-photo" />
-            <h2 className="technician-name">{technician.name}</h2>
-            <p className="technician-description">{technician.description}</p>
-          </div>
-        ))}
+        {technicians
+          .filter((technician) => !technician.name.includes(' '))
+          .map((technician, index) => (
+            <div className="technician-card" key={index}>
+              <img
+                src="/images/headshot_placeholder.jpg"
+                alt={`${technician.name}`}
+                className="technician-photo"
+              />
+              <h2 className="technician-name">{technician.name}</h2>
+              <p className="technician-description">{technician.description}</p>
+            </div>
+          ))}
       </div>
     </div>
   );
