@@ -42,7 +42,7 @@ router.get(`/:title`, async (req, res) => {
 
 
 /**
- * POST /sms_appointment_confirmation
+ * POST /notify_customer
  * Sends SMS appointment confirmations to the customer and the owner.
  *
  * @async
@@ -80,7 +80,7 @@ router.get(`/:title`, async (req, res) => {
  *   "error": "Detailed error message here"
  * }
  */
-router.post(`/sms_appointment_confirmation`, async (req, res) => {
+router.post(`/notify_customer`, async (req, res) => {
   try {
       const { messageData } = req.body;
     console.log(messageData);

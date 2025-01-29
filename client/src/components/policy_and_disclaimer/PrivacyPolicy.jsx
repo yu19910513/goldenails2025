@@ -29,7 +29,7 @@ const PrivacyPolicy = () => (
             <h2 className="mt-6 font-semibold">4. Your Rights</h2>
             <p>
                 You have the right to access, correct, or delete your personal information at any time. If you have any concerns or
-                would like to exercise your rights, please contact us at [contact@goldennailsandspa.com].
+                would like to exercise your rights, please contact us at<strong>golden.nails.gigharbor@gmail.com</strong>.
             </p>
             <h2 className="mt-6 font-semibold">5. Changes to This Privacy Policy</h2>
             <p>

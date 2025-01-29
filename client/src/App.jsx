@@ -2,10 +2,10 @@ import { React } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/global/Header';
 import Footer from './components/global/Footer';
-import Home from './pages/Home';
-import Booking from './pages/Booking';
-import AppointmentHistory from './pages/AppointmentHistory';
-import ServicesMenu from './pages/Servicemenu';
+import Home from './pages/home';
+import Booking from './pages/booking';
+import AppointmentHistory from './pages/appointmentHistory';
+import ServicesMenu from './pages/servicemenu';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
 import PrivacyPolicy from './components/policy_and_disclaimer/PrivacyPolicy';
 

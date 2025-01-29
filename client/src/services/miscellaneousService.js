@@ -16,7 +16,7 @@ class MiscellaneousService {
   }
 
   /**
- * Sends an SMS appointment confirmation message to the customer and/or owner.
+ * Sends an SMS message to the customer and/or owner.
  * 
  * @function
  * @param {Object} messageData - The data required to send the SMS.
@@ -38,8 +38,8 @@ class MiscellaneousService {
  *   .then(response => console.log("SMS sent successfully:", response))
  *   .catch(error => console.error("Error sending SMS:", error));
  */
-  smsAppointmentConfirmation(messageData) {
-    return http.post(`/miscellaneouses/sms_appointment_confirmation`, { messageData: messageData });
+  notifyCustomer(messageData) {
+    return http.post(`/miscellaneouses/notify_customer`, { messageData: messageData });
   }
 }
 
