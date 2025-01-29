@@ -89,7 +89,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             <p className="instructions">
                 To review or manage your appointment details, please use the 'Appointment History' section in the top navigation bar. Simply enter your phone number and name to access your records.
                 Should there be any changes to your appointment, we will notify you via phone or text and update your online appointment record accordingly.
-                If you need to cancel or modify your appointment, please contact us at <strong>253-851-7563</strong>.
+                If you need to cancel or modify your appointment, you may use the 'Appointment History' to do so or contact us at <strong>253-851-7563</strong>.
             </p>
             <div className="appointment-details">
                 <p><strong>Customer:</strong> {appointmentDetails.customerInfo.name}</p>

@@ -55,6 +55,23 @@ input:focus {
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
+.cancel-btn {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  background-color: #dc3545; /* Red for cancel */
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: auto;
+  text-align: center;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
 button {
   padding: 10px 15px;
   font-size: 1rem;

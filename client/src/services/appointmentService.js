@@ -37,6 +37,16 @@ class AppointmentService {
   customer_history(customer_id) {
     return http.get(`/appointments/customer_history?customer_id=${customer_id}`);
   }
+
+  /**
+ * Soft deletes an appointment by updating its note to "deleted".
+ * 
+ * @param {number} appointment_id - The ID of the appointment to be soft deleted.
+ * @returns {Promise} - A promise resolving to the HTTP response from the API.
+ */
+  soft_delete(appointment_id) {
+    return http.put(`/appointments/update_note`, { id: appointment_id, note: "deleted" });
+  }
 }
 
 export default new AppointmentService();

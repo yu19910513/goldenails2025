@@ -63,9 +63,7 @@ router.get("/validate", async (req, res) => {
       return res.status(404).json({ message: "Customer not found." });
     }
 
-    // Optionally filter sensitive data before sending the response
-    const { id, phone: customerPhone, name: customerName } = customer;
-    res.json({ id, phone: customerPhone, name: customerName });
+    res.json(customer);
   } catch (error) {
     console.error("Error searching for customer:", error);
     res.status(500).json({ error: "An error occurred while searching for the customer." });

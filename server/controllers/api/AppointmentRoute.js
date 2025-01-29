@@ -60,6 +60,10 @@ router.get("/upcoming", async (req, res) => {
         date: {
           [Op.gte]: new Date(), // Exclude appointments with past dates
         },
+        [Op.or]: [
+          { note: null }, // Include records where note is NULL
+          { note: { [Op.not]: "deleted" } }, // Also include records where note is NOT "deleted"
+        ],
       },
       include: [
         {
@@ -85,16 +89,14 @@ router.get("/upcoming", async (req, res) => {
 
 /**
  * @route GET /customer_history
- * @description Fetches a customer's appointment history, groups appointments into future, present, and past, 
- * and sorts each group by most recent date first.
- * @queryParam {string} customer_id - The ID of the customer whose appointment history is being fetched.
- * @returns {Object} JSON response with grouped and sorted appointments:
- *  - future: Array of future appointments.
- *  - present: Array of today's appointments.
- *  - past: Array of past appointments.
- * 
- * @throws {400} If customer_id is invalid or missing.
- * @throws {500} If there's an error fetching appointments.
+ * @description Fetches all non-deleted appointments for a specific customer.
+ * @param {Object} req - Express request object.
+ * @param {Object} req.query - Query parameters.
+ * @param {string} req.query.customer_id - The ID of the customer whose appointments are being fetched.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON response with grouped appointment data or an error message.
+ * @throws {400} If the customer_id is missing or invalid.
+ * @throws {500} If there is an error retrieving appointments from the database.
  */
 router.get("/customer_history", async (req, res) => {
   const { customer_id } = req.query;
@@ -107,6 +109,10 @@ router.get("/customer_history", async (req, res) => {
     const appointments = await Appointment.findAll({
       where: {
         customer_id: customer_id,
+        [Op.or]: [
+          { note: null }, // Include records where note is NULL
+          { note: { [Op.not]: "deleted" } }, // Also include records where note is NOT "deleted"
+        ],
       },
       include: [
         {
@@ -125,6 +131,41 @@ router.get("/customer_history", async (req, res) => {
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ error: "Failed to fetch appointments." });
+  }
+});
+
+
+/**
+ * @route PUT /appointment/update_note
+ * @description Updates the note field of a specific appointment
+ * @param {object} req - Express request object
+ * @param {number} req.body.id - The ID of the appointment to be updated
+ * @param {string} req.body.note - The new note to set for the appointment
+ * @param {object} res - Express response object
+ * @returns {object} JSON response indicating success or failure
+ */
+router.put("/update_note", async (req, res) => {
+  const { id, note } = req.body;
+
+  if (!id || !note) {
+    return res.status(400).json({ error: "Invalid or missing appointment ID or note." });
+  }
+
+  try {
+    const appointment = await Appointment.findByPk(id);
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found." });
+    }
+
+    // Update note field
+    appointment.note = note;
+    await appointment.save();
+
+    res.status(200).json({ message: "Appointment note updated successfully." });
+  } catch (error) {
+    console.error("Error updating appointment:", error);
+    res.status(500).json({ error: "Failed to update appointment." });
   }
 });
 
@@ -224,7 +265,13 @@ router.post("/", async (req, res) => {
           through: { attributes: [] }, // Exclude through table attributes
         },
       ],
-      where: { date },
+      where: {
+        date, 
+        [Op.or]: [
+          { note: null }, // Include records where note is NULL
+          { note: { [Op.not]: "deleted" } }, // Also include records where note is NOT "deleted"
+        ],
+      },
     });
 
     // Check for time overlaps

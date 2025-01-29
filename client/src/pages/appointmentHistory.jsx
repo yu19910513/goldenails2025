@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import CustomerService from '../services/customerService';
 import AppointmentService from '../services/appointmentService';
-import './appointmentHistory.css';
+import MiscellaneousService from '../services/miscellaneousService';
+import './AppointmentHistory.css';
 
 const AppointmentHistory = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [enteredName, setEnteredName] = useState('');
-    const [customerId, setCustomerId] = useState(null);
+    const [customerInfo, setCustomerInfo] = useState(null);
     const [appointments, setAppointments] = useState({ future: [], present: [], past: [] });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [tab, setTab] = useState('present'); // Default tab is 'now'
-
 
     // Handle form submission for phone and name
     const handleSubmit = async (e) => {
@@ -23,8 +23,8 @@ const AppointmentHistory = () => {
             const response = await CustomerService.validateUsingNumberAndName(phoneNumber, enteredName.trim().toUpperCase());
             const customer = response.data;
             if (customer) {
-                setCustomerId(customer.id);
-                fetchAppointments(customer.id); // If customer found, fetch appointments
+                setCustomerInfo(customer);
+                fetchAppointments(customer.id);
             } else {
                 setError('Customer not found');
             }
@@ -40,12 +40,39 @@ const AppointmentHistory = () => {
     const fetchAppointments = async (customerId) => {
         try {
             const response = await AppointmentService.customer_history(customerId);
-            const allAppointments = response.data;
-            setAppointments(allAppointments);
+            setAppointments(response.data);
         } catch (error) {
             setError('Error fetching appointments');
             console.error(error);
         }
+    };
+
+    const messageEngine = (appointment) => {
+        const messageData = {
+            customer_number: customerInfo.phone,
+            customer_message: `Dear ${customerInfo.name}, We would like to inform you that your appointment at Golden Nails Gig Harbor, scheduled for ${appointment.date}, at ${appointment.start_service_time}, has been successfully cancelled. If you have any further questions or would like to reschedule, please feel free to contact us at (253) 851-7563.`,
+            owner_message: `Appointment cancelled by ${customerInfo.name} (${customerInfo.phone}), scheduled for ${appointment.date}, at ${appointment.start_service_time}. Technician: ${appointment.Technicians[0].name}. `,
+        };
+        MiscellaneousService.smsAppointmentConfirmation(messageData)
+            .then(() => console.log("SMS sent successfully"))
+            .catch((error) => console.error("Failed to send SMS:", error));
+    }
+
+    // Handle appointment cancellation
+    const handleCancel = async (appointment) => {
+        const confirmCancel = window.confirm("Are you sure you want to cancel this appointment?");
+        if (!confirmCancel) return;
+
+        try {
+            await AppointmentService.soft_delete(appointment.id);
+            alert("Appointment successfully canceled.");
+            messageEngine(appointment);
+            fetchAppointments(customerInfo.id); // Refresh appointments after cancellation
+        } catch (error) {
+            alert("Failed to cancel appointment.");
+            console.error(error);
+        }
+        messageEngine(appointment);
     };
 
     // Switch tabs
@@ -54,7 +81,7 @@ const AppointmentHistory = () => {
     };
 
     // Render the appointments table based on selected tab
-    const renderAppointments = (appointmentsList) => {
+    const renderAppointments = (appointmentsList, showCancel = false) => {
         return appointmentsList.length === 0 ? (
             <p>No appointments found.</p>
         ) : (
@@ -64,6 +91,7 @@ const AppointmentHistory = () => {
                         <th>Date</th>
                         <th>Technician</th>
                         <th>Services</th>
+                        {showCancel && <th>Action</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -76,6 +104,13 @@ const AppointmentHistory = () => {
                                     <div key={idx}>{service.name}</div>
                                 ))}
                             </td>
+                            {showCancel && (
+                                <td>
+                                    <button className="cancel-btn" onClick={() => handleCancel(appointment)}>
+                                        Cancel Appt.
+                                    </button>
+                                </td>
+                            )}
                         </tr>
                     ))}
                 </tbody>
@@ -85,7 +120,7 @@ const AppointmentHistory = () => {
 
     // Get the class for each row based on appointment status
     const getAppointmentClass = (appointment) => {
-        const appointmentDate = new Date(appointment.date+'T00:00:00');
+        const appointmentDate = new Date(appointment.date + 'T00:00:00');
         const now = new Date();
         if (appointmentDate > now) return 'future-appointment';
         if (appointmentDate.toDateString() === now.toDateString()) return 'present-appointment';
@@ -94,8 +129,7 @@ const AppointmentHistory = () => {
 
     return (
         <div className="appointment-history">
-            {/* Form for phone number and name */}
-            {!customerId ? (
+            {!customerInfo ? (
                 <form onSubmit={handleSubmit}>
                     <p className="instruction">
                         Please enter the phone number and name used when scheduling your appointment to access your appointment history.
@@ -105,13 +139,9 @@ const AppointmentHistory = () => {
                         <input
                             type="tel"
                             value={phoneNumber}
-                            onChange={(e) => {
-                                // Only allow numeric input (0-9)
-                                const value = e.target.value.replace(/\D/g, '');
-                                setPhoneNumber(value);
-                            }}
+                            onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                             required
-                            pattern="[0-9]*" // Optional: Helps on mobile devices to bring up the numeric keypad
+                            pattern="[0-9]*"
                         />
                     </div>
                     <div>
@@ -134,33 +164,24 @@ const AppointmentHistory = () => {
                 <div>
                     <h3>Welcome back, {enteredName.toUpperCase()}!</h3>
                     <div className="tabs">
-                        <button
-                            className={tab === 'present' ? 'active' : ''}
-                            onClick={() => handleTabChange('present')}
-                        >
+                        <button className={tab === 'present' ? 'active' : ''} onClick={() => handleTabChange('present')}>
                             Today's
                         </button>
-                        <button
-                            className={tab === 'future' ? 'active' : ''}
-                            onClick={() => handleTabChange('future')}
-                        >
+                        <button className={tab === 'future' ? 'active' : ''} onClick={() => handleTabChange('future')}>
                             Future Appts.
                         </button>
-                        <button
-                            className={tab === 'past' ? 'active' : ''}
-                            onClick={() => handleTabChange('past')}
-                        >
+                        <button className={tab === 'past' ? 'active' : ''} onClick={() => handleTabChange('past')}>
                             Appt. History
-                        </button>          </div>
+                        </button>
+                    </div>
                     <div>
                         {tab === 'present' && renderAppointments(appointments.present)}
-                        {tab === 'future' && renderAppointments(appointments.future)}
+                        {tab === 'future' && renderAppointments(appointments.future, true)}
                         {tab === 'past' && renderAppointments(appointments.past)}
                     </div>
                 </div>
             )}
 
-            {/* Display errors */}
             {error && <p className="error">{error}</p>}
         </div>
     );
