@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Appointment, Technician, Service } = require("../../models");
 const { Op } = require("sequelize");
-const { groupAppointments, sendMessage } = require("../../util/util")
+const { groupAppointments, now } = require("../../util/util")
 
 /**
  * @route GET /appointments/upcoming
@@ -58,7 +58,7 @@ router.get("/upcoming", async (req, res) => {
     const appointments = await Appointment.findAll({
       where: {
         date: {
-          [Op.gte]: new Date(), // Exclude appointments with past dates
+          [Op.gte]: now(), // Exclude appointments with past dates
         },
         [Op.or]: [
           { note: null }, // Include records where note is NULL

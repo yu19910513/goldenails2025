@@ -12,7 +12,7 @@ dotenv.config();
  *  - past: Array of appointments in the past.
  */
 const groupAppointments = (appointments) => {
-    const today = new Date();
+    const today = now();
     today.setHours(0, 0, 0, 0); // Normalize to the start of the day
 
     const groupedAppointments = {
@@ -22,7 +22,7 @@ const groupAppointments = (appointments) => {
     };
 
     appointments.forEach((appointment) => {
-        const appointmentDate = new Date(appointment.date+'T00:00:00');
+        const appointmentDate = new Date(appointment.date + 'T00:00:00');
         appointmentDate.setHours(0, 0, 0, 0); // Normalize appointment date
 
         if (appointmentDate > today) {
@@ -63,5 +63,22 @@ const sendMessage = (RecipientPhoneNumber, message) => {
         .catch(err => console.log('Error sending message:', err));
 }
 
+/**
+ * Gets the current date and time adjusted to Pacific Time (PT).
+ * 
+ * The function calculates the UTC offset and adjusts the local time accordingly.
+ * Pacific Standard Time (PST) is UTC-8, and Pacific Daylight Time (PDT) is UTC-7.
+ * The adjustment considers the server's local time zone and ensures the returned 
+ * time reflects Pacific Time.
+ *
+ * @returns {Date} The current date and time in Pacific Time.
+ */
+const now = () => {
+    const now = new Date();
+    const offsetInHours = now.getTimezoneOffset() / 60 + 8; // Adjust UTC to Pacific Time (Standard Time: -8)
+    now.setHours(now.getHours() - offsetInHours);
+    return now;
+}
 
-module.exports = { groupAppointments, sendMessage };
+
+module.exports = { groupAppointments, sendMessage, now };
