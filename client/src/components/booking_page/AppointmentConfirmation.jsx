@@ -50,7 +50,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             customer_number: appointmentDetails.customerInfo.phone,
             customer_message: `Dear ${appointmentDetails.customerInfo.name}, your appointment at Golden Nails Gig Harbor for ${serviceNames.join(
                 ", "
-            )} on ${formattedDate} from ${formattedSlot} to ${endTime} is confirmed. Thank you!`,
+            )} on ${formattedDate} at ${formattedSlot} is confirmed. Thank you!`,
             owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
                 ", ")} `,
         };
