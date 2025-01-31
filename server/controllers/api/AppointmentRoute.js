@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Appointment, Technician, Service } = require("../../models");
 const { Op } = require("sequelize");
-const { groupAppointments, now } = require("../../util/util")
+const { groupAppointments, now, overlap } = require("../../util/util")
 
 /**
  * @route GET /appointments/upcoming
@@ -266,7 +266,7 @@ router.post("/", async (req, res) => {
         },
       ],
       where: {
-        date, 
+        date,
         [Op.or]: [
           { note: null }, // Include records where note is NULL
           { note: { [Op.not]: "deleted" } }, // Also include records where note is NOT "deleted"
@@ -274,23 +274,14 @@ router.post("/", async (req, res) => {
       },
     });
 
-    // Check for time overlaps
-    for (const appointment of existingAppointments) {
-      const appointmentStart = new Date(`${appointment.date}T${appointment.start_service_time}`);
-      const appointmentTime = appointment.Services.reduce((sum, service) => sum + service.time, 0);
-      const appointmentEnd = new Date(appointmentStart.getTime() + appointmentTime * 60000);
-
-      // Check if the new appointment overlaps with this one
-      if (
-        (start_service_time_obj >= appointmentStart && start_service_time_obj < appointmentEnd) ||
-        (end_service_time > appointmentStart && end_service_time <= appointmentEnd) ||
-        (start_service_time_obj <= appointmentStart && end_service_time >= appointmentEnd)
-      ) {
-        return res.status(400).json({
-          message: "Appointment overlaps with an existing appointment.",
-          conflictingSlot: start_service_time,
-        });
-      }
+    // Check if the new appointment overlaps 
+    if (
+      overlap(existingAppointments, start_service_time_obj, end_service_time)
+    ) {
+      return res.status(400).json({
+        message: "Appointment overlaps with an existing appointment.",
+        conflictingSlot: start_service_time,
+      });
     }
 
     // Create the new appointment

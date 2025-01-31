@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node server.js",
     "watch": "nodemon"
   },
@@ -37,5 +37,9 @@
     "sequelize": "^6.6.4",
     "simple-update-notifier": "^2.0.0",
     "twilio": "^5.4.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

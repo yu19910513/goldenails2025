@@ -240,6 +240,22 @@ const waTimeString = (slotObject) => {
   }).format(slotObject);
 };
 
+/**
+ * Gets the current date and time adjusted to Pacific Time (PT).
+ * 
+ * The function calculates the UTC offset and adjusts the local time accordingly.
+ * Pacific Standard Time (PST) is UTC-8, and Pacific Daylight Time (PDT) is UTC-7.
+ * The adjustment considers the server's local time zone and ensures the returned 
+ * time reflects Pacific Time.
+ *
+ * @returns {Date} The current date and time in Pacific Time.
+ */
+const now = () => {
+  const now = new Date();
+  const offsetInHours = now.getTimezoneOffset() / 60 + 8; // Adjust UTC to Pacific Time (Standard Time: -8)
+  now.setHours(now.getHours() - offsetInHours);
+  return now;
+}
 
 
 
@@ -250,4 +266,4 @@ const waTimeString = (slotObject) => {
 
 
 
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString };
+export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now };
