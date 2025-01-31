@@ -1,6 +1,6 @@
 /**
  * Formats a price into a string based on specific conditions:
- * - If the price ends with 1, 6, or 9, it subtracts 1 and appends a "+".
+ * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
  * - If the price is 1000 or more, it splits the price into a range format.
  * - Otherwise, it returns the price as a standard dollar amount.
  * 
@@ -18,14 +18,14 @@ const formatPrice = (price) => {
     throw new Error("Invalid price value. It must be a number.");
   }
 
-  if (price % 10 === 1 || price % 10 === 6 || price % 10 === 9) {
-    return `$${price - 1}+`;
-  }
-
   if (price >= 1000) {
     const low = Math.floor(price / 100);
     const high = price % 100;
     return `$${low} - ${high}`;
+  }
+
+  if (price % 10 === 1 || price % 10 === 6 || price % 10 === 9) {
+    return `$${price - 1}+`;
   }
 
   return `$${price}`;
