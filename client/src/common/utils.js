@@ -156,10 +156,12 @@ const calculateAvailableSlots = (
     }
   }
   // Parse the technician's unavailability into a set of unavailable weekdays (0=Sunday, 6=Saturday)
-  const unavailableDays = technician.unavailability
+  const unavailableDays = (technician.unavailability || "")
     .split(",")
+    .map(day => day.trim()) // Remove spaces
+    .filter(day => day !== "") // Remove empty values
     .map(Number)
-    .filter((day) => !isNaN(day) && day >= 0 && day <= 6);
+    .filter(day => !isNaN(day) && day >= 0 && day <= 6);
   const selectedWeekday = (new Date(selectedDate).getDay() + 1) % 7;
 
   if (appointments.length === 0) {

@@ -15,7 +15,7 @@
   "author": "rex yu",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "concurrently \"cd server && npm run test\" \"cd client && npm run test\"",
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:dev": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
     "start:prod": "node server/server.js",
