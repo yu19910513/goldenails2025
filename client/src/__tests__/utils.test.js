@@ -74,7 +74,7 @@ describe("Utility Functions", () => {
     describe("calculateAvailableSlots", () => {
         const businessHours = { start: 9, end: 17 };
         const futureDayOnly = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-        
+
         test("returns available slots when no appointments exist", () => {
             const appointments = [];
             const selectedServices = { "1": [{ time: 30 }] };
@@ -113,7 +113,9 @@ describe("Utility Functions", () => {
         test("returns empty array when technician is unavailable on a specific weekday", () => {
             const appointments = [];
             const selectedServices = { "1": [{ time: 30 }] };
-            const selectedDate = new Date(now().setDate(now().getDate() + ((8 - now().getDay()) % 7 || 7))).toISOString().split("T")[0]; // A Monday
+            const localDate = new Date();
+            const localDateAdjusted = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000); // Adjust to local time
+            const selectedDate = new Date(localDateAdjusted.setDate(localDateAdjusted.getDate() + ((1 - localDateAdjusted.getDay() + 7) % 7 || 7))).toISOString().split("T")[0]; // Next Monday in local time
             const technician = { name: "Lisa", unavailability: "1" }; // Monday is unavailable (1-based index)
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots).toEqual([]);
@@ -129,7 +131,7 @@ describe("Utility Functions", () => {
             expect(slots[0].getHours()).toBeGreaterThanOrEqual(9); // Earliest slot should not be before business hours
             expect(slots[slots.length - 1].getHours()).toBeLessThanOrEqual(17); // Latest slot should not exceed business hours
         });
-        
+
     });
 
 
