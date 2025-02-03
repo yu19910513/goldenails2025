@@ -72,7 +72,6 @@ const AppointmentHistory = () => {
             alert("Failed to cancel appointment.");
             console.error(error);
         }
-        messageEngine(appointment);
     };
 
     // Switch tabs
