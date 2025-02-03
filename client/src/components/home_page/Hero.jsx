@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import MiscellaneousService from "../../services/miscellaneousService";
+import AnnouncementBar from "./AnnouncementBar"; // Import the new component
 import "./Hero.css";
 
 const Hero = () => {
-  const [adBoard, setAdBoard] = useState("Loading ad content..."); // Default loading state for adBoard
-  const [subtext, setSubtext] = useState(""); // Default loading state for subtext
+  const [adBoard, setAdBoard] = useState("Loading ad content...");
+  const [subtext, setSubtext] = useState("");
+  const [announcementBarPermission, setAnnouncementBarPermission] = useState(null);
 
   useEffect(() => {
     const fetchAdBoardData = async () => {
@@ -13,7 +15,7 @@ const Hero = () => {
         setAdBoard(adBoardResponse.data.context || "Default ad board message");
       } catch (error) {
         console.error("Error fetching adBoard data:", error);
-        setAdBoard("Polish, Pamper, Perfection"); // Fallback message for adBoard
+        setAdBoard("Polish, Pamper, Perfection");
       }
     };
 
@@ -26,21 +28,37 @@ const Hero = () => {
       }
     };
 
-    // Fetch both adBoard and subtext independently
+    const fetchAnnouncementBarPermission = async () => {
+      try {
+        const announcementBarPermissionResponse = await MiscellaneousService.find("displayAnnouncementBar");
+        if (announcementBarPermissionResponse.data && announcementBarPermissionResponse.data.context === "on") {
+          setAnnouncementBarPermission(true);
+        } else {
+          setAnnouncementBarPermission(false);
+        }
+      } catch (error) {
+        console.error("Error fetching AnnouncementBarPermission data:", error);
+        setAnnouncementBarPermission(false);
+      }
+    };
+
     fetchAdBoardData();
     fetchSubtextData();
+    fetchAnnouncementBarPermission();
   }, []);
 
   return (
-    <section className="hero bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif">
+    <section className="relative hero bg-cover bg-center h-screen text-center text-white flex items-center justify-center p-10 font-serif">
+      {announcementBarPermission && (
+        <div className="announcement-bar-container">
+          <AnnouncementBar />
+        </div>
+      )}
       <div className="p-8 rounded-lg max-w-3xl animate-fadeIn mx-auto lg:mr-20">
         <h1 className="adBoard text-5xl font-extrabold mb-8 drop-shadow-lg animate-goldenFadeIn">
-          {adBoard || "Loading..."} {/* Display adBoard data or a loading message */}
+          {adBoard || "Loading..."}
         </h1>
-        {/* Subtext added here */}
-        <h2 className="mb-6 animate-fadeIn subtext">
-          {subtext}
-        </h2>
+        <h2 className="mb-6 animate-fadeIn subtext">{subtext}</h2>
 
         <div className="mb-8 info-section mt-20" style={{ fontFamily: "Optima, arial", color: "#06402B" }}>
           <p className="text-lg font-medium mb-2">

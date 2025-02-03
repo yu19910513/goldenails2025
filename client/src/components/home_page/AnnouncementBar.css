@@ -1,0 +1,46 @@
+/* AnnouncementBar.css */
+.announcement-bar {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: #dc2626;
+    /* Tailwind's red-600 */
+    color: white;
+    opacity: 0;
+    transform: translateY(-100%);
+    animation: slideDownFadeIn 0.8s ease-out forwards;
+    display: flex;
+    align-items: center;
+    height: 2.5rem;
+    /* Adjust height as needed */
+    white-space: nowrap;
+}
+
+@keyframes slideDownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure the scrolling effect looks seamless */
+.announcement-text-wrapper {
+    display: flex;
+    gap: 30rem;
+    /* Spacing between duplicate texts */
+    width: max-content;
+    white-space: nowrap;
+}
+
+.announcement-text {
+    font-size: 0.875rem;
+    /* Tailwind's text-sm */
+    font-weight: 600;
+    /* Tailwind's font-semibold */
+    padding: 0.5rem 0;
+}

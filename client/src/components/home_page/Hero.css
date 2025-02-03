@@ -19,6 +19,14 @@
     /* Prevents the image from repeating */
 }
 
+.announcement-bar-container {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
 .adBoard {
     font-family: "Didot", Georgia, serif;
     line-height: 1.5;
