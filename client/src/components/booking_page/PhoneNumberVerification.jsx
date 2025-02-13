@@ -91,10 +91,10 @@ const PhoneNumberVerification = ({ onVerify }) => {
             onChange={(e) => setOptInSms(e.target.checked)}
             className="h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500"
           />
-          <label htmlFor="smsOptIn" className="ml-4 text-xs text-gray-600 relative">
-            By opting in, you agree to receive SMS notifications for appointment reminders, confirmations, and updates. You can opt-out at any time by contacting us directly. You may also refer to our
+          <small htmlFor="smsOptIn" className="ml-4 text-xs text-gray-600 relative">
+            By opting in, you agree to receive text message for appointment reminders, confirmations, and updates. You can opt-out at any time by contacting us directly. You may also refer to our
             <Link to="/privacy-policy">Privacy Policy</Link>
-          </label>
+          </small>
         </div>
         {/* Phone Number Input */}
         <div className="mb-4">
