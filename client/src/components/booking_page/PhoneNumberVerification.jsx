@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from 'react-router-dom'
 import CustomerService from "../../services/customerService";
 
 const PhoneNumberVerification = ({ onVerify }) => {
@@ -82,7 +83,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
           <div className="text-red-500 text-center mb-4">{errorMessage}</div>
         )}
         {/* Opt-in SMS Checkbox */}
-        <div className="mb-4 flex items-center">
+        <div className="mb-5 flex items-center">
           <input
             type="checkbox"
             id="smsOptIn"
@@ -91,7 +92,8 @@ const PhoneNumberVerification = ({ onVerify }) => {
             className="h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500"
           />
           <label htmlFor="smsOptIn" className="ml-4 text-xs text-gray-600 relative">
-            By opting in, you agree to receive SMS notifications for appointment reminders, confirmations, and updates. You can opt-out at any time by contacting us directly.
+            By opting in, you agree to receive SMS notifications for appointment reminders, confirmations, and updates. You can opt-out at any time by contacting us directly. You may also refer to our
+            <Link to="/privacy-policy">Privacy Policy</Link>
           </label>
         </div>
         {/* Phone Number Input */}
