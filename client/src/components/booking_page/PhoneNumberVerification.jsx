@@ -9,7 +9,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [optInSms, setOptInSms] = useState(true);  // State to track SMS opt-in
-
+  localStorage.setItem("smsOptIn", optInSms);
   const phoneRegex = /^[0-9]{10}$/; // Validates 10 digits phone number
 
   // Handle phone number change
@@ -88,13 +88,21 @@ const PhoneNumberVerification = ({ onVerify }) => {
             type="checkbox"
             id="smsOptIn"
             checked={optInSms}
-            onChange={(e) => setOptInSms(e.target.checked)}
+            onChange={(e) => {
+              setOptInSms(e.target.checked);
+              localStorage.setItem("smsOptIn", e.target.checked);
+            }}
             className="h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500"
           />
-          <small htmlFor="smsOptIn" className="ml-4 text-xs text-gray-600 relative">
-            By opting in, you agree to receive text message for appointment reminders, confirmations, and updates. You can opt-out at any time by contacting us directly. You may also refer to our
-            <Link to="/privacy-policy">Privacy Policy</Link>
-          </small>
+          {!optInSms ? (
+            <small className="ml-4 text-xs text-red-600 relative">
+              You opted out of text messages for appointment confirmation.
+            </small>
+          ) : (
+            <small htmlFor="smsOptIn" className="ml-4 text-xs text-gray-600 relative">
+              By opting in, you agree to receive text message for appointment reminders, confirmations, and updates. You can opt-out at any time by contacting us directly. You may also refer to our
+              <Link to="/privacy-policy">Privacy Policy</Link>
+            </small>)}
         </div>
         {/* Phone Number Input */}
         <div className="mb-4">

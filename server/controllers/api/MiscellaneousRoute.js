@@ -82,39 +82,39 @@ router.get(`/:title`, async (req, res) => {
  */
 router.post(`/notify_customer`, async (req, res) => {
   try {
-      const { messageData } = req.body;
+    const { messageData } = req.body;
     console.log(messageData);
-    
-      // Validate request body
-      if (!messageData || !messageData.customer_number || !messageData.customer_message) {
-          return res.status(400).json({
-              success: false,
-              message: 'Invalid request. Ensure customer_number and customer_message are provided.',
-          });
-      }
 
-      // Send SMS to customer
-      sendMessage(messageData.customer_number, messageData.customer_message);
+    // Optionally send SMS to the owner
+    if (process.env.OWNER_NUMBER && messageData.owner_message) {
+      sendMessage(process.env.OWNER_NUMBER, messageData.owner_message);
+    }
 
-      // Optionally send SMS to the owner
-      if (process.env.OWNER_NUMBER && messageData.owner_message) {
-          sendMessage(process.env.OWNER_NUMBER, messageData.owner_message);
-      }
-
-      // Send success response
-      res.status(200).json({
-          success: true,
-          message: 'SMS appointment confirmation sent successfully!',
+    // Validate request body
+    if (!messageData || !messageData.customer_number || !messageData.customer_message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request. Ensure customer_number and customer_message are provided.',
       });
+    }
+
+    // Send SMS to customer
+    sendMessage(messageData.customer_number, messageData.customer_message);
+
+    // Send success response
+    res.status(200).json({
+      success: true,
+      message: 'SMS appointment confirmation sent successfully!',
+    });
   } catch (error) {
-      console.error('Error in sending SMS:', error);
+    console.error('Error in sending SMS:', error);
 
-      // Send error response
-      res.status(500).json({
-          success: false,
-          message: 'Failed to send SMS appointment confirmation. Please try again later.',
-          error: error.message, // Optional: Include error details for debugging
-      });
+    // Send error response
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send SMS appointment confirmation. Please try again later.',
+      error: error.message, // Optional: Include error details for debugging
+    });
   }
 });
 

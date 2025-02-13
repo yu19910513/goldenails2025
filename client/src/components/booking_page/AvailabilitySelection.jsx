@@ -78,7 +78,7 @@ const AvailabilitySelection = ({
       .then((response) => {
         console.log("Appointment created:", response.data);
         onConfirm(response.data);
-        localStorage.clear();
+        // localStorage.clear();
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
