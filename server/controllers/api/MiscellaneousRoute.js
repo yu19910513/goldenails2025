@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
 const { Miscellaneous } = require("../../models");
-const { sendMessage } = require("../../util/util");
+const { sendMessage, sendEmail } = require("../../util/util");
 dotenv.config();
 
 
@@ -27,12 +27,9 @@ router.get(`/:title`, async (req, res) => {
       where: { title },
       attributes: ["title", "context"], // Only retrieves `title` and `context`
     });
-
     if (!miscellaneous) {
       return res.status(404).json({ message: "This miscellaneous data is not found." });
     }
-
-    const data = miscellaneous.get({ plain: true });
     res.json(miscellaneous);
   } catch (error) {
     console.error("Error searching miscellaneous data:", error);
@@ -67,6 +64,14 @@ router.post(`/notify_customer`, async (req, res) => {
     if (process.env.OWNER_NUMBER && messageData.owner_message) {
       console.log("sending notification to the owner...");
       sendMessage(process.env.OWNER_NUMBER, messageData.owner_message);
+    }
+
+    if (process.env.BUSINESS_EMAIL && process.env.STORE_EMAIL) {
+      sendEmail({
+        address: [process.env.STORE_EMAIL, process.env.OWNER_EMAIL],
+        subject: messageData.owner_message.toLowerCase().includes("cancelled") ? "Cancel Request" : "New Appointment",
+        text: messageData.owner_message,
+      });
     }
 
     // Validate request body

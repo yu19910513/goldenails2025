@@ -1,5 +1,6 @@
 const twilio = require('twilio');
 const dotenv = require('dotenv');
+const nodemailer = require("nodemailer");
 dotenv.config();
 /**
  * Groups appointments into future, present, and past, and sorts each group by most recent date first.
@@ -131,5 +132,43 @@ const overlap = (existingAppointments, start_service_time_obj, end_service_time)
     return false;
 }
 
+/**
+ * Sends an email using Gmail's SMTP service.
+ *
+ * @param {Object} email_object - The email details.
+ * @param {string|string[]} email_object.address - Recipient's email address or an array of email addresses.
+ * @param {string} email_object.subject - Email subject.
+ * @param {string} email_object.text - Email body in plain text format.
+ *
+ * @returns {void} - Logs success or error messages to the console.
+ *
+ * @note Must Have 2FA Enabled: App Passwords require two-step verification.
+ * @note Uses an App Password instead of the regular Gmail password for security.
+ */
+const sendEmail = (email_object) => {
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.BUSINESS_EMAIL, // Sender email
+            pass: process.env.APP_PASSWORD, // App password from Google
+        },
+    });
 
-module.exports = { groupAppointments, sendMessage, now, overlap };
+    const mailOptions = {
+        from: process.env.BUSINESS_EMAIL,
+        to: Array.isArray(email_object.address) ? email_object.address : [email_object.address].join(", "),
+        subject: email_object.subject,
+        text: email_object.text,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error("Error sending email:", error);
+        } else {
+            console.log("Email sent:", info.response);
+        }
+    });
+};
+
+
+module.exports = { groupAppointments, sendMessage, now, overlap, sendEmail };
