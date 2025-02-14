@@ -41,6 +41,26 @@ class MiscellaneousService {
   notifyCustomer(messageData) {
     return http.post(`/miscellaneouses/notify_customer`, { messageData: messageData });
   }
+
+
+  /**
+   * Sends a contact request to the owner via an API call.
+   *
+   * @param {Object} email_object - The email details to be sent.
+   * @param {string} email_object.name - The sender's name.
+   * @param {string} email_object.email - The sender's email address.
+   * @param {string} email_object.message - The message content.
+   * @returns {Promise<Object>} A Promise resolving to the API response.
+   *
+   * @throws {Error} If the request fails, the API response may include an error message.
+   */
+  contactOwner(email_object) {
+    return http.post(`/miscellaneouses/contact_owner`, { email_object: email_object });
+  }
+
+
+
+
 }
 
 export default new MiscellaneousService();

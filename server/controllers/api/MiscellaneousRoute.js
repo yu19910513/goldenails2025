@@ -105,6 +105,47 @@ router.post(`/notify_customer`, async (req, res) => {
   }
 });
 
+/**
+ * Handles incoming client message and forwards them via email.
+ *
+ * @route POST /contact_owner
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - The request body containing the email details.
+ * @param {Object} req.body.email_object - The email content sent by the client.
+ * @param {string} req.body.email_object.name - The sender's name.
+ * @param {string} req.body.email_object.email - The sender's email address.
+ * @param {string} req.body.email_object.message - The message content.
+ * @param {Object} res - Express response object.
+ * @returns {void} Sends a JSON response indicating success or failure.
+ *
+ * @throws {Error} Returns a 500 status code if an internal server error occurs.
+ */
+router.post(`/contact_owner`, (req, res) => {
+  try {
+    const { email_object } = req.body;
+    if (process.env.BUSINESS_EMAIL && process.env.STORE_EMAIL) {
+      sendEmail({
+        address: [process.env.STORE_EMAIL, process.env.OWNER_EMAIL],
+        subject: `${email_object.name} (${email_object.email}) sent you a message`,
+        text: email_object.message,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'Client message sent successfully!',
+      });
+    } else {
+      res.status(400).json({ message: "Missing business/store emails." });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send the message. Please try again later.',
+      error: error.message, // Optional: Include error details for debugging
+    });
+  }
+});
+
+
 
 
 
