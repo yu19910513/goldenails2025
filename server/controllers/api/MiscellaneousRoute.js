@@ -42,44 +42,22 @@ router.get(`/:title`, async (req, res) => {
 
 
 /**
- * POST /notify_customer
- * Sends SMS appointment confirmations to the customer and the owner.
- *
- * @async
- * @param {Object} req - Express request object.
- * @param {Object} req.body - The body of the request containing message data.
- * @param {Object} req.body.messageData - The message data object.
- * @param {string} req.body.messageData.customer_number - The customer's phone number.
- * @param {string} req.body.messageData.customer_message - The message to be sent to the customer.
- * @param {string} req.body.messageData.owner_message - The message to be sent to the owner (optional).
- * @param {Object} res - Express response object.
- * @returns {void} Sends a JSON response indicating success or failure.
- *
- * @throws {Error} Responds with a 500 status code if an error occurs while sending the SMS.
- *
- * @example
- * // Request body:
- * {
- *   "messageData": {
- *     "customer_number": "1234567890",
- *     "customer_message": "Your appointment is confirmed for 3 PM.",
- *     "owner_message": "Appointment confirmation sent to customer."
- *   }
- * }
- *
- * // Success Response:
- * {
- *   "success": true,
- *   "message": "SMS appointment confirmation sent successfully!"
- * }
- *
- * // Error Response:
- * {
- *   "success": false,
- *   "message": "Failed to send SMS appointment confirmation. Please try again later.",
- *   "error": "Detailed error message here"
- * }
- */
+* Handles customer notification requests by sending SMS messages.
+*
+* This endpoint receives a request containing message data and sends SMS notifications
+* to the customer and optionally to the owner.
+*
+* @route POST /notify_customer
+* @param {Object} req - Express request object.
+* @param {Object} req.body - The request body containing message details.
+* @param {Object} req.body.messageData - The message data object.
+* @param {string} req.body.messageData.customer_number - The customer's phone number.
+* @param {string} req.body.messageData.customer_message - The message to send to the customer.
+* @param {boolean} [req.body.messageData.optInSMS] - Whether the customer opted in for SMS notifications.
+* @param {string} [req.body.messageData.owner_message] - Optional message to send to the owner.
+* @param {Object} res - Express response object.
+* @returns {Object} JSON response with success status and message.
+*/
 router.post(`/notify_customer`, async (req, res) => {
   try {
     const { messageData } = req.body;
@@ -87,6 +65,7 @@ router.post(`/notify_customer`, async (req, res) => {
 
     // Optionally send SMS to the owner
     if (process.env.OWNER_NUMBER && messageData.owner_message) {
+      console.log("sending notification to the owner...");
       sendMessage(process.env.OWNER_NUMBER, messageData.owner_message);
     }
 
@@ -99,7 +78,10 @@ router.post(`/notify_customer`, async (req, res) => {
     }
 
     // Send SMS to customer
-    sendMessage(messageData.customer_number, messageData.customer_message);
+    if (messageData.optInSMS == 'true') {
+      console.log("sending notification to the customer...");
+      sendMessage(messageData.customer_number, messageData.customer_message);
+    }
 
     // Send success response
     res.status(200).json({

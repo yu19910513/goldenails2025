@@ -6,6 +6,7 @@ import MiscellaneousService from "../../services/miscellaneousService";
 
 const AppointmentConfirmation = ({ appointmentDetails }) => {
     const navigate = useNavigate();
+    const optInSMS = localStorage.getItem("smsOptIn");
     // Extract service names
     const serviceNames = Object.values(appointmentDetails.services).flatMap((category) =>
         category.map((service) => service.name)
@@ -45,20 +46,17 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
         : "N/A";
 
 
-    const messageEngine = (isOptInSMS) => {
-        let customerNumber = isOptInSMS ? appointmentDetails.customerInfo.phone : "";
+    const messageEngine = () => {
         const messageData = {
-            customer_number: customerNumber,
+            optInSMS: optInSMS,
+            customer_number: appointmentDetails.customerInfo.phone,
             customer_message: `Dear ${appointmentDetails.customerInfo.name}, your appointment at Golden Nails Gig Harbor for ${serviceNames.join(
                 ", "
             )} on ${formattedDate} at ${formattedSlot} is confirmed. Thank you!`,
             owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
                 ", ")} `,
         };
-
         console.log(messageData);
-        
-        
         MiscellaneousService.notifyCustomer(messageData)
             .then(() => console.log("SMS sent successfully"))
             .catch((error) => console.error("Failed to send SMS:", error));
@@ -66,22 +64,19 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
     }
 
     useEffect(() => {
-        const optInSMS = localStorage.getItem("smsOptIn");
         const fetchPermission = async () => {
             try {
                 const permissionResponse = await MiscellaneousService.find("smsFeature");
                 console.log(permissionResponse.data.context);
                 if (permissionResponse.data && permissionResponse.data.context == "on") {
-                    messageEngine(optInSMS);
+                    messageEngine();
                 }
 
             } catch (error) {
                 console.error("Error fetching permission data:", error);
             }
         };
-
         fetchPermission();
-        localStorage.clear();
     }, []);
 
 
