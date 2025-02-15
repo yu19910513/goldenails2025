@@ -16,28 +16,16 @@ class MiscellaneousService {
   }
 
   /**
- * Sends an SMS message to the customer and/or owner.
- * 
- * @function
- * @param {Object} messageData - The data required to send the SMS.
- * @param {string} messageData.customer_number - The customer's phone number to send the message to.
- * @param {string} messageData.customer_message - The SMS content for the customer.
- * @param {string} [messageData.owner_message] - The optional SMS content for the owner.
- * 
- * @returns {Promise<Object>} A promise that resolves to the HTTP response if the SMS is sent successfully.
- * @throws {Error} Throws an error if the HTTP request fails.
- * 
- * @example
- * const messageData = {
- *   customer_number: "1234567890",
- *   customer_message: "Your appointment is confirmed for January 25th at 3:00 PM.",
- *   owner_message: "Appointment confirmed for customer John Doe."
- * };
- * 
- * smsAppointmentConfirmation(messageData)
- *   .then(response => console.log("SMS sent successfully:", response))
- *   .catch(error => console.error("Error sending SMS:", error));
- */
+  * Sends a notification to a customer via SMS and/or email.
+  * 
+  * @param {Object} messageData - The message details for notification.
+  * @param {string} messageData.customer_number - The customer's phone number.
+  * @param {string} messageData.customer_message - The message to send to the customer.
+  * @param {string} [messageData.owner_message] - Optional message for the owner.
+  * @param {string} [messageData.customer_email] - Optional email for the customer.
+  * @param {string} [messageData.optInSMS] - Whether the customer opted in for SMS.
+  * @returns {Promise} HTTP response promise.
+  */
   notifyCustomer(messageData) {
     return http.post(`/miscellaneouses/notify_customer`, { messageData: messageData });
   }

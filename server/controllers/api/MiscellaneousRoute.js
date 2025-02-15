@@ -39,40 +39,23 @@ router.get(`/:title`, async (req, res) => {
 
 
 /**
-* Handles customer notification requests by sending SMS messages.
-*
-* This endpoint receives a request containing message data and sends SMS notifications
-* to the customer and optionally to the owner.
-*
-* @route POST /notify_customer
-* @param {Object} req - Express request object.
-* @param {Object} req.body - The request body containing message details.
-* @param {Object} req.body.messageData - The message data object.
-* @param {string} req.body.messageData.customer_number - The customer's phone number.
-* @param {string} req.body.messageData.customer_message - The message to send to the customer.
-* @param {boolean} [req.body.messageData.optInSMS] - Whether the customer opted in for SMS notifications.
-* @param {string} [req.body.messageData.owner_message] - Optional message to send to the owner.
-* @param {Object} res - Express response object.
-* @returns {Object} JSON response with success status and message.
-*/
-router.post(`/notify_customer`, async (req, res) => {
+ * Endpoint to notify customers via SMS and email.
+ * 
+ * @route POST /notify_customer
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - Request body containing message data.
+ * @param {string} req.body.customer_number - Customer's phone number.
+ * @param {string} req.body.customer_message - Message to send to the customer.
+ * @param {string} [req.body.owner_message] - Optional message for the owner.
+ * @param {string} [req.body.customer_email] - Optional email for the customer.
+ * @param {string} [req.body.optInSMS] - Whether the customer opted in for SMS.
+ * @param {Object} res - Express response object.
+ * @returns {Object} JSON response with success or error message.
+ */
+router.post('/notify_customer', async (req, res) => {
   try {
     const { messageData } = req.body;
     console.log(messageData);
-
-    // Optionally send SMS to the owner
-    if (process.env.OWNER_NUMBER && messageData.owner_message) {
-      console.log("sending notification to the owner...");
-      sendMessage(process.env.OWNER_NUMBER, messageData.owner_message);
-    }
-
-    if (process.env.BUSINESS_EMAIL && process.env.STORE_EMAIL) {
-      sendEmail({
-        address: [process.env.STORE_EMAIL, process.env.OWNER_EMAIL],
-        subject: messageData.owner_message.toLowerCase().includes("cancelled") ? "Cancel Request" : "New Appointment",
-        text: messageData.owner_message,
-      });
-    }
 
     // Validate request body
     if (!messageData || !messageData.customer_number || !messageData.customer_message) {
@@ -82,28 +65,55 @@ router.post(`/notify_customer`, async (req, res) => {
       });
     }
 
-    // Send SMS to customer
-    if (messageData.optInSMS == 'true') {
-      console.log("sending notification to the customer...");
-      sendMessage(messageData.customer_number, messageData.customer_message);
+    const { owner_message, customer_email, customer_number, customer_message, optInSMS } = messageData;
+    const { OWNER_NUMBER, BUSINESS_EMAIL, STORE_EMAIL, OWNER_EMAIL } = process.env;
+
+    // Send SMS to the owner if applicable
+    if (OWNER_NUMBER && owner_message) {
+      console.log('Sending SMS notification to the owner...');
+      sendMessage(OWNER_NUMBER, owner_message);
     }
 
-    // Send success response
+    // Send email to the business owner
+    if (BUSINESS_EMAIL && STORE_EMAIL) {
+      console.log('Sending email notification to the owner...');
+      sendEmail({
+        address: [STORE_EMAIL, OWNER_EMAIL].filter(Boolean), // Ensure valid emails only
+        subject: owner_message.toLowerCase().includes('cancelled') ? 'Cancel Request' : 'New Appointment',
+        text: owner_message,
+      });
+    }
+
+    // Send email to the customer if applicable
+    if (customer_email) {
+      console.log('Sending email notification to the customer...');
+      sendEmail({
+        address: customer_email,
+        subject: customer_message.toLowerCase().includes('cancelled') ? 'Cancellation' : 'Appointment Confirmation',
+        text: customer_message,
+      });
+    }
+
+    // Send SMS to customer if opted in
+    if (optInSMS !== 'false') {
+      console.log('Sending SMS notification to the customer...');
+      sendMessage(customer_number, customer_message);
+    }
+
     res.status(200).json({
       success: true,
       message: 'SMS appointment confirmation sent successfully!',
     });
   } catch (error) {
-    console.error('Error in sending SMS:', error);
-
-    // Send error response
+    console.error('Error in sending notification:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to send SMS appointment confirmation. Please try again later.',
-      error: error.message, // Optional: Include error details for debugging
+      message: 'Failed to send notification. Please try again later.',
+      error: error.message,
     });
   }
 });
+
 
 /**
  * Handles incoming client message and forwards them via email.
