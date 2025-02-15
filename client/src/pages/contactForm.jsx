@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MiscellaneousService from "../services/miscellaneousService";
-import "./ContactForm.css"; // Import CSS file for styling
+import "./contactForm.css"; // Import CSS file for styling
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
