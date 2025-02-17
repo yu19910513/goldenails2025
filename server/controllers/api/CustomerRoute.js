@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Customer } = require("../../models");
-const {authenticate, signToken } = require("../../util/auth");
+const { authenticate, signToken } = require("../../util/auth");
 
 /**
  * @route GET /search
@@ -114,6 +114,47 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.error("Error processing customer:", error);
     res.status(500).json({ error: "An error occurred while processing the customer." });
+  }
+});
+
+/**
+ * Updates an existing customer in the database.
+ *
+ * @route PUT /customers/
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The customer data to update.
+ * @param {number} req.body.id - The unique identifier of the customer.
+ * @param {string} [req.body.name] - The updated name of the customer.
+ * @param {string} [req.body.phone] - The updated phone number of the customer.
+ * @param {string} [req.body.email] - The updated email address of the customer.
+ * @param {boolean} [req.body.optInSms] - Indicates if the customer opts into SMS notifications.
+ * @param {Object} res - The response object.
+ * @returns {Object} 200 - Updated customer data.
+ * @returns {Object} 400 - Bad request if the ID is missing.
+ * @returns {Object} 500 - Internal server error.
+ */
+router.put("/", async (req, res) => {
+  try {
+    const { id, name, phone, email, optInSms } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Customer ID is required." });
+    }
+
+    // Find the customer by ID
+    const customer = await Customer.findByPk(id);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found." });
+    }
+
+    // Update the customer record
+    await customer.update({ name, phone, email, optInSms });
+
+    return res.status(200).json({ message: "Customer updated successfully.", customer });
+  } catch (error) {
+    console.error("Error updating customer:", error);
+    return res.status(500).json({ message: "Internal server error." });
   }
 });
 

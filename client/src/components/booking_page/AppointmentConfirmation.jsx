@@ -57,11 +57,9 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
                 ", ")} `,
         };
-        console.log(messageData);
         MiscellaneousService.notifyCustomer(messageData)
             .then(() => console.log("SMS sent successfully"))
             .catch((error) => console.error("Failed to send SMS:", error));
-
     }
 
     useEffect(() => {

@@ -37,6 +37,22 @@ class CustomerService {
   createCustomer(customerData) {
     return http.post(`/customers/`, customerData);
   }
+
+  /**
+ * Updates customer information in the database.
+ * 
+ * @param {Object} customerData - The customer data to update.
+ * @param {string} customerData.id - The unique identifier of the customer.
+ * @param {string} [customerData.name] - The updated name of the customer.
+ * @param {string} [customerData.phone] - The updated phone number of the customer.
+ * @param {string} [customerData.email] - The updated email address of the customer.
+ * @param {boolean} [customerData.optInSms] - Indicates if the customer opts into SMS notifications.
+ * @returns {Promise} - A promise resolving with the server response.
+ */
+  updateCustomer(customerData) {
+    return http.put(`/customers/`, customerData);
+  }
+
 }
 
 export default new CustomerService();
