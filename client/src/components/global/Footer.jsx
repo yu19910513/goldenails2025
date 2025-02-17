@@ -10,7 +10,8 @@ const Footer = () => (
       </small>
       <small className="footer-text privacy">
         <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link> | 
-        <Link to="/legal-disclaimer" className="footer-link"> Legal Disclaimer</Link>
+        <Link to="/legal-disclaimer" className="footer-link">Legal Disclaimer</Link> | 
+        <Link to="/contact" className="footer-link">Contact Us</Link>
       </small>
     </div>
   </footer>
