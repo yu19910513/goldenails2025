@@ -13,28 +13,43 @@ const NailAR = () => {
     const hands = new Hands({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`,
     });
-
+  
     hands.setOptions({
-      maxNumHands: 1,
+      maxNumHands: 2, // Allow two hands
       modelComplexity: 1,
       minDetectionConfidence: 0.7,
       minTrackingConfidence: 0.7,
     });
-
+  
     hands.onResults((results) => {
-      if (results.multiHandLandmarks.length > 0) {
-        const hand = results.multiHandLandmarks[0];
-        const nailIndices = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky fingertips
-
+      const allNailPositions = [];
+  
+      // Process each hand if detected
+      results.multiHandLandmarks.forEach((hand, handIndex) => {
+        const nailIndices = [4, 8, 12, 16, 20]; // Thumb, Index, Middle, Ring, Pinky
+  
         const nails = nailIndices.map((index) => {
           const point = hand[index];
-          return [point.x - 0.5, -point.y + 0.5, 0]; // Convert coordinates
+          return [
+            (point.x * 2 - 1),  // Convert to WebGL space ([-1, 1])
+            -(point.y * 2 - 1), // Convert to WebGL space ([-1, 1])
+            0,                   // Keep Z-axis at 0
+          ];
         });
-
-        setNailPositions(nails);
-      }
+  
+        // Optionally, you can adjust the position to differentiate between the hands
+        // For example, adding an offset to each hand's position
+        const offset = handIndex === 0 ? [0, 0, 0] : [0.2, 0, 0]; // Offset for second hand
+        allNailPositions.push(...nails.map(nail => [
+          nail[0] + offset[0], 
+          nail[1] + offset[1], 
+          nail[2] + offset[2]
+        ]));
+      });
+  
+      setNailPositions(allNailPositions);
     });
-
+  
     if (videoRef.current) {
       const camera = new Camera(videoRef.current, {
         onFrame: async () => {
@@ -46,6 +61,7 @@ const NailAR = () => {
       camera.start();
     }
   }, []);
+  
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
