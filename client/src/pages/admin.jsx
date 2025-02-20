@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import AppointmentService from "../services/appointmentService";
 import { calculateTotalTimePerAppointment } from "../common/utils";
-import "./admin.css";
+// import "./admin.css";
 
 const Admin = () => {
   const [groupedAppointments, setGroupedAppointments] = useState([]);
@@ -76,7 +76,7 @@ const Admin = () => {
                           className="appointment"
                           style={{
                             height: `${totalTime}px`,
-                            backgroundColor: "red",
+                            backgroundColor: "green",
                             border: "1px solid #ccc",
                             margin: "2px 0",
                             padding: "4px",
