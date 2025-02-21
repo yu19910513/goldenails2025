@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Appointment, Technician, Service } = require("../../models");
+const { Appointment, Technician, Service, Customer } = require("../../models");
 const { Op } = require("sequelize");
 const { groupAppointments, now, overlap } = require("../../util/util")
 
@@ -89,21 +89,31 @@ router.get("/upcoming", async (req, res) => {
 
 /**
  * GET /:date
- * Fetches appointments for a specified date and groups them by technician.
+ * Retrieves all appointments for a specific date, including associated technicians, services, and customers.
+ * The appointments are grouped by technician.
  *
- * @param {Object} req - The request object.
- * @param {Object} req.params - Parameters passed in the request URL.
- * @param {string} req.params.date - The date parameter in YYYY-MM-DD format.
- * @param {Object} res - The response object.
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - Request parameters
+ * @param {string} req.params.date - The date for which appointments are retrieved (format: YYYY-MM-DD)
+ * @param {Object} res - Express response object
  *
- * @returns {void} Responds with a JSON array of grouped appointments by technician.
- * Each technician object includes:
- *  - id: Technician ID
- *  - name: Technician name
- *  - appointments: Array of appointments associated with the technician
+ * @returns {Object} JSON response containing grouped appointments by technician
+ * @returns {Object[]} res.body - List of technicians with their associated appointments
+ * @returns {number} res.body[].id - Technician ID
+ * @returns {string} res.body[].name - Technician name
+ * @returns {Object[]} res.body[].appointments - List of appointments assigned to the technician
+ * @returns {number} res.body[].appointments[].id - Appointment ID
+ * @returns {string} res.body[].appointments[].date - Appointment date
+ * @returns {Object[]} res.body[].appointments[].services - List of services in the appointment
+ * @returns {number} res.body[].appointments[].services[].id - Service ID
+ * @returns {string} res.body[].appointments[].services[].name - Service name
+ * @returns {number} res.body[].appointments[].services[].time - Service duration in minutes
+ * @returns {Object|null} res.body[].appointments[].customer - Customer details (null if no customer)
+ * @returns {number} res.body[].appointments[].customer.id - Customer ID
+ * @returns {string} res.body[].appointments[].customer.name - Customer name
  *
- * @throws {Object} Returns a 400 error if the date parameter is missing or invalid.
- * @throws {Object} Returns a 500 error if fetching appointments fails.
+ * @throws {Object} 400 - If the date parameter is missing
+ * @throws {Object} 500 - If there is a server error while fetching appointments
  */
 router.get("/:date", async (req, res) => {
   try {
@@ -116,7 +126,11 @@ router.get("/:date", async (req, res) => {
     // Fetch appointments for the specified date
     const appointments = await Appointment.findAll({
       where: {
-        date: date
+        date: date,
+        [Op.or]: [
+          { note: null }, // Include records where note is NULL
+          { note: { [Op.not]: "deleted" } }, // Also include records where note is NOT "deleted"
+        ],
       },
       include: [
         {
@@ -129,6 +143,10 @@ router.get("/:date", async (req, res) => {
           attributes: ["id", "name", "time"], // Include service details
           through: { attributes: [] }, // Exclude join table details
         },
+        {
+          model: Customer,
+          attributes: ["id", "name"], // Include customer information
+        }
       ],
     });
 

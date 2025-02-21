@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import AppointmentService from "../services/appointmentService";
 import { calculateTotalTimePerAppointment } from "../common/utils";
-// import "./admin.css";
+import "./admin.css"; // Import the scoped CSS file
 
 const Admin = () => {
   const [groupedAppointments, setGroupedAppointments] = useState([]);
@@ -33,68 +33,87 @@ const Admin = () => {
 
   const generateTimeSlots = () => {
     const slots = [];
-    for (let i = 8; i <= 17; i++) {
-      slots.push(moment().hour(i).minute(0).second(0).millisecond(0));
+    for (let i = 8; i <= 19; i++) {
+      slots.push(
+        date.clone().hour(i).minute(0).second(0).millisecond(0) // Use the selected date
+      );
     }
-    console.log(slots);
-    
     return slots;
   };
 
   return (
-    <div className="admin-page">
-      <div className="header">
+    <div className="admin-page-container">
+      <div className="admin-header">
         <button onClick={goToPreviousDay}>Previous</button>
         <h2>{date.format("MMMM Do YYYY")}</h2>
         <button onClick={goToNextDay}>Next</button>
       </div>
 
-      <div className="calendar">
+      <div className="admin-calendar">
         {groupedAppointments.map((tech) => (
-            
-          <div key={tech.id} className="technician-calendar">
+          <div key={tech.id} className="admin-technician-calendar">
             <h3>{tech.name}</h3>
-            <div className="time-slots">
+            <div className="admin-time-slots">
               {generateTimeSlots().map((slot, index) => (
-                <div key={index} className="time-slot">
-                  <div className="time">{slot.format("h:mm A")}</div>
-                  <div className="appointments">
-                    {
-                    tech.appointments
-                    // .filter((appointment) => {
-                    //   const appointmentStart = moment(`${appointment.date}T${appointment.start_service_time}`);
-                    //   const appointmentEnd = appointmentStart.clone().add(calculateTotalTimePerAppointment(appointment.Services || []), "minutes");
-                    //   return slot.isSameOrAfter(appointmentStart) && slot.isBefore(appointmentEnd);
-                    // })
-                    .map((appointment) => {
-                      const totalTime = calculateTotalTimePerAppointment(appointment.Services || []);
-                      console.log("Total time for appointment:", totalTime);
-                      
-                      return (
-                        <div
-                          key={appointment.id}
-                          className="appointment"
-                          style={{
-                            height: `${totalTime}px`,
-                            backgroundColor: "green",
-                            border: "1px solid #ccc",
-                            margin: "2px 0",
-                            padding: "4px",
-                            color: "white",
-                          }}
-                        >
-                          <span>{appointment.customer_id}</span>
-                          <br />
-                          <span>
-                            {moment(`${appointment.date}T${appointment.start_service_time}`).format("h:mm A")} - 
-                            {moment(`${appointment.date}T${appointment.start_service_time}`).add(totalTime, "minutes").format("h:mm A")}
-                          </span>
-                          <br />
-                          <span>{totalTime} mins</span>
-                        </div>
-                      );
-                    })}
-                  
+                <div key={index} className="admin-time-slot">
+                  <div className="admin-time">{slot.format("h:mm A")}</div>
+                  <div className="admin-appointments">
+                    {tech.appointments
+                      .filter((appointment) => {
+                        const appointmentStart = moment(
+                          `${appointment.date}T${appointment.start_service_time}`
+                        );
+                        const appointmentEnd = appointmentStart
+                          .clone()
+                          .add(
+                            calculateTotalTimePerAppointment(
+                              appointment.Services || []
+                            ),
+                            "minutes"
+                          );
+                        return (
+                          slot.isSameOrAfter(appointmentStart) &&
+                          slot.isBefore(appointmentEnd)
+                        );
+                      })
+                      .map((appointment) => {
+                        const totalTime = calculateTotalTimePerAppointment(
+                          appointment.Services || []
+                        );
+
+                        return (
+                          <div
+                            key={appointment.id}
+                            className="admin-appointment"
+                            style={{
+                              height: `${totalTime}px`,
+                            }}
+                          >
+                            <span>{appointment.Customer.name}</span>
+
+                            <span>
+                              {moment(
+                                `${appointment.date}T${appointment.start_service_time}`
+                              ).format("h:mm A")}{" "}
+                              -{" "}
+                              {moment(
+                                `${appointment.date}T${appointment.start_service_time}`
+                              )
+                                .add(totalTime, "minutes")
+                                .format("h:mm A")}
+                            </span>
+
+                            <span>{totalTime} mins</span>
+
+                            <span>
+                              Services:{" "}
+                              {appointment.Services.map(
+                                (service) => service.name
+                              ).join(", ")}
+                            </span>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               ))}

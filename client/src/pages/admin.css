@@ -1,33 +1,28 @@
-General Styles
-body {
+/* Ensure styles only apply to this component */
+.admin-page-container {
   font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
   background-color: #f9f9f9;
   color: #333;
 }
 
-.admin-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
 /* Header Navigation */
-.header {
+.admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.header h2 {
+.admin-header h2 {
   font-size: 24px;
   margin: 0;
   color: #444;
 }
 
-.header button {
+.admin-header button {
   padding: 10px 20px;
   font-size: 16px;
   background-color: #007bff;
@@ -38,19 +33,19 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.header button:hover {
+.admin-header button:hover {
   background-color: #0056b3;
 }
 
 /* Calendar Container */
-.calendar {
+.admin-calendar {
   display: flex;
   gap: 20px;
   overflow-x: auto;
   padding-bottom: 10px;
 }
 
-.technician-calendar {
+.admin-technician-calendar {
   flex: 1;
   min-width: 300px;
   background-color: #ffffff;
@@ -60,7 +55,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.technician-calendar h3 {
+.admin-technician-calendar h3 {
   font-size: 18px;
   margin-bottom: 10px;
   text-align: center;
@@ -70,13 +65,13 @@ body {
 }
 
 /* Time Slots */
-.time-slots {
+.admin-time-slots {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.time-slot {
+.admin-time-slot {
   display: flex;
   align-items: flex-start;
   padding: 5px;
@@ -86,14 +81,14 @@ body {
   position: relative;
 }
 
-.time-slot .time {
+.admin-time-slot .admin-time {
   flex: 0 0 80px;
   font-size: 14px;
   font-weight: bold;
   color: #666;
 }
 
-.time-slot .appointments {
+.admin-time-slot .admin-appointments {
   flex: 1;
   position: relative;
   display: flex;
@@ -102,7 +97,7 @@ body {
 }
 
 /* Appointment Blocks */
-.appointment {
+.admin-appointment {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -119,29 +114,29 @@ body {
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 }
 
-.appointment:hover {
+.admin-appointment:hover {
   background-color: #c3e6cb;
   border-color: #a4d6aa;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-.appointment span {
+.admin-appointment span {
   margin: 2px 0;
 }
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
-  .header {
+  .admin-header {
     flex-direction: column;
     gap: 10px;
   }
 
-  .calendar {
+  .admin-calendar {
     flex-wrap: wrap;
     gap: 15px;
   }
 
-  .technician-calendar {
+  .admin-technician-calendar {
     min-width: 100%;
   }
 }
