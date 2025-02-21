@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import AppointmentService from "../services/appointmentService";
 import { calculateTotalTimePerAppointment } from "../common/utils";
-import "./admin.css"; // Import the scoped CSS file
+import "./calendar.css"; // Import the scoped CSS file
 
-const Admin = () => {
+const Calendar = () => {
   const [groupedAppointments, setGroupedAppointments] = useState([]);
   const [date, setDate] = useState(moment()); // Current date
 
@@ -125,4 +125,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default Calendar;

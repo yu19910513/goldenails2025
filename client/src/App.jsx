@@ -5,7 +5,7 @@ import Footer from './components/global/Footer';
 import Home from './pages/home';
 import Booking from './pages/booking';
 import AppointmentHistory from './pages/appointmentHistory';
-import Admin from './pages/admin';
+import Calendar from './pages/calendar';
 import ServicesMenu from './pages/servicemenu';
 import ContactForm from './pages/contactForm';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
@@ -17,7 +17,7 @@ const App = () => (
     <Header />
     <Routes>
       <Route path="/" element={<><Home /></>} />
-      <Route path="/admin" element={<Admin />} />
+      <Route path="/calendar" element={<Calendar />} />
       <Route path="/appointmenthistory" element={<><AppointmentHistory /></>} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
