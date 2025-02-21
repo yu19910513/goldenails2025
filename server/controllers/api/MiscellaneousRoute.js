@@ -7,22 +7,41 @@ dotenv.config();
 
 
 /**
- * @route GET /:title
- * @description Retrieves a miscellaneous entry based on the provided title, with specific attributes (`title` and `context`).
- * @access Public
+ * Retrieves miscellaneous data based on the provided title.
  * 
- * @param {Object} req - The request object containing the URL parameter `title`.
- * @param {Object} res - The response object used to send back the retrieved data or error.
+ * This endpoint searches for miscellaneous data using the title query parameter,
+ * and returns the `title` and `context` attributes of the matching record.
+ * If no matching data is found, it returns a 404 status with an appropriate message.
+ * In case of any server errors, a 500 status code is returned.
  * 
- * @returns {Object} 200 - JSON object containing the `title` and `context` of the miscellaneous entry.
- * @returns {Object} 404 - JSON object with an error message if the miscellaneous data is not found.
- * @returns {Object} 500 - JSON object with an error message if an internal server error occurs.
+ * @route GET /key
+ * @param {Object} req - The request object.
+ * @param {Object} req.query - The query parameters sent in the request.
+ * @param {string} req.query.title - The title of the miscellaneous data to search for.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response containing the `title` and `context` of the found miscellaneous data.
+ * @returns {Object} res.body - The miscellaneous data object.
+ * @returns {string} res.body.title - The title of the miscellaneous data.
+ * @returns {string} res.body.context - The context of the miscellaneous data.
+ * @throws {Object} 404 - If no matching miscellaneous data is found.
+ * @throws {Object} 500 - If there is an error while searching for the data.
  * 
- * @throws {Error} - If an error occurs while querying the database.
+ * @example
+ * // Example of the response when found
+ * {
+ *   "title": "Sample Title",
+ *   "context": "Sample context content"
+ * }
+ * 
+ * @example
+ * // Example of the response when not found
+ * {
+ *   "message": "This miscellaneous data is not found."
+ * }
  */
-router.get(`/:title`, async (req, res) => {
+router.get(`/key`, async (req, res) => {
   try {
-    const { title } = req.params;
+    const { title } = req.query;
     const miscellaneous = await Miscellaneous.findOne({
       where: { title },
       attributes: ["title", "context"], // Only retrieves `title` and `context`

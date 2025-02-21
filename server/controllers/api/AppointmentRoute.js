@@ -88,37 +88,50 @@ router.get("/upcoming", async (req, res) => {
 });
 
 /**
- * GET /:date
- * Retrieves all appointments for a specific date, including associated technicians, services, and customers.
- * The appointments are grouped by technician.
- *
- * @param {Object} req - Express request object
- * @param {Object} req.params - Request parameters
- * @param {string} req.params.date - The date for which appointments are retrieved (format: YYYY-MM-DD)
- * @param {Object} res - Express response object
- *
- * @returns {Object} JSON response containing grouped appointments by technician
- * @returns {Object[]} res.body - List of technicians with their associated appointments
- * @returns {number} res.body[].id - Technician ID
- * @returns {string} res.body[].name - Technician name
- * @returns {Object[]} res.body[].appointments - List of appointments assigned to the technician
- * @returns {number} res.body[].appointments[].id - Appointment ID
- * @returns {string} res.body[].appointments[].date - Appointment date
- * @returns {Object[]} res.body[].appointments[].services - List of services in the appointment
- * @returns {number} res.body[].appointments[].services[].id - Service ID
- * @returns {string} res.body[].appointments[].services[].name - Service name
- * @returns {number} res.body[].appointments[].services[].time - Service duration in minutes
- * @returns {Object|null} res.body[].appointments[].customer - Customer details (null if no customer)
- * @returns {number} res.body[].appointments[].customer.id - Customer ID
- * @returns {string} res.body[].appointments[].customer.name - Customer name
- *
- * @throws {Object} 400 - If the date parameter is missing
- * @throws {Object} 500 - If there is a server error while fetching appointments
+ * Fetches all appointments for a specific date, grouped by technician.
+ * 
+ * This route retrieves appointments for the specified date from the database,
+ * ensuring that only non-deleted appointments are included. The appointments
+ * are then grouped by technician, and the response contains the grouped data,
+ * including technician names, associated appointments, services, and customer details.
+ * 
+ * @route GET /calender
+ * @param {Object} req - The Express request object.
+ * @param {Object} req.query - The query parameters of the request.
+ * @param {string} req.query.date - The date for which appointments are fetched (format: YYYY-MM-DD).
+ * @param {Object} res - The Express response object.
+ * @returns {Object} JSON response containing grouped appointments by technician.
+ * @returns {Object[]} res.body - Array of technician data with associated appointments.
+ * @returns {number} res.body[].id - Technician ID.
+ * @returns {string} res.body[].name - Technician name.
+ * @returns {Object[]} res.body[].appointments - List of appointments for the technician.
+ * @returns {number} res.body[].appointments[].id - Appointment ID.
+ * @returns {string} res.body[].appointments[].date - Appointment date.
+ * @returns {Object[]} res.body[].appointments[].services - List of services in the appointment.
+ * @returns {number} res.body[].appointments[].services[].id - Service ID.
+ * @returns {string} res.body[].appointments[].services[].name - Service name.
+ * @returns {number} res.body[].appointments[].services[].time - Service duration in minutes.
+ * @returns {Object|null} res.body[].appointments[].customer - Customer details (null if no customer).
+ * @returns {number} res.body[].appointments[].customer.id - Customer ID.
+ * @returns {string} res.body[].appointments[].customer.name - Customer name.
+ * @throws {400} If the `date` parameter is missing.
+ * @throws {500} If there is an error fetching appointments from the database.
+ * 
+ * @example
+ * // Example of calling the `/calender` route with a date parameter
+ * fetch('/calender?date=2025-02-20')
+ *   .then(response => response.json())
+ *   .then(data => {
+ *     console.log(data); // Process the grouped appointment data
+ *   })
+ *   .catch(error => {
+ *     console.error(error); // Handle any errors that occur during the request
+ *   });
  */
-router.get("/:date", async (req, res) => {
+router.get("/calender", async (req, res) => {
   try {
     // Extract the date from query parameters
-    const { date } = req.params;
+    const { date } = req.query;
     // Validate the date
     if (!date) {
       return res.status(400).json({ error: "Date parameter is required." });

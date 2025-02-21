@@ -6,23 +6,17 @@ import http from "../common/NodeCommon";
 class AppointmentService {
 
 /**
- * Fetches grouped appointments for a specific date.
- *
- * This function validates the date format to ensure it follows the `YYYY-MM-DD` format.
- * It then makes an HTTP GET request to the `/appointments/:date` endpoint.
- *
- * @param {string} date - The date for which appointments are to be fetched (format: YYYY-MM-DD).
- * @returns {Promise<Object>} A promise resolving to the grouped appointments data.
- * @throws {Error} Throws an error if the provided date is not in the valid format.
- *
+ * Fetches grouped appointments for a specific date, grouped by technician.
+ * 
+ * @param {string} date - The date for which appointments are retrieved (format: YYYY-MM-DD).
+ * @throws {Error} If the date format is invalid (not in the YYYY-MM-DD format).
+ * @returns {Promise<Object>} A Promise that resolves to the response object from the GET request, 
+ *                            which contains the grouped appointments data.
+ * 
  * @example
- * getTechnicianGroupedAppointments("2025-01-24")
- *   .then((data) => {
- *     console.log("Appointments:", data);
- *   })
- *   .catch((error) => {
- *     console.error("Error:", error.message);
- *   });
+ * getTechnicianGroupedAppointments('2025-02-20')
+ *   .then(data => console.log(data))
+ *   .catch(error => console.error(error));
  */
   getTechnicianGroupedAppointments(date) {
     // Validate the date format (optional but recommended)
@@ -31,7 +25,7 @@ class AppointmentService {
     }
   
     // Perform the GET request to fetch appointments for the given date
-    return http.get(`/appointments/${date}`);
+    return http.get(`/appointments/calender?date=${date}`);
   }
   
   /**
