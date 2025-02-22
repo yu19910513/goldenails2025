@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CustomerService from '../services/customerService';
 import AppointmentService from '../services/appointmentService';
-import MiscellaneousService from '../services/miscellaneousService';
+import NotificationService from "../services/notificationService";
 import './appointmentHistory.css';
 
 const AppointmentHistory = () => {
@@ -55,7 +55,7 @@ const AppointmentHistory = () => {
             customer_message: `Dear ${customerInfo.name}, We would like to inform you that your appointment at Golden Nails Gig Harbor, scheduled for ${appointment.date}, at ${appointment.start_service_time}, has been successfully cancelled. If you have any further questions or would like to reschedule, please feel free to contact us at (253) 851-7563.`,
             owner_message: `Appointment cancelled by ${customerInfo.name} (${customerInfo.phone}), scheduled for ${appointment.date}, at ${appointment.start_service_time}. Technician: ${appointment.Technicians[0].name}. `,
         };
-        MiscellaneousService.notifyCustomer(messageData)
+        NotificationService.notify(messageData)
             .then(() => console.log("SMS sent successfully"))
             .catch((error) => console.error("Failed to send SMS:", error));
     }

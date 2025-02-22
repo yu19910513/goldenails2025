@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { calculateTotalTime } from "../../common/utils";
 import "./AppointmentConfirmation.css"; // Import the CSS file
+import NotificationService from "../../services/notificationService";
 import MiscellaneousService from "../../services/miscellaneousService";
 
 const AppointmentConfirmation = ({ appointmentDetails }) => {
@@ -57,7 +58,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
                 ", ")} `,
         };
-        MiscellaneousService.notifyCustomer(messageData)
+        NotificationService.notify(messageData)
             .then(() => console.log("SMS sent successfully"))
             .catch((error) => console.error("Failed to send SMS:", error));
     }

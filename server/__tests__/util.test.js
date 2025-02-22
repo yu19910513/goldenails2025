@@ -1,4 +1,4 @@
-const { groupAppointments, overlap, now } = require('../utils/util');
+const { groupAppointments, overlap, now } = require('../utils/helper');
 const dotenv = require('dotenv');
 dotenv.config();
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MiscellaneousService from "../services/miscellaneousService";
+import NotificationService from "../services/notificationService";
 import "./contactForm.css"; // Import CSS file for styling
 
 const ContactForm = () => {
@@ -34,7 +34,7 @@ const ContactForm = () => {
 
     setLoading(true);
     try {
-      await MiscellaneousService.contactOwner(formData);
+      await NotificationService.contact(formData);
       alert("Message sent successfully!");
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
