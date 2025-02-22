@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
 const { Miscellaneous } = require("../../models");
-const { sendMessage, sendEmail } = require("../../util/util");
+const { sendMessage, sendEmail } = require("../../utils/util");
 dotenv.config();
 
 

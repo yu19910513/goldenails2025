@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class Customer extends Model {}
+class Customer extends Model { }
 
 Customer.init(
   {
@@ -18,6 +18,7 @@ Customer.init(
     phone: {
       type: DataTypes.STRING,
       allowNull: false, // Phone number is required
+      unique: true, // Ensures phone is unique
       validate: {
         is: /^[0-9]{10,15}$/, // Ensures phone number is between 10-15 digits
       },
@@ -25,15 +26,25 @@ Customer.init(
     email: {
       type: DataTypes.STRING,
       allowNull: true, // Email is optional
+      unique: true, // Ensures email is unique if provided
       validate: {
         isEmail: true, // Validates proper email format
       },
+    },
+    passcode: {
+      type: DataTypes.STRING(6), // Ensures it stores a 6-digit passcode
+      allowNull: true,
+    },
+    admin_privilege: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   {
     sequelize,
     modelName: "Customer",
-    tableName: 'customers',
+    tableName: "customers",
     timestamps: true, // Enables createdAt and updatedAt timestamps
     underscored: true, // Converts camelCase to snake_case in DB column names
   }

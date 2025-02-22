@@ -7,6 +7,7 @@ const customerRoutes = require("./CustomerRoute");
 const appointmentRoutes = require("./AppointmentRoute");
 const categoryRoutes = require("./CategoryRoute");
 const miscellaneousesRoutes=require("./MiscellaneousRoute");
+const authenticationRoutes=require("./AuthenticationRoute");
 
 // Use the routes for each model
 router.use("/services", serviceRoutes);
@@ -15,5 +16,6 @@ router.use("/customers", customerRoutes);
 router.use("/appointments", appointmentRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/miscellaneouses", miscellaneousesRoutes);
+router.use("/authentication",authenticationRoutes);
 
 module.exports = router;
