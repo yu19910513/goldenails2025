@@ -5,6 +5,7 @@
 
 const express = require("express");
 const router = express.Router();
+const { Op } = require("sequelize");
 const { Customer } = require("../../models");
 const { sendEmail, sendSMS } = require("../../utils/notification");
 const { validateContactType } = require("../../utils/helper");
@@ -22,10 +23,16 @@ const { signToken } = require("../../utils/authentication");
 router.post("/send-passcode", async (req, res) => {
     try {
         const { identifier } = req.body;
+
         if (!identifier) return res.status(400).json({ message: "Identifier required" });
 
         const customer = await Customer.findOne({
-            $or: [{ email: identifier }, { phone: identifier }],
+            where: {
+                [Op.or]: [
+                    { email: identifier },
+                    { phone: identifier }
+                ]
+            }
         });
 
         if (!customer) return res.status(404).json({ message: "Customer not found" });
@@ -36,9 +43,9 @@ router.post("/send-passcode", async (req, res) => {
 
         const identifierType = validateContactType(identifier);
         if (identifierType === "email") {
-            await sendEmail({ address: customer.email, subject: "Your Login Code", text: `Your passcode is: ${passcode}` });
+            sendEmail({ address: customer.email, subject: "Your Login Code", text: `Your passcode is: ${passcode}` });
         } else if (identifierType === "phone") {
-            await sendSMS(customer.phone, `Your passcode is: ${passcode}`);
+            sendSMS(customer.phone, `Your passcode is: ${passcode}`);
         }
 
         res.status(200).json({ message: "Passcode sent" });
@@ -63,7 +70,12 @@ router.post("/verify-passcode", async (req, res) => {
         const { identifier, passcode } = req.body;
 
         const customer = await Customer.findOne({
-            $or: [{ email: identifier }, { phone: identifier }],
+            where: {
+                [Op.or]: [
+                    { email: identifier },
+                    { phone: identifier }
+                ]
+            }
         });
 
         if (!customer || customer.passcode !== passcode) {

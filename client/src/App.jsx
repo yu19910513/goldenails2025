@@ -10,15 +10,17 @@ import ServicesMenu from './pages/servicemenu';
 import ContactForm from './pages/contactForm';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
 import PrivacyPolicy from './components/policy_and_disclaimer/PrivacyPolicy';
+import PasswordlessLogin from './pages/passwordlessLogin';
 
 // Main App Component
 const App = () => (
   <Router>
     <Header />
     <Routes>
-      <Route path="/" element={<><Home /></>} />
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<PasswordlessLogin />} />
       <Route path="/calendar" element={<Calendar />} />
-      <Route path="/appointmenthistory" element={<><AppointmentHistory /></>} />
+      <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
       <Route path="/contact" element={<ContactForm />} />
