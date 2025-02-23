@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
-const { sendMessage, sendEmail } = require("../../utils/notification");
+const { sendSMS, sendEmail } = require("../../utils/notification");
 dotenv.config();
 
 
@@ -38,7 +38,7 @@ router.post('/notify', async (req, res) => {
     // Send SMS to the owner if applicable
     if (OWNER_NUMBER && owner_message) {
       console.log('Sending SMS notification to the owner...');
-      sendMessage(OWNER_NUMBER, owner_message);
+      sendSMS(OWNER_NUMBER, owner_message);
     }
 
     // Send email to the business owner
@@ -64,7 +64,7 @@ router.post('/notify', async (req, res) => {
     // Send SMS to customer if opted in
     if (optInSMS !== 'false') {
       console.log('Sending SMS notification to the customer...');
-      sendMessage(customer_number, customer_message);
+      sendSMS(customer_number, customer_message);
     }
 
     res.status(200).json({

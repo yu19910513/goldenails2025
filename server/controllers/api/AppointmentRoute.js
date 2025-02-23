@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Appointment, Technician, Service, Customer } = require("../../models");
 const { Op } = require("sequelize");
-const { groupAppointments, now, overlap } = require("../../utils/helper")
+const { groupAppointments, now, overlap } = require("../../utils/helper");
 
 /**
  * @route GET /appointments/upcoming

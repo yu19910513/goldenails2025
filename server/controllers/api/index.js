@@ -1,3 +1,8 @@
+/**
+ * Express router for handling API routes related to various models.
+ * @module routes/index
+ */
+
 const express = require("express");
 const router = express.Router();
 
@@ -10,7 +15,10 @@ const miscellaneousesRoutes = require("./MiscellaneousRoute");
 const authenticationRoutes = require("./AuthenticationRoute");
 const notificationRoutes = require("./NotificationRoute");
 
-// Use the routes for each model
+/**
+ * Use the routes for each model.
+ * @name API Routes
+ */
 router.use("/services", serviceRoutes);
 router.use("/technicians", technicianRoutes);
 router.use("/customers", customerRoutes);

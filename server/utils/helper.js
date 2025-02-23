@@ -108,5 +108,22 @@ const overlap = (existingAppointments, start_service_time_obj, end_service_time)
     return false;
 }
 
+/**
+ * Validates whether the input is an email or a phone number.
+ * @param {string} input - The input string to validate.
+ * @returns {string} - Returns "email" if input is an email, "phone" if it's a phone number, otherwise "invalid".
+ */
+const validateContactType = (input) => {
+    const emailRegex = /^[\w.-]+@[\w.-]+\.[A-Za-z]{2,}$/;
+    const phoneRegex = /^\+?\d{1,3}?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
 
-module.exports = { groupAppointments, now, overlap};
+    if (emailRegex.test(input)) {
+        return "email";
+    } else if (phoneRegex.test(input)) {
+        return "phone";
+    } else {
+        return "invalid";
+    }
+}
+
+module.exports = { groupAppointments, now, overlap, validateContactType };
