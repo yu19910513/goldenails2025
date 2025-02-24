@@ -11,7 +11,7 @@ import ContactForm from './pages/contactForm';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
 import PrivacyPolicy from './components/policy_and_disclaimer/PrivacyPolicy';
 import PasswordlessLogin from './pages/passwordlessLogin';
-import ProtectedRoute from './components/utils/ProtectedRoute';
+import PrivateRoute from './components/utils/PrivateRoute';
 
 // Main App Component
 const App = () => (
@@ -20,7 +20,7 @@ const App = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<PasswordlessLogin />} />
-      <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+      <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />

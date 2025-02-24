@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 /**
- * ProtectedRoute component that restricts access to authenticated users.
- * It checks if a valid JWT token exists and is not expired. If the token is missing
- * or invalid, the user is redirected to the login page.
+ * PrivateRoute component that restricts access to authenticated users with admin privileges.
+ * It checks if a valid JWT token exists and is not expired. If the token is missing or invalid,
+ * the user is redirected to the login page.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {React.ReactNode} props.children - The child components to be rendered if authentication is successful.
  * @returns {JSX.Element} The protected content if authentication succeeds, otherwise redirects to login.
  */
-const ProtectedRoute = ({ children }) => {
+const PrivateRoute = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [loading, setLoading] = useState(true);
@@ -35,6 +35,11 @@ const ProtectedRoute = ({ children }) => {
                 return;
             }
 
+            if (!decodedToken?.data?.admin_privilege) {
+                console.log("User does not have admin privilege, redirecting to login");
+                navigate("/login", { state: { from: location.pathname } });
+                return;
+            }
         } catch (error) {
             console.error("Error parsing token or verifying privileges", error);
             localStorage.removeItem("token"); // Remove invalid token
@@ -52,4 +57,4 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-export default ProtectedRoute;
+export default PrivateRoute;
