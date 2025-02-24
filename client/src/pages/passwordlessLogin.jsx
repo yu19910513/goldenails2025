@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthenticationService from "../services/authenticationService";
 
-const PasswordlessLogin = (location) => {
+const PasswordlessLogin = () => {
   const [identifier, setIdentifier] = useState("");
   const [passcode, setPasscode] = useState("");
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const validateInput = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -23,17 +27,15 @@ const PasswordlessLogin = (location) => {
 
   const handleSendPasscode = async () => {
     setError("");
-
     const inputType = validateInput();
     if (!inputType) return;
 
     try {
       const response = await AuthenticationService.send_code(identifier);
-      const data = response.data;
       if (response.status === 200) {
         setStep(2);
       } else {
-        setError(data.message || "Failed to send passcode");
+        setError(response.data.message || "Failed to send passcode");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -44,14 +46,11 @@ const PasswordlessLogin = (location) => {
     setError("");
     try {
       const response = await AuthenticationService.verify_passcode(identifier, passcode);
-      console.log(response);
-
-      const data = response.data;
       if (response.status === 200) {
-        localStorage.setItem("token", data.token);
-        window.location.href = location; // Redirect to the next page
+        localStorage.setItem("token", response.data.token);
+        navigate(location.state?.from || "/", { replace: true }); // Redirect after login
       } else {
-        setError(data.message || "Invalid passcode");
+        setError(response.data.message || "Invalid passcode");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -67,7 +66,7 @@ const PasswordlessLogin = (location) => {
       {step === 1 && (
         <>
           <p className="text-sm text-gray-600 mb-2">
-            Please enter your registered email address or 10-digit phone number (no dashes). For example, you can enter youremail@example.com or 1234567890. We will send you a one-time passcode to log in via the email or phone number you provide.
+            Please enter your registered email address or 10-digit phone number (no dashes). We will send you a one-time passcode to log in.
           </p>
           <input
             type="text"
@@ -88,7 +87,7 @@ const PasswordlessLogin = (location) => {
       {step === 2 && (
         <>
           <input
-            type="text"
+            type="password"
             className="border p-2 rounded w-full mb-2"
             placeholder="Enter passcode"
             value={passcode}
@@ -106,6 +105,6 @@ const PasswordlessLogin = (location) => {
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
-}
+};
 
 export default PasswordlessLogin;
