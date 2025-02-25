@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthenticationService from "../services/authenticationService";
 
@@ -11,18 +11,37 @@ const PasswordlessLogin = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = token.split(".")[1];
+        if (payload) {
+          const decodedToken = JSON.parse(atob(payload));
+          const currentTime = Math.floor(Date.now() / 1000);
+          if (decodedToken.exp && decodedToken.exp < currentTime) {
+            console.log("Token expired, logging out.");
+            localStorage.removeItem("token");
+          } else {
+            navigate("/");
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing token", error);
+        localStorage.removeItem("token");
+      }
+    }
+  }, [navigate, location.pathname]);
+
   const validateInput = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\d{10}$/; // 10-digit phone number (e.g., 2532229800)
+    const phoneRegex = /^\d{10}$/; // 10-digit phone number
 
-    if (emailRegex.test(identifier)) {
-      return "email";
-    } else if (phoneRegex.test(identifier)) {
-      return "phone";
-    } else {
-      setError("Invalid email or phone number.");
-      return null;
-    }
+    if (emailRegex.test(identifier)) return "email";
+    if (phoneRegex.test(identifier)) return "phone";
+
+    setError("Invalid email or phone number.");
+    return null;
   };
 
   const handleSendPasscode = async () => {
@@ -35,7 +54,7 @@ const PasswordlessLogin = () => {
       if (response.status === 200) {
         setStep(2);
       } else {
-        setError(response.data.message || "Failed to send passcode");
+        setError(response.data.message || "Failed to send passcode.");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -48,9 +67,9 @@ const PasswordlessLogin = () => {
       const response = await AuthenticationService.verify_passcode(identifier, passcode);
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
-        navigate(location.state?.from || "/", { replace: true }); // Redirect after login
+        navigate(location.state?.from || "/", { replace: true });
       } else {
-        setError(response.data.message || "Invalid passcode");
+        setError(response.data.message || "Invalid passcode.");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -66,12 +85,12 @@ const PasswordlessLogin = () => {
       {step === 1 && (
         <>
           <p className="text-sm text-gray-600 mb-2">
-            Please enter your registered email address or 10-digit phone number (no dashes). We will send you a one-time passcode to log in.
+            Enter your registered email or 10-digit phone number. We'll send you a one-time passcode.
           </p>
           <input
             type="text"
             className="border p-2 rounded w-full mb-2"
-            placeholder="Enter your email or phone number"
+            placeholder="Enter email or phone number"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value.trim())}
           />
