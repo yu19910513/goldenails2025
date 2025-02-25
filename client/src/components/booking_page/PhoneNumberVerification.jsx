@@ -68,7 +68,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
       const createdCustomer = await CustomerService.createCustomer(newCustomer);
       onVerify(createdCustomer.data);
     } catch (error) {
-      setErrorMessage("Error creating customer. Please try again.");
+      setErrorMessage(error.response.data.error);
     }
   };
 

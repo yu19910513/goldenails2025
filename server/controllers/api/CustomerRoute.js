@@ -73,18 +73,17 @@ router.get("/validate", async (req, res) => {
 
 /**
  * @route POST /
- * @description Creates a new customer or updates an existing customer's details.
+ * @description Creates a new customer if the phone number does not already exist.
  * @param {Object} req - The request object.
- * @param {Object} req.body - The request body containing customer information.
- * @param {string} req.body.name - The name of the customer.
- * @param {string} req.body.phone - The phone number of the customer.
+ * @param {Object} req.body - The request body.
+ * @param {string} req.body.name - The name of the customer (required).
+ * @param {string} req.body.phone - The phone number of the customer (required).
  * @param {string} [req.body.email] - The email of the customer (optional).
  * @param {Object} res - The response object.
- * @returns {Object} 200 - The updated customer object if the customer exists.
- * @returns {Object} 201 - The newly created customer object if the customer does not exist.
- * @returns {Object} 400 - Error message if name or phone is missing.
- * @returns {Object} 500 - Error message if an error occurs during processing.
- * @throws {Error} If an error occurs while querying or saving customer data.
+ * @returns {Object} 201 - Returns the newly created customer if successful.
+ * @returns {Object} 400 - Returns an error if name or phone number is missing.
+ * @returns {Object} 409 - Returns an error if a customer with the phone number already exists.
+ * @returns {Object} 500 - Returns an error if an internal server error occurs.
  */
 router.post("/", async (req, res) => {
   const { name, phone, email } = req.body;
@@ -98,12 +97,8 @@ router.post("/", async (req, res) => {
     const existingCustomer = await Customer.findOne({ where: { phone } });
 
     if (existingCustomer) {
-      // If the customer exists, update the name and email
-      existingCustomer.name = name;
-      existingCustomer.email = email || null; // If email is not provided, set it to null
-      await existingCustomer.save(); // Save the updated customer
-
-      return res.status(200).json(existingCustomer); // Return the updated customer
+      // Reject the request if the customer already exists
+      return res.status(409).json({ error: "Customer with this phone number already exists." });
     }
 
     // If the customer does not exist, create a new customer
@@ -115,6 +110,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "An error occurred while processing the customer." });
   }
 });
+
 
 /**
  * Updates an existing customer in the database.
