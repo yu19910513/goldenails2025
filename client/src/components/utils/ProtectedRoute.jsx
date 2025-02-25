@@ -36,7 +36,7 @@ const ProtectedRoute = ({ children }) => {
             }
 
         } catch (error) {
-            console.error("Error parsing token or verifying privileges", error);
+            console.error("Error parsing token", error);
             localStorage.removeItem("token"); // Remove invalid token
             navigate("/login", { state: { from: location.pathname } });
             return;

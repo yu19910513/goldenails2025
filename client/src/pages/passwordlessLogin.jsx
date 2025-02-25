@@ -73,7 +73,7 @@ const PasswordlessLogin = () => {
             className="border p-2 rounded w-full mb-2"
             placeholder="Enter your email or phone number"
             value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            onChange={(e) => setIdentifier(e.target.value.trim())}
           />
           <button
             onClick={handleSendPasscode}
@@ -91,7 +91,7 @@ const PasswordlessLogin = () => {
             className="border p-2 rounded w-full mb-2"
             placeholder="Enter passcode"
             value={passcode}
-            onChange={(e) => setPasscode(e.target.value)}
+            onChange={(e) => setPasscode(e.target.value.trim())}
           />
           <button
             onClick={handleVerifyPasscode}

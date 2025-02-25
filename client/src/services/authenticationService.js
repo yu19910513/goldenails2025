@@ -7,7 +7,7 @@ class AuthenticationService {
 
     /**
      * Sends a passcode to the specified identifier (email or phone number).
-     * @param {Object} identifier - The identifier object containing user details.
+     * @param {string} identifier - The identifier string (email or phone number) to locate an existing Customer.
      * @returns {Promise} - A promise that resolves with the server response.
      */
     send_code(identifier) {
@@ -16,7 +16,7 @@ class AuthenticationService {
 
     /**
      * Verifies the passcode for the given identifier.
-     * @param {Object} identifier - The identifier object containing user details.
+     * @param {string} identifier - The identifier string (email or phone number) to locate an existing Customer.
      * @param {string} passcode - The passcode to verify.
      * @returns {Promise} - A promise that resolves with the server response.
      */

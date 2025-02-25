@@ -37,7 +37,7 @@ const PrivateRoute = ({ children }) => {
 
             if (!decodedToken?.data?.admin_privilege) {
                 console.log("User does not have admin privilege, redirecting to login");
-                navigate("/login", { state: { from: location.pathname } });
+                navigate("/", { state: { from: location.pathname } });
                 return;
             }
         } catch (error) {
