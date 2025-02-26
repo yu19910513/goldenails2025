@@ -54,10 +54,10 @@ const PasswordlessLogin = () => {
       if (response.status === 200) {
         setStep(2);
       } else {
-        setError(response.data.message || "Failed to send passcode.");
+        // setError(response.data.message || "Failed to send passcode."); **according to Axios, non-200 codes are all considered error, and will be thrown
       }
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError(err.response?.data?.message || "Something went wrong. Try again.");
     }
   };
 
@@ -68,11 +68,12 @@ const PasswordlessLogin = () => {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         navigate(location.state?.from || "/", { replace: true });
-      } else {
-        setError(response.data.message || "Invalid passcode.");
+      }
+      else {
+        //   setError(response.data.message || "Invalid passcode"); **according to Axios, non-200 codes are all considered error, and will be thrown
       }
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError(err.response?.data?.message || "Something went wrong. Try again.");
     }
   };
 
