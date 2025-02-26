@@ -39,7 +39,7 @@ const authenticate = (req, res, next) => {
  * 
  * @returns {void} Calls `next()` if the Referer is authorized, otherwise responds with a 403 error.
  */
-const level_3_auth = (req, res, next) => {
+const basic_auth = (req, res, next) => {
   const allowedReferrers = process.env.ALLOWED_REFERRERS
     ? process.env.ALLOWED_REFERRERS.split(',')
     : [];
@@ -63,4 +63,4 @@ const signToken = (payload) => {
   return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
 };
 
-module.exports = { authenticate, signToken, level_3_auth };
+module.exports = { authenticate, signToken, basic_auth };
