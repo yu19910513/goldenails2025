@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
 const { Miscellaneous } = require("../../models");
+const { level_3_auth } = require('../../utils/authentication');
 dotenv.config();
 
 
@@ -38,7 +39,7 @@ dotenv.config();
  *   "message": "This miscellaneous data is not found."
  * }
  */
-router.get(`/key`, async (req, res) => {
+router.get(`/key`, level_3_auth, async (req, res) => {
   try {
     let { title } = req.query;
 
