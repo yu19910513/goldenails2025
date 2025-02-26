@@ -28,6 +28,32 @@ const authenticate = (req, res, next) => {
 };
 
 /**
+ * Middleware to restrict access based on the request's Referer header.
+ * 
+ * Allowed referrers are defined in the `ALLOWED_REFERRERS` environment variable as a comma-separated list.
+ * If the Referer header is missing or does not match any allowed referrer, the request is denied with a 403 error.
+ * 
+ * @param {import('express').Request} req - The Express request object.
+ * @param {import('express').Response} res - The Express response object.
+ * @param {import('express').NextFunction} next - The Express next middleware function.
+ * 
+ * @returns {void} Calls `next()` if the Referer is authorized, otherwise responds with a 403 error.
+ */
+const level_3_auth = (req, res, next) => {
+  const allowedReferrers = process.env.ALLOWED_REFERRERS
+    ? process.env.ALLOWED_REFERRERS.split(',')
+    : [];
+    console.log(req.get('Referer'));
+    
+  const referer = (req.get('Referer') || '').toLowerCase();
+
+  if (!allowedReferrers.some((allowed) => referer.startsWith(allowed))) {
+    return res.status(403).json({ error: 'Unauthorized referrer' });
+  }
+  next();
+};
+
+/**
  * Generates a JSON Web Token (JWT) for authentication.
  * @function
  * @param {Object} payload - The data to be embedded in the token.
@@ -37,4 +63,4 @@ const signToken = (payload) => {
   return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
 };
 
-module.exports = { authenticate, signToken };
+module.exports = { authenticate, signToken, level_3_auth };

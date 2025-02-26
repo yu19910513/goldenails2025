@@ -40,20 +40,31 @@ dotenv.config();
  */
 router.get(`/key`, async (req, res) => {
   try {
-    const { title } = req.query;
+    let { title } = req.query;
+
+    // Validate `title`
+    if (!title || typeof title !== "string" || title.trim() === "") {
+      return res.status(400).json({ error: "Invalid or missing 'title' parameter." });
+    }
+
+    title = title.trim(); // Trim whitespace to avoid unnecessary mismatches
+
     const miscellaneous = await Miscellaneous.findOne({
       where: { title },
       attributes: ["title", "context"], // Only retrieves `title` and `context`
     });
+
     if (!miscellaneous) {
       return res.status(404).json({ message: "This miscellaneous data is not found." });
     }
+
     res.json(miscellaneous);
   } catch (error) {
-    console.error("Error searching miscellaneous data:", error);
-    res.status(500).json({ error: "An error occurred while searching for the miscellaneous data." });
+    console.error("Error searching miscellaneous data:", error.stack || error);
+    res.status(500).json({ error: "An internal server error occurred." });
   }
 });
+
 
 
 
