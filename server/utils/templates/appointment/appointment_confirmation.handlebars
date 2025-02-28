@@ -1,0 +1,140 @@
+<!-- Documentation Section: -->
+<!--
+    Data required to populate this template:
+
+    - recipient_name: Customer's full name
+    - appointment_date: Date of the appointment (e.g., "2025-02-28")
+    - appointment_time: Time of the appointment (e.g., "3:00 PM")
+    - appointment_services: List of selected services (e.g., "Nail Manicure, Pedicure")
+    - appointment_technician: The technician's name (e.g., "Jane Doe")
+    - recipient_phone: Customer's phone number (e.g., "(123) 456-7890")
+    -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #2C3E50;
+            margin: 0;
+        }
+
+        .header h2 {
+            color: #7f8c8d;
+            margin: 5px 0;
+            font-size: 18px;
+        }
+
+        .details {
+            margin-bottom: 30px;
+        }
+
+        .details p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .details strong {
+            color: #2C3E50;
+        }
+
+        .button {
+            display: block;
+            text-align: center;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 30px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Appointment Confirmation</h1>
+            <a href="https://www.goldennailsgigharbor.com/">
+                <h2>Golden Nails at Gig Harbor</h2>
+            </a>
+        </div>
+
+        <div class="details">
+            <p>Dear <strong>{{recipient_name}}</strong>,</p>
+            <p>We are pleased to confirm your appointment with us. Below are the details:</p>
+
+            <p><strong>Date:</strong> {{appointment_date}}</p>
+            <p><strong>Time:</strong> {{appointment_time}}</p>
+            <p><strong>Service(s):</strong> {{appointment_services}}</p>
+            <p><strong>Selected Technician(s):</strong> {{appointment_technician}}</p>
+            <p><strong>Location:</strong> 3610 Grandview St, Gig Harbor, WA</p>
+
+            <p>If you need to reschedule or have any questions, feel free to:</p>
+            <ul>
+                <li>Reply to this email</li>
+                <li>Use our <a href="https://www.goldennailsgigharbor.com/contact">contact form</a></li>
+                <li>Call us at (253) 851-7563</li>
+            </ul>
+        </div>
+
+        <p>If you'd like to access your appointment history, view, or cancel, click the link below:</p>
+        <a href="https://www.goldennailsgigharbor.com/appointmenthistory" class="button">Cancel Appointment</a>
+
+        <p><strong>Phone Number:</strong> {{recipient_phone}}</p>
+        <p><strong>Name:</strong> {{recipient_name}}</p>
+
+        <div class="footer">
+            <p>Thank you for choosing Golden Nails!</p>
+            <p>If you have any issues, feel free to contact us at <a
+                    href="mailto:golden.nails.gigharbor@gmail.com">golden.nails.gigharbor@gmail.com</a> or call us at
+                (253) 851-7563.</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -49,6 +49,13 @@ const AppointmentHistory = () => {
 
     const messageEngine = (appointment) => {
         const messageData = {
+            customer_html: {
+                recipient_name: customerInfo.name,
+                appointment_date: appointment.date,
+                appointment_time: appointment.start_service_time,
+                appointment_technician: appointment.Technicians[0].name,
+                recipient_phone: customerInfo.phone
+            },
             optInSMS: true,
             customer_email: customerInfo.email,
             customer_number: customerInfo.phone,
