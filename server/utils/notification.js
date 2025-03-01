@@ -17,7 +17,7 @@ const sendSMS = async (recipientPhoneNumber, message) => {
         const client = new twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
         const sms = await client.messages.create({
             body: message,
-            from: '+18447541698',  // Your Twilio phone number
+            from: `+1${process.env.TWILIO_NUMBER}`,  // Your Twilio phone number
             to: recipientPhoneNumber.startsWith('+') ? recipientPhoneNumber : `+1${recipientPhoneNumber}`
         });
 
@@ -66,8 +66,6 @@ const sendEmail = async (email_object) => {
         throw error; // Propagate error
     }
 };
-
-module.exports = sendEmail;
 
 
 

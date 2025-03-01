@@ -64,7 +64,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
             customer_number: appointmentDetails.customerInfo.phone,
             customer_message: `Dear ${appointmentDetails.customerInfo.name}, your appointment at Golden Nails Gig Harbor for ${serviceNames.join(
                 ", "
-            )} on ${formattedDate} at ${formattedSlot} is confirmed. Thank you!`,
+            )} on ${formattedDate} at ${formattedSlot} is confirmed. Need to cancel or check your appointment? Tap this link: https://www.goldennailsgigharbor.com/appointmenthistory and enter your name and phone number. You can also call the store at (253) 851-7563 to reschedule or ask questions! 😊`,
             owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
                 ", ")} `,
         };
