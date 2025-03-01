@@ -1,6 +1,8 @@
 const twilio = require('twilio');
 const dotenv = require('dotenv');
 const nodemailer = require("nodemailer");
+const { generateHtmlFromTemplate } = require("./helper");
+const { appointmentMessage } = require('./templates/templates');
 dotenv.config();
 
 
@@ -67,6 +69,37 @@ const sendEmail = async (email_object) => {
     }
 };
 
+/**
+ * Sends an email notification to the specified recipients with appointment details.
+ * 
+ * @param {Array<string>} recipients - An array of email addresses to which the email should be sent.
+ * @param {string} subject - The subject of the email.
+ * @param {string} role - The role associated with the email (e.g., "admin", "user").
+ * @param {Object} data_object - The data object containing the appointment details to be included in the email.
+ * 
+ * @returns {void} Returns nothing. If no valid email recipients are provided, it logs a warning.
+ * 
+ * @example
+ * sendEmailNotification(
+ *   ['example@example.com'], 
+ *   'Appointment Reminder', 
+ *   'admin', 
+ *   { appointmentDate: '2025-03-01', patientName: 'John Doe' }
+ * );
+ */
+const sendEmailNotification = (recipients, subject, role, data_object) => {
+    if (!recipients.length) return console.warn(`No valid email provided for ${role}. Skipping email.`);
+    sendEmail({
+        address: recipients,
+        subject,
+        text: appointmentMessage(data_object, role),
+        html: generateHtmlFromTemplate({
+            template: `appointment/${subject.toLowerCase().replace(/\s+/g, '_')}.handlebars`,
+            content: data_object
+        })
+    });
+};
 
 
-module.exports = { sendSMS, sendEmail };
+
+module.exports = { sendSMS, sendEmail, sendEmailNotification };

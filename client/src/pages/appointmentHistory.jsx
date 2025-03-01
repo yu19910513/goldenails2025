@@ -47,25 +47,56 @@ const AppointmentHistory = () => {
         }
     };
 
-    const messageEngine = (appointment) => {
-        const messageData = {
-            customer_html: {
-                recipient_name: customerInfo.name,
+
+    /**
+     * Sends an appointment cancellation notification via SMS and email.
+     * 
+     * This function extracts customer and appointment details, then triggers `NotificationService.notify()`.
+     * If required data is missing, an error is logged and the function exits early.
+     * 
+     * @async
+     * @function sendCancellationNotification
+     * @param {Object} appointment - The appointment details.
+     * @param {string} appointment.date - The appointment date.
+     * @param {string} appointment.start_service_time - The start time of the appointment.
+     * @param {Array} appointment.Technicians - List of technicians assigned to the appointment.
+     * @throws {Error} Logs an error if notification fails.
+     */
+    const sendCancellationNotification = async (appointment) => {
+        try {
+            if (!appointment || !appointment.date || !appointment.start_service_time || !appointment.Technicians?.length) {
+                console.error("Missing or invalid appointment details.");
+                return;
+            }
+
+            if (!customerInfo?.name || !customerInfo?.phone || !customerInfo?.email) {
+                console.error("Missing customer information.");
+                return;
+            }
+
+            const { name, phone, email } = customerInfo;
+            const technicianName = appointment.Technicians[0].name;
+
+            const messageData = {
+                recipient_name: name,
+                recipient_phone: phone,
+                recipient_email_address: email,
+                recipient_email_subject: "Cancellation",
+                recipient_optInSMS: true,
+                action: "cancel",
                 appointment_date: appointment.date,
-                appointment_time: appointment.start_service_time,
-                appointment_technician: appointment.Technicians[0].name,
-                recipient_phone: customerInfo.phone
-            },
-            optInSMS: true,
-            customer_email: customerInfo.email,
-            customer_number: customerInfo.phone,
-            customer_message: `Dear ${customerInfo.name}, We would like to inform you that your appointment at Golden Nails Gig Harbor, scheduled for ${appointment.date}, at ${appointment.start_service_time}, has been successfully cancelled. If you have any further questions or would like to reschedule, please feel free to contact us at (253) 851-7563.`,
-            owner_message: `Appointment cancelled by ${customerInfo.name} (${customerInfo.phone}), scheduled for ${appointment.date}, at ${appointment.start_service_time}. Technician: ${appointment.Technicians[0].name}. `,
-        };
-        NotificationService.notify(messageData)
-            .then(() => console.log("SMS sent successfully"))
-            .catch((error) => console.error("Failed to send SMS:", error));
-    }
+                appointment_start_time: appointment.start_service_time,
+                appointment_technician: technicianName,
+                owner_email_subject: "Cancellation Request"
+            };
+
+            await NotificationService.notify(messageData);
+            console.log("Cancellation SMS sent successfully");
+        } catch (error) {
+            console.error("Failed to send cancellation SMS:", error);
+        }
+    };
+
 
     // Handle appointment cancellation
     const handleCancel = async (appointment) => {
@@ -75,7 +106,7 @@ const AppointmentHistory = () => {
         try {
             await AppointmentService.soft_delete(appointment.id);
             alert("Appointment successfully canceled.");
-            messageEngine(appointment);
+            sendCancellationNotification(appointment);
             fetchAppointments(customerInfo.id); // Refresh appointments after cancellation
         } catch (error) {
             alert("Failed to cancel appointment.");

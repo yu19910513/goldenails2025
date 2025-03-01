@@ -1,101 +1,63 @@
 const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
-const { sendSMS, sendEmail } = require("../../utils/notification");
-const { generateHtmlFromTemplate } = require("../../utils/helper");
+const { sendSMS, sendEmail, sendEmailNotification } = require("../../utils/notification");
+const { appointmentMessage } = require('../../utils/templates/templates');
 dotenv.config();
 
 
 /**
- * POST /notify
+ * Handles appointment notifications via SMS and email.
  * 
- * This route handles the process of notifying the business owner and customer about an appointment,
- * including sending SMS and email notifications.
+ * @route POST /notify
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body containing message data
+ * @param {Object} req.body.messageData - Notification details
+ * @param {string} req.body.messageData.recipient_phone - Customer's phone number (required)
+ * @param {string} [req.body.messageData.recipient_name] - Customer's name
+ * @param {string} [req.body.messageData.recipient_email_address] - Customer's email
+ * @param {string} [req.body.messageData.recipient_email_subject="Appointment Notification"] - Subject for customer email
+ * @param {boolean|string} [req.body.messageData.recipient_optInSMS=true] - Whether customer opted into SMS notifications
+ * @param {string} req.body.messageData.action - Action type (e.g., "confirm" or "cancel")
+ * @param {string} req.body.messageData.appointment_date - Appointment date
+ * @param {string} req.body.messageData.appointment_start_time - Appointment start time
+ * @param {string} [req.body.messageData.owner_email_subject] - Subject for owner's email
  * 
- * @param {Object} req - The request object, containing the body of the request.
- * @param {Object} req.body - The body of the request containing message data.
- * @param {Object} req.body.messageData - The message data for notifications.
- * @param {string} req.body.messageData.owner_message - The message to send to the business owner via SMS and email.
- * @param {string} req.body.messageData.customer_email - The email address of the customer to send a notification.
- * @param {string} req.body.messageData.customer_number - The phone number of the customer to send an SMS notification.
- * @param {string} req.body.messageData.customer_message - The message to send to the customer via email and SMS.
- * @param {string} req.body.messageData.customer_html - The HTML content to include in the customer's email.
- * @param {string} req.body.messageData.optInSMS - A flag indicating if the customer has opted-in for SMS notifications.
- * 
- * @param {Object} res - The response object, used to send the response.
- * @param {Function} res.status - Sets the HTTP status code for the response.
- * @param {Function} res.json - Sends a JSON response with the given data.
- * 
- * @returns {Object} JSON response with success or failure message.
- * 
- * @throws {Error} If there's any error during the notification process.
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success status and message
  */
 router.post('/notify', async (req, res) => {
   try {
     const { messageData } = req.body;
-    console.log(messageData);
-
-    // Validate request body
-    if (!messageData || !messageData.customer_number || !messageData.customer_message) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid request. Ensure customer_number and customer_message are provided.',
-      });
+    if (!messageData?.recipient_phone) {
+      return res.status(400).json({ success: false, message: 'Invalid request. Ensure recipient_phone is provided.' });
     }
 
-    const { owner_message, customer_email, customer_number, customer_message, customer_html, optInSMS } = messageData;
     const { OWNER_NUMBER, BUSINESS_EMAIL, STORE_EMAIL, OWNER_EMAIL } = process.env;
 
-    // Send SMS to the owner if applicable
-    if (OWNER_NUMBER && owner_message) {
-      console.log('Sending SMS notification to the owner...');
-      sendSMS(OWNER_NUMBER, owner_message);
+    // Send SMS to owner
+    OWNER_NUMBER && sendSMS(OWNER_NUMBER, appointmentMessage(messageData, "owner"));
+
+    // Send email to business owner
+    if (BUSINESS_EMAIL && STORE_EMAIL && messageData.owner_email_subject) {
+      sendEmailNotification([STORE_EMAIL, OWNER_EMAIL].filter(Boolean), messageData.owner_email_subject, "owner", messageData);
     }
 
-    // Send email to the business owner
-    if (BUSINESS_EMAIL && STORE_EMAIL) {
-      console.log('Sending email notification to the owner...');
-      sendEmail({
-        address: [STORE_EMAIL, OWNER_EMAIL].filter(Boolean), // Ensure valid emails only
-        subject: owner_message.toLowerCase().includes('cancelled') ? 'Cancel Request' : 'New Appointment',
-        text: owner_message,
-      });
-    }
-
-    // Send email to the customer if applicable
-    if (customer_email) {
-      console.log('Sending email notification to the customer...');
-      const subject = customer_message.toLowerCase().includes('cancelled') ? 'Cancellation' : 'Appointment Confirmation';
-      sendEmail({
-        address: customer_email,
-        subject: subject,
-        text: customer_message,
-        html: generateHtmlFromTemplate({
-          template: "appointment/" + subject.toLowerCase().replace(/\s+/g, '_') + ".handlebars", // Convert subject to snake_case for template name
-          content: customer_html
-        })
-      });
-    }
+    // Send email to customer
+    messageData.recipient_email_address &&
+      sendEmailNotification([messageData.recipient_email_address], messageData.recipient_email_subject || "Appointment Notification", "customer", messageData);
 
     // Send SMS to customer if opted in
-    if (optInSMS !== 'false') {
-      console.log('Sending SMS notification to the customer...');
-      sendSMS(customer_number, customer_message);
-    }
+    messageData.recipient_optInSMS !== 'false' && sendSMS(messageData.recipient_phone, appointmentMessage(messageData, "customer"));
 
-    res.status(200).json({
-      success: true,
-      message: 'SMS appointment confirmation sent successfully!',
-    });
+    res.status(200).json({ success: true, message: 'Notification sent successfully!' });
   } catch (error) {
     console.error('Error in sending notification:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to send notification. Please try again later.',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to send notification. Please try again later.', error: error.message });
   }
 });
+
+
 
 
 /**
