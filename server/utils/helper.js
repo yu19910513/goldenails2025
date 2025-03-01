@@ -1,3 +1,6 @@
+const fs = require('fs');
+const handlebars = require('handlebars');
+const path = require('path');
 /**
  * Groups appointments into future, present, and past, and sorts each group by most recent date first.
  * 
@@ -126,4 +129,41 @@ const validateContactType = (input) => {
     }
 }
 
-module.exports = { groupAppointments, now, overlap, validateContactType };
+/**
+ * Generates HTML content by compiling a Handlebars template with the provided data.
+ * 
+ * @param {Object} data_object - The data used to populate the template.
+ * @param {string} data_object.template - The path to the Handlebars template (relative to the templates directory).
+ * @param {Object} data_object.content - The content to be inserted into the template.
+ * 
+ * @returns {string} - The generated HTML content with the populated template.
+ * 
+ * @throws {Error} - Throws an error if the template file cannot be read or is invalid.
+ */
+const generateHtmlFromTemplate = (data_object) => {
+    try {
+        // Resolve the template path
+        const templatePath = path.resolve(__dirname, 'templates', data_object.template);
+
+        // Check if the template file exists
+        if (!fs.existsSync(templatePath)) {
+            throw new Error(`Template file ${data_object.template} does not exist.`);
+        }
+
+        // Read the .handlebars file
+        const templateFile = fs.readFileSync(templatePath, 'utf-8');
+
+        // Compile the template using Handlebars
+        const compiledTemplate = handlebars.compile(templateFile);
+
+        // Return the populated template
+        return compiledTemplate(data_object.content);
+    } catch (error) {
+        console.error("Error generating HTML from template:", error.message);
+        throw error; // Re-throw the error after logging it
+    }
+};
+
+
+
+module.exports = { groupAppointments, now, overlap, validateContactType, generateHtmlFromTemplate };

@@ -50,6 +50,16 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
     const messageEngine = () => {
         const messageData = {
             optInSMS: optInSMS,
+            customer_html: {
+                recipient_name: appointmentDetails.customerInfo.name,
+                appointment_date: formattedDate,
+                appointment_time: formattedSlot,
+                appointment_services: serviceNames.join(
+                    ", "
+                ),
+                appointment_technician: appointmentDetails.technician.name,
+                recipient_phone: appointmentDetails.customerInfo.phone
+            },
             customer_email: appointmentDetails.customerInfo.email,
             customer_number: appointmentDetails.customerInfo.phone,
             customer_message: `Dear ${appointmentDetails.customerInfo.name}, your appointment at Golden Nails Gig Harbor for ${serviceNames.join(

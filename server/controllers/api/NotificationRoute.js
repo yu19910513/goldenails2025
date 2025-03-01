@@ -2,22 +2,33 @@ const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
 const { sendSMS, sendEmail } = require("../../utils/notification");
+const { generateHtmlFromTemplate } = require("../../utils/helper");
 dotenv.config();
 
 
 /**
- * Endpoint to notify customers via SMS and email.
+ * POST /notify
  * 
- * @route POST /notify
- * @param {Object} req - Express request object.
- * @param {Object} req.body - Request body containing message data.
- * @param {string} req.body.customer_number - Customer's phone number.
- * @param {string} req.body.customer_message - Message to send to the customer.
- * @param {string} [req.body.owner_message] - Optional message for the owner.
- * @param {string} [req.body.customer_email] - Optional email for the customer.
- * @param {string} [req.body.optInSMS] - Whether the customer opted in for SMS.
- * @param {Object} res - Express response object.
- * @returns {Object} JSON response with success or error message.
+ * This route handles the process of notifying the business owner and customer about an appointment,
+ * including sending SMS and email notifications.
+ * 
+ * @param {Object} req - The request object, containing the body of the request.
+ * @param {Object} req.body - The body of the request containing message data.
+ * @param {Object} req.body.messageData - The message data for notifications.
+ * @param {string} req.body.messageData.owner_message - The message to send to the business owner via SMS and email.
+ * @param {string} req.body.messageData.customer_email - The email address of the customer to send a notification.
+ * @param {string} req.body.messageData.customer_number - The phone number of the customer to send an SMS notification.
+ * @param {string} req.body.messageData.customer_message - The message to send to the customer via email and SMS.
+ * @param {string} req.body.messageData.customer_html - The HTML content to include in the customer's email.
+ * @param {string} req.body.messageData.optInSMS - A flag indicating if the customer has opted-in for SMS notifications.
+ * 
+ * @param {Object} res - The response object, used to send the response.
+ * @param {Function} res.status - Sets the HTTP status code for the response.
+ * @param {Function} res.json - Sends a JSON response with the given data.
+ * 
+ * @returns {Object} JSON response with success or failure message.
+ * 
+ * @throws {Error} If there's any error during the notification process.
  */
 router.post('/notify', async (req, res) => {
   try {
@@ -32,7 +43,7 @@ router.post('/notify', async (req, res) => {
       });
     }
 
-    const { owner_message, customer_email, customer_number, customer_message, optInSMS } = messageData;
+    const { owner_message, customer_email, customer_number, customer_message, customer_html, optInSMS } = messageData;
     const { OWNER_NUMBER, BUSINESS_EMAIL, STORE_EMAIL, OWNER_EMAIL } = process.env;
 
     // Send SMS to the owner if applicable
@@ -54,10 +65,15 @@ router.post('/notify', async (req, res) => {
     // Send email to the customer if applicable
     if (customer_email) {
       console.log('Sending email notification to the customer...');
+      const subject = customer_message.toLowerCase().includes('cancelled') ? 'Cancellation' : 'Appointment Confirmation';
       sendEmail({
         address: customer_email,
-        subject: customer_message.toLowerCase().includes('cancelled') ? 'Cancellation' : 'Appointment Confirmation',
+        subject: subject,
         text: customer_message,
+        html: generateHtmlFromTemplate({
+          template: "appointment/" + subject.toLowerCase().replace(/\s+/g, '_') + ".handlebars", // Convert subject to snake_case for template name
+          content: customer_html
+        })
       });
     }
 
