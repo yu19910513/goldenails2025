@@ -46,32 +46,48 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
         })
         : "N/A";
 
+    /**
+ * Sends an appointment confirmation notification via SMS and email.
+ * 
+ * This function gathers appointment details and sends a notification using `NotificationService.notify()`.
+ * If required data is missing, an error is logged and the function exits early.
+ * 
+ * @async
+ * @function sendAppointmentNotification
+ * @throws {Error} Logs an error if the notification fails to send.
+ */
+    const sendAppointmentNotification = async () => {
+        try {
+            if (!appointmentDetails?.customerInfo || !appointmentDetails?.technician) {
+                console.error("Missing appointment or technician details.");
+                return;
+            }
 
-    const messageEngine = () => {
-        const messageData = {
-            optInSMS: optInSMS,
-            customer_html: {
-                recipient_name: appointmentDetails.customerInfo.name,
+            const { name, phone, email } = appointmentDetails.customerInfo;
+            const { name: technicianName } = appointmentDetails.technician;
+
+            const messageData = {
+                recipient_name: name,
+                recipient_phone: phone,
+                recipient_email_address: email,
+                recipient_email_subject: "Appointment Confirmation",
+                recipient_optInSMS: optInSMS,
+                action: "confirm",
                 appointment_date: formattedDate,
-                appointment_time: formattedSlot,
-                appointment_services: serviceNames.join(
-                    ", "
-                ),
-                appointment_technician: appointmentDetails.technician.name,
-                recipient_phone: appointmentDetails.customerInfo.phone
-            },
-            customer_email: appointmentDetails.customerInfo.email,
-            customer_number: appointmentDetails.customerInfo.phone,
-            customer_message: `Dear ${appointmentDetails.customerInfo.name}, \nYour appointment at Golden Nails Gig Harbor for ${serviceNames.join(
-                ", "
-            )} on ${formattedDate} at ${formattedSlot} is confirmed. \n \nNeed to cancel or check your appointment? Tap this link: https://www.goldennailsgigharbor.com/appointmenthistory and enter your name and phone number. You can also call the store at (253) 851-7563 to reschedule or ask questions! 😊`,
-            owner_message: `Appointment confirmed for ${appointmentDetails.customerInfo.name} (${appointmentDetails.customerInfo.phone}) on ${formattedDate}, from ${formattedSlot} to ${endTime}. Technician: ${appointmentDetails.technician.name}. Services: ${serviceNames.join(
-                ", ")} `,
-        };
-        NotificationService.notify(messageData)
-            .then(() => console.log("SMS sent successfully"))
-            .catch((error) => console.error("Failed to send SMS:", error));
-    }
+                appointment_start_time: formattedSlot,
+                appointment_end_time: endTime,
+                appointment_services: serviceNames.join(", "),
+                appointment_technician: technicianName,
+                owner_email_subject: "New Appointment",
+            };
+
+            await NotificationService.notify(messageData);
+            console.log("SMS sent successfully");
+        } catch (error) {
+            console.error("Failed to send SMS:", error);
+        }
+    };
+
 
     useEffect(() => {
         const fetchPermission = async () => {
@@ -79,7 +95,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
                 const permissionResponse = await MiscellaneousService.find("smsFeature");
                 console.log(permissionResponse.data.context);
                 if (permissionResponse.data && permissionResponse.data.context == "on") {
-                    messageEngine();
+                    sendAppointmentNotification();
                 }
 
             } catch (error) {

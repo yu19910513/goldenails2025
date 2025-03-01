@@ -2,17 +2,25 @@ import http from "../common/NodeCommon";
 
 
 class NotificationService {
+
     /**
-    * Sends a notification to a customer via SMS and/or email.
-    * 
-    * @param {Object} messageData - The message details for notification.
-    * @param {string} messageData.customer_number - The customer's phone number.
-    * @param {string} messageData.customer_message - The message to send to the customer.
-    * @param {string} [messageData.owner_message] - Optional message for the owner.
-    * @param {string} [messageData.customer_email] - Optional email for the customer.
-    * @param {string} [messageData.optInSMS] - Whether the customer opted in for SMS.
-    * @returns {Promise} HTTP response promise.
-    */
+     * Sends a notification to a customer and/or business owner via SMS and/or email.
+     *
+     * @param {Object} messageData - The message details for the notification.
+     * @param {string} messageData.recipient_name - The customer's full name.
+     * @param {string} messageData.recipient_phone - The customer's phone number for SMS notifications.
+     * @param {string} [messageData.recipient_email_address] - Optional email address for the customer.
+     * @param {string} [messageData.recipient_email_subject] - Optional subject for the email sent to the customer.
+     * @param {string} [messageData.recipient_optInSMS="true"] - Whether the customer opted in for SMS (default: "true").
+     * @param {string} messageData.action - The action type ("confirm" or "cancel").
+     * @param {string} messageData.appointment_date - The date of the appointment (YYYY-MM-DD format).
+     * @param {string} messageData.appointment_start_time - The start time of the appointment.
+     * @param {string} [messageData.appointment_end_time] - Optional end time of the appointment.
+     * @param {string} messageData.appointment_services - The services the customer booked.
+     * @param {string} [messageData.appointment_technician] - Optional assigned technician.
+     * @param {string} [messageData.owner_email_subject] - Optional subject for the email sent to the business owner.
+     * @returns {Promise} HTTP response promise.
+     */
     notify(messageData) {
         return http.post(`/notification/notify`, { messageData: messageData });
     }

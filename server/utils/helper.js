@@ -130,15 +130,19 @@ const validateContactType = (input) => {
 }
 
 /**
- * Generates HTML content by compiling a Handlebars template with the provided data.
+ * Generates HTML from a Handlebars template.
  * 
- * @param {Object} data_object - The data used to populate the template.
- * @param {string} data_object.template - The path to the Handlebars template (relative to the templates directory).
- * @param {Object} data_object.content - The content to be inserted into the template.
+ * This function reads a Handlebars template file, compiles it, and returns the populated HTML string.
+ * If the template file is not found, it logs a warning and returns `null`.
+ * In case of any other error, it logs the error and re-throws it.
  * 
- * @returns {string} - The generated HTML content with the populated template.
+ * @param {Object} data_object - The data object used to populate the template.
+ * @param {string} data_object.template - The relative path to the template file (e.g., 'appointment/confirmation.handlebars').
+ * @param {Object} data_object.content - The content to populate the template with (key-value pairs).
  * 
- * @throws {Error} - Throws an error if the template file cannot be read or is invalid.
+ * @returns {string|null} - The populated HTML string generated from the template or `null` if the template file is not found.
+ * 
+ * @throws {Error} - Re-throws an error if an error occurs during template generation, after logging the error.
  */
 const generateHtmlFromTemplate = (data_object) => {
     try {
@@ -147,7 +151,8 @@ const generateHtmlFromTemplate = (data_object) => {
 
         // Check if the template file exists
         if (!fs.existsSync(templatePath)) {
-            throw new Error(`Template file ${data_object.template} does not exist.`);
+            console.warn(`Template file ${data_object.template} not found.`);
+            return null;
         }
 
         // Read the .handlebars file
