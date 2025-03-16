@@ -65,7 +65,7 @@ const Hero = () => {
             3610 Grandview St, Gig Harbor, WA
           </p>
           <p className="text-lg font-medium">
-            Open Hours: 9 AM - 6:30 PM | Sun: Appt. Only
+            Open Hours: 9 AM - 6:30 PM | Sun: 11 AM - 5 PM
           </p>
         </div>
 

@@ -40,7 +40,13 @@ const AvailabilitySelection = ({
 
   useEffect(() => {
     if (selectedDate) {
-      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, businessHours, selectedTechnician));
+      const date = new Date(`${selectedDate}T00:00:00`);
+      const isSunday = date.getDay() === 0;
+      const adjustedBusinessHours = isSunday
+        ? { start: 11, end: 17 }
+        : businessHours;
+
+      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, adjustedBusinessHours, selectedTechnician));
     }
   }, [existingAppointments, selectedDate]);
 
