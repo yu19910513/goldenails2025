@@ -1,14 +1,31 @@
 import React, { useState, useEffect } from "react";
 import MiscellaneousService from "../../services/miscellaneousService";
 import AnnouncementBar from "./AnnouncementBar"; // Import the new component
+import { business_hours, convertTo12Hour } from "../../common/utils";
 import "./Hero.css";
 
 const Hero = () => {
   const [adBoard, setAdBoard] = useState("Loading ad content...");
   const [subtext, setSubtext] = useState("");
   const [announcementBarPermission, setAnnouncementBarPermission] = useState(null);
+  const [operationHours, setOperationHours] = useState({ start: null, end: null });
+  const [sundayHours, setSundayHours] = useState({ start: null, end: null });
 
   useEffect(() => {
+
+    const fetchHours = async (day = "") => {
+      try {
+        const hours = await business_hours(day);
+        if (day === "sunday") {
+          setSundayHours(hours);
+        } else {
+          setOperationHours(hours);
+        }
+      } catch (error) {
+        console.error(`Error fetching ${day || "operation"} hours data:`, error);
+      }
+    };
+
     const fetchAdBoardData = async () => {
       try {
         const adBoardResponse = await MiscellaneousService.find("adBoard");
@@ -42,6 +59,8 @@ const Hero = () => {
       }
     };
 
+    fetchHours();
+    fetchHours("sunday");
     fetchAdBoardData();
     fetchSubtextData();
     fetchAnnouncementBarPermission();
@@ -65,7 +84,7 @@ const Hero = () => {
             3610 Grandview St, Gig Harbor, WA
           </p>
           <p className="text-lg font-medium">
-            Open Hours: 9 AM - 6:30 PM | Sun: 11 AM - 5 PM
+            Open Hours: {convertTo12Hour(operationHours.start)} AM - {convertTo12Hour(operationHours.end)} PM | Sun: {convertTo12Hour(sundayHours.start)} AM - {convertTo12Hour(sundayHours.end)} PM
           </p>
         </div>
 
