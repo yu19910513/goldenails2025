@@ -1,3 +1,4 @@
+import MiscellaneousService from "../services/miscellaneousService";
 /**
  * Formats a price into a string based on specific conditions:
  * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
@@ -52,7 +53,7 @@ const formatPrice = (price) => {
  */
 const calculateTotalTime = (selectedServices) => {
   console.log(selectedServices);
-  
+
   if (typeof selectedServices !== 'object' || selectedServices === null) {
     throw new Error("Invalid input. `selectedServices` must be an object.");
   }
@@ -159,6 +160,9 @@ const calculateAvailableSlots = (
   technician
 ) => {
   const occupiedSlots = [];
+  console.log(`businessHours`);
+  console.log(businessHours);
+
 
   const unavailabilityRanges = {
     Lisa: { start: "2025-02-21", end: "2025-03-15" },
@@ -279,6 +283,90 @@ const now = () => {
   return now;
 }
 
+/**
+ * Retrieves the business hours for a given day or defaults to a standard time range if no specific hours are found.
+ * 
+ * This function first tries to fetch the business hours for a specified day (e.g., "sunday"). If the hours for that 
+ * day are not found or the format is invalid, it falls back to the default business hours, which are 9 AM to 7 PM. 
+ * If no specific business hours are available for the day or fallback data, the default business hours are used.
+ * 
+ * The expected format for the business hours is a string in the form of "start,end" (e.g., "9,17").
+ * 
+ * @async
+ * @function business_hours
+ * @param {string} [day] - The specific day for which to fetch the business hours (e.g., "sunday"). If no day is provided, the function will fetch general business hours.
+ * @returns {Promise<{start: number, end: number}>} A promise that resolves to an object containing the start and end hours in a 24-hour format. The default is `{ start: 9, end: 19 }` if no valid hours are found.
+ * @throws {Error} If there is an error during the process of retrieving or parsing the business hours.
+ */
+const business_hours = async (day) => {
+  const defaultHours = { start: 9, end: 19 };
+  try {
+    const dayKey = day ? `${day}_hours` : null;
+    const result = dayKey ? await MiscellaneousService.find(dayKey) : null;
+
+    if (result) {
+      const context = result.data.context;
+
+      // Check if the context is a valid string of the form "start,end"
+      if (context && context.includes(",")) {
+        const hours = context.split(",").map(hour => parseInt(hour.trim()));
+
+        // Ensure both start and end hours are valid numbers
+        if (hours.length === 2 && !isNaN(hours[0]) && !isNaN(hours[1])) {
+          return { start: hours[0], end: hours[1] };
+        }
+      }
+
+      // Fallback to default if parsing fails
+      console.warn("Invalid business hours format. Using default hours.");
+      return defaultHours;
+    }
+
+    // Fallback to default business hours if no result
+    const fallbackResult = await MiscellaneousService.find("business_hours");
+
+    if (fallbackResult) {
+      const context = fallbackResult.data.context;
+
+      // Same parsing logic for fallback result
+      if (context && context.includes(",")) {
+        const hours = context.split(",").map(hour => parseInt(hour.trim()));
+        if (hours.length === 2 && !isNaN(hours[0]) && !isNaN(hours[1])) {
+          return { start: hours[0], end: hours[1] };
+        }
+      }
+
+      // Fallback to default if parsing fails
+      console.warn("Invalid fallback business hours format. Using default hours.");
+      return defaultHours;
+    }
+
+    return defaultHours;
+  } catch (error) {
+    console.error("Failed to parse business hours:", error);
+    return defaultHours;
+  }
+};
+
+
+/**
+ * Converts a 24-hour format hour to a 12-hour format.
+ * 
+ * @param {number} hour - The hour in 24-hour format (0-23).
+ * @returns {number} The corresponding hour in 12-hour format (1-12).
+ * 
+ * @example
+ * console.log(convertTo12Hour(0));  // 12
+ * console.log(convertTo12Hour(12)); // 12
+ * console.log(convertTo12Hour(13)); // 1
+ * console.log(convertTo12Hour(23)); // 11
+ */
+const convertTo12Hour = (hour) => {
+  if (!hour) {
+    return;
+  }
+  return (hour % 12) || 12;
+}
 
 
 
@@ -288,4 +376,5 @@ const now = () => {
 
 
 
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment };
+
+export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment, business_hours, convertTo12Hour };

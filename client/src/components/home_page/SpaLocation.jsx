@@ -47,7 +47,7 @@ const SpaLocation = () => {
 
           <div className="hours">
             <h3>Open Hours</h3>
-            <p>Mon-Sat: 9:00 AM – 6:30 PM</p>
+            <p>Mon-Sat: 9:00 AM – 7:00 PM</p>
             <p>Sun: 11:00 AM - 5:00 PM</p>
             <p>Phone: <a href="tel:12538517563">+1 (253) 851-7563</a></p>
           </div>

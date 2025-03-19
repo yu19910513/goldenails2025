@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
-import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString } from "../../common/utils";
+import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString, business_hours } from "../../common/utils";
 
 const AvailabilitySelection = ({
   customerInfo,
@@ -15,7 +15,6 @@ const AvailabilitySelection = ({
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
-  const businessHours = { start: 9, end: 19 }; // 9 AM to 7 PM
   const [selectedSlot, setSelectedSlot] = useState(null); // Store selected time slot for appointment
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // Index of selected slot for styling
 
@@ -42,13 +41,22 @@ const AvailabilitySelection = ({
     if (selectedDate) {
       const date = new Date(`${selectedDate}T00:00:00`);
       const isSunday = date.getDay() === 0;
-      const adjustedBusinessHours = isSunday
-        ? { start: 11, end: 17 }
-        : businessHours;
 
-      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, adjustedBusinessHours, selectedTechnician));
+      // Use async function to await business_hours before calling calculateAvailableSlots
+      const fetchBusinessHours = async () => {
+        const adjustedBusinessHours = isSunday
+          ? await business_hours("sunday") // Await business_hours when needed
+          : await business_hours();
+
+        // Now calculate the available slots after awaiting the business hours
+        const slots = calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, adjustedBusinessHours, selectedTechnician);
+        setAvailableSlots(slots); // Update state with available slots
+      };
+
+      fetchBusinessHours(); // Call the async function to fetch business hours and calculate slots
     }
-  }, [existingAppointments, selectedDate]);
+  }, [existingAppointments, selectedDate, selectedServices, selectedTechnician]); // Make sure to add dependencies as needed
+
 
   const handleDateChange = (event) => {
     localStorage.setItem("selectedDate", event.target.value);
