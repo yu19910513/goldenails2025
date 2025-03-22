@@ -69,7 +69,7 @@ const AppointmentHistory = () => {
                 return;
             }
 
-            if (!customerInfo?.name || !customerInfo?.phone || !customerInfo?.email) {
+            if (!customerInfo?.name || !customerInfo?.phone) {
                 console.error("Missing customer information.");
                 return;
             }
