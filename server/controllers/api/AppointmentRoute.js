@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { Appointment, Technician, Service, Customer } = require("../../models");
-const { Op } = require("sequelize");
+const { Op, fn, col, where } = require("sequelize");
 const { groupAppointments, now, overlap } = require("../../utils/helper");
+const moment = require('moment-timezone');
+
 
 /**
  * @route GET /appointments/upcoming
@@ -415,6 +417,100 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.error("Error creating appointment:", error);
     res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+/**
+ * @route GET /search
+ * @description This endpoint searches for appointments based on the provided keyword.
+ * The search will filter appointments where:
+ * - Customer name, phone, or email contains the keyword.
+ * - Technician name or service name contains the keyword.
+ * The appointment must also have a date and start service time greater than or equal to the current time in Seattle.
+ * 
+ * @query {string} keyword - The search keyword (can match customer name, phone, email, technician name, or service name).
+ * 
+ * @returns {Object[]} appointments - A list of appointments that match the search criteria.
+ * 
+ * @throws {500} - If there is an internal server error during the search operation.
+ */
+router.get("/search", async (req, res) => {
+  try {
+    const { keyword } = req.query;
+
+    const searchCondition = keyword && keyword !== '*' && keyword !== '**'
+      ? {
+          [Op.or]: [
+            where(fn('LOWER', col('Customer.name')), {
+              [Op.like]: `%${keyword.toLowerCase()}%`,
+            }),
+            where(fn('LOWER', col('Customer.phone')), {
+              [Op.like]: `%${keyword.toLowerCase()}%`,
+            }),
+            where(fn('LOWER', col('Customer.email')), {
+              [Op.like]: `%${keyword.toLowerCase()}%`,
+            }),
+            where(fn('LOWER', col('Technicians.name')), {
+              [Op.like]: `%${keyword.toLowerCase()}%`,
+            }),
+            where(fn('LOWER', col('Services.name')), {
+              [Op.like]: `%${keyword.toLowerCase()}%`,
+            }),
+          ],
+        }
+      : {};
+
+    const seattleNow = moment().tz("America/Los_Angeles").format("YYYY-MM-DD HH:mm:ss");
+
+    // Determine if we should apply the future-only date filter
+    const includeFutureOnly = keyword !== '**';
+
+    const whereConditions = [
+      {
+        [Op.or]: [
+          { note: null },
+          { note: { [Op.not]: "deleted" } },
+        ],
+      },
+      searchCondition
+    ];
+
+    if (includeFutureOnly) {
+      whereConditions.push(
+        where(
+          fn('CONCAT', col('date'), ' ', col('start_service_time')),
+          { [Op.gte]: seattleNow }
+        )
+      );
+    }
+
+    const appointments = await Appointment.findAll({
+      where: {
+        [Op.and]: whereConditions,
+      },
+      include: [
+        {
+          model: Technician,
+          attributes: ["id", "name"],
+          through: { attributes: [] },
+        },
+        {
+          model: Service,
+          attributes: ["id", "name", "time", "price"],
+          through: { attributes: [] },
+        },
+        {
+          model: Customer,
+          attributes: ["id", "name", "phone", "email"],
+        }
+      ],
+      order: [["date", "DESC"], ["start_service_time", "ASC"]],
+    });
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ error: "Failed to search appointments." });
   }
 });
 
