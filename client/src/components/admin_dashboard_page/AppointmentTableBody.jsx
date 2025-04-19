@@ -47,7 +47,6 @@ const AppointmentTableBody = ({ appointments }) => {
             <tr key={appt.id || index} className={rowClass}>
               <td>{customer.name}</td>
               <td>{customer.phone}</td>
-              <td>{customer.email}</td>
               <td>{appt.date}</td>
               <td>{appt.start_service_time}</td>
               <td>{serviceNames}</td>

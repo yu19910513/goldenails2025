@@ -37,23 +37,24 @@ const ApptManagement = () => {
         placeholder="Search by customer name, phone, or email"
         className="search-input"
       />
-      <table className="appointments-table">
-        <thead>
-          <tr>
-            <th>Customer Name</th>
-            <th>Customer Phone</th>
-            <th>Customer Email</th>
-            <th>Appointment Date</th>
-            <th>Appointment Start Time</th>
-            <th>Services</th>
-            <th>Total Appointment Duration</th>
-            <th>Assigned Technician</th>
-            <th>Estimated Total Price</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <AppointmentTableBody appointments={appointments} />
-      </table>
+      <div className="table-wrapper">
+        <table className="appointments-table">
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Customer Phone</th>
+              <th>Appointment Date</th>
+              <th>Appointment Start Time</th>
+              <th>Services</th>
+              <th>Total Appointment Duration</th>
+              <th>Assigned Technician</th>
+              <th>Estimated Total Price</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <AppointmentTableBody appointments={appointments} />
+        </table>
+      </div>
     </div>
   );
 };
