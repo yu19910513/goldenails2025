@@ -1,3 +1,4 @@
+import NotificationService from "../services/notificationService";
 /**
  * Formats a price into a string based on specific conditions:
  * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
@@ -52,7 +53,7 @@ const formatPrice = (price) => {
  */
 const calculateTotalTime = (selectedServices) => {
   console.log(selectedServices);
-  
+
   if (typeof selectedServices !== 'object' || selectedServices === null) {
     throw new Error("Invalid input. `selectedServices` must be an object.");
   }
@@ -279,6 +280,61 @@ const now = () => {
   return now;
 }
 
+/**
+* Sends a cancellation notification to the customer and technician regarding an appointment.
+* 
+* This function checks that the appointment and customer details are valid. If they are, 
+* it creates a message containing the necessary details and sends a cancellation 
+* notification via the NotificationService. If any required details are missing or invalid, 
+* it logs an error and stops further execution.
+* 
+* @param {Object} appointment - The appointment details for the notification.
+* @param {string} appointment.date - The date of the appointment.
+* @param {string} appointment.start_service_time - The start time of the appointment.
+* @param {Array} appointment.Technicians - An array of technician objects assigned to the appointment.
+* @param {Object} appointment.Customer - The customer details for the appointment.
+* @param {string} appointment.Customer.name - The name of the customer.
+* @param {string} appointment.Customer.phone - The phone number of the customer.
+* @param {string} appointment.Customer.email - The email address of the customer.
+* 
+* @throws {Error} If there is a failure in sending the cancellation notification.
+* 
+* @returns {void} This function does not return a value. It sends a notification asynchronously.
+*/
+const sendCancellationNotification = async (appointment) => {
+  try {
+    if (!appointment || !appointment.date || !appointment.start_service_time || !appointment.Technicians?.length) {
+      console.error("Missing or invalid appointment details.");
+      return;
+    }
+
+    if (!appointment.Customer?.name || !appointment.Customer?.phone) {
+      console.error("Missing customer information.");
+      return;
+    }
+
+    const { name, phone, email } = appointment.Customer;
+    const technicianName = appointment.Technicians[0].name;
+
+    const messageData = {
+      recipient_name: name,
+      recipient_phone: phone,
+      recipient_email_address: email,
+      recipient_email_subject: "Cancellation",
+      recipient_optInSMS: true,
+      action: "cancel",
+      appointment_date: appointment.date,
+      appointment_start_time: appointment.start_service_time,
+      appointment_technician: technicianName,
+      owner_email_subject: "Cancellation Request"
+    };
+
+    await NotificationService.notify(messageData);
+    console.log("Cancellation SMS sent successfully");
+  } catch (error) {
+    console.error("Failed to send cancellation SMS:", error);
+  }
+};
 
 
 
@@ -287,5 +343,4 @@ const now = () => {
 
 
 
-
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment };
+export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment, sendCancellationNotification };

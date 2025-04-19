@@ -16,6 +16,7 @@ import Calendar from './calendar';
  * @type {Array<{ key: string, label: string, Component: React.ComponentType }>}
  */
 const admin_tabs = [
+    { key: 'Calendar', label: 'Calendar', Component: Calendar },
     { key: 'NewAppt', label: 'New Appt Form', Component: NewApptForm },
     { key: 'CustMgt', label: 'Customer Management', Component: CustomerManagement },
     { key: 'ApptMgt', label: 'Appointment Management', Component: ApptManagement },

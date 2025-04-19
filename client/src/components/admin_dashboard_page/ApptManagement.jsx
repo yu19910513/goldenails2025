@@ -49,6 +49,7 @@ const ApptManagement = () => {
             <th>Total Appointment Duration</th>
             <th>Assigned Technician</th>
             <th>Estimated Total Price</th>
+            <th>Action</th>
           </tr>
         </thead>
         <AppointmentTableBody appointments={appointments} />

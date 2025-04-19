@@ -1,11 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './AppointmentTableBody.css';
+import AppointmentService from '../../services/appointmentService';
+import { sendCancellationNotification } from '../../common/utils';
 
 const AppointmentTableBody = ({ appointments }) => {
+  const [localAppointments, setLocalAppointments] = useState(appointments);
+
+  useEffect(() => {
+    setLocalAppointments(appointments);
+  }, [appointments]);
+
+  const handleCancel = async (appointment) => {
+    const confirmCancel = window.confirm("Are you sure you want to cancel this appointment?");
+    if (!confirmCancel) return;
+
+    try {
+      await AppointmentService.soft_delete(appointment.id);
+      sendCancellationNotification(appointment);
+
+      // Remove the appointment from local state
+      setLocalAppointments(prev => prev.filter(appt => appt.id !== appointment.id));
+    } catch (error) {
+      alert("Failed to cancel appointment.");
+      console.error(error);
+    }
+  };
+
   return (
     <tbody>
-      {appointments.length > 0 ? (
-        appointments.map((appt, index) => {
+      {localAppointments.length > 0 ? (
+        localAppointments.map((appt, index) => {
           const customer = appt.Customer || {};
           const services = appt.Services || [];
           const technicians = appt.Technicians || [];
@@ -20,7 +44,7 @@ const AppointmentTableBody = ({ appointments }) => {
           const rowClass = `appointment-row ${isPast ? 'past-appointment' : 'future-appointment'}`;
 
           return (
-            <tr key={index} className={rowClass}>
+            <tr key={appt.id || index} className={rowClass}>
               <td>{customer.name}</td>
               <td>{customer.phone}</td>
               <td>{customer.email}</td>
@@ -30,12 +54,17 @@ const AppointmentTableBody = ({ appointments }) => {
               <td>{totalDuration} mins</td>
               <td>{technicianNames}</td>
               <td>${estimatedTotalPrice}</td>
+              <td>
+                <button className="cancel-btn" onClick={() => handleCancel(appt)} disabled={isPast}>
+                  Cancel Appt.
+                </button>
+              </td>
             </tr>
           );
         })
       ) : (
         <tr>
-          <td colSpan="9" className="no-appointments">No appointments found</td>
+          <td colSpan="10" className="no-appointments">No appointments found</td>
         </tr>
       )}
     </tbody>
