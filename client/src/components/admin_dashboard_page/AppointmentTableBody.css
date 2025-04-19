@@ -1,38 +1,60 @@
 /* General row styling */
 .appointment-row {
-    transition: background-color 0.3s ease;
-  }
-  
-  /* Default row (used for future by default) */
-  .future-appointment {
-    background-color: #e8f9e4; /* Soft green for emphasis */
-  }
-  
-  /* Past appointment styling */
-  .past-appointment {
-    background-color: #f4f4f4; /* Light gray, subdued */
-    color: #777;
-  }
-  
-  /* Table cell styling */
-  .appointment-row td {
-    padding: 12px;
-    border-bottom: 1px solid #ccc;
-    font-size: 0.95rem;
-    text-align: left;
-  }
-  
-  /* Hover effect for any row */
-  .appointment-row:hover {
-    background-color: #d8f0ff; /* subtle blue highlight */
-  }
-  
-  /* Styling for "no appointments" message */
-  .no-appointments {
-    text-align: center;
-    font-size: 1.05rem;
-    color: #999;
-    padding: 16px;
-    font-style: italic;
-  }
-  
+  transition: background-color 0.3s ease;
+}
+
+/* Default row (used for future by default) */
+.future-appointment {
+  background-color: #e8f9e4;
+  /* Soft green for emphasis */
+}
+
+/* Past appointment styling */
+.past-appointment {
+  background-color: #f4f4f4;
+  /* Light gray, subdued */
+  color: #777;
+}
+
+/* Table cell styling */
+.appointment-row td {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+/* Hover effect for any row */
+.appointment-row:hover {
+  background-color: #d8f0ff;
+  /* subtle blue highlight */
+}
+
+/* Styling for "no appointments" message */
+.no-appointments {
+  text-align: center;
+  font-size: 1.05rem;
+  color: #999;
+  padding: 16px;
+  font-style: italic;
+}
+
+/* Add styling for the dropdown */
+.action-select {
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* Add styling for when no action is available */
+.no-action {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Optional: Adjust the hover effect on the dropdown and buttons */
+.action-select:hover {
+  background-color: #f1f1f1;
+}

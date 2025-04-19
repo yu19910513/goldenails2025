@@ -26,6 +26,12 @@ const AppointmentTableBody = ({ appointments }) => {
     }
   };
 
+  const handleModifyTechnician = (appointment) => {
+    // Logic to modify the technician selection
+    console.log(`Modify technician for appointment ID: ${appointment.id}`);
+    // Add the logic for technician modification here (could open a modal, etc.)
+  };
+
   return (
     <tbody>
       {localAppointments.length > 0 ? (
@@ -54,9 +60,29 @@ const AppointmentTableBody = ({ appointments }) => {
               <td>{technicianNames}</td>
               <td>${estimatedTotalPrice}</td>
               <td>
-                <button className="cancel-btn" onClick={() => handleCancel(appt)} disabled={isPast}>
-                  Cancel Appt.
-                </button>
+                {/* Dropdown for selecting an action */}
+                {!isPast && (
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value === 'cancel') {
+                        handleCancel(appt);
+                      } else if (e.target.value === 'modify') {
+                        handleModifyTechnician(appt);
+                      }
+                    }}
+                    defaultValue=""
+                    className="action-select"
+                  >
+                    <option value="">Select Action</option>
+                    <option value="cancel">Cancel Appt.</option>
+                    <option value="modify">Modify Technician</option>
+                  </select>
+                )}
+                {/* Show button if action is selected */}
+                {/* If action is "cancel" */}
+                {isPast && (
+                  <span className="no-action">No action available</span>
+                )}
               </td>
             </tr>
           );
