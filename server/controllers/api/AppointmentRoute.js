@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Appointment, Technician, Service, Customer } = require("../../models");
 const { Op, fn, col, where } = require("sequelize");
-const { groupAppointments, now, overlap } = require("../../utils/helper");
+const { groupAppointments, now, overlap, okayToAssign } = require("../../utils/helper");
 const moment = require('moment-timezone');
 
 
@@ -440,24 +440,24 @@ router.get("/search", async (req, res) => {
 
     const searchCondition = keyword && keyword !== '*' && keyword !== '**'
       ? {
-          [Op.or]: [
-            where(fn('LOWER', col('Customer.name')), {
-              [Op.like]: `%${keyword.toLowerCase()}%`,
-            }),
-            where(fn('LOWER', col('Customer.phone')), {
-              [Op.like]: `%${keyword.toLowerCase()}%`,
-            }),
-            where(fn('LOWER', col('Customer.email')), {
-              [Op.like]: `%${keyword.toLowerCase()}%`,
-            }),
-            where(fn('LOWER', col('Technicians.name')), {
-              [Op.like]: `%${keyword.toLowerCase()}%`,
-            }),
-            where(fn('LOWER', col('Services.name')), {
-              [Op.like]: `%${keyword.toLowerCase()}%`,
-            }),
-          ],
-        }
+        [Op.or]: [
+          where(fn('LOWER', col('Customer.name')), {
+            [Op.like]: `%${keyword.toLowerCase()}%`,
+          }),
+          where(fn('LOWER', col('Customer.phone')), {
+            [Op.like]: `%${keyword.toLowerCase()}%`,
+          }),
+          where(fn('LOWER', col('Customer.email')), {
+            [Op.like]: `%${keyword.toLowerCase()}%`,
+          }),
+          where(fn('LOWER', col('Technicians.name')), {
+            [Op.like]: `%${keyword.toLowerCase()}%`,
+          }),
+          where(fn('LOWER', col('Services.name')), {
+            [Op.like]: `%${keyword.toLowerCase()}%`,
+          }),
+        ],
+      }
       : {};
 
     const seattleNow = moment().tz("America/Los_Angeles").format("YYYY-MM-DD HH:mm:ss");
@@ -511,6 +511,81 @@ router.get("/search", async (req, res) => {
   } catch (error) {
     console.error("Search error:", error);
     res.status(500).json({ error: "Failed to search appointments." });
+  }
+});
+
+/**
+ * @route GET /find_alternative_techs
+ * @group Appointments - Endpoints related to appointments and technicians
+ * @summary Find available technicians for a given appointment time
+ * @param {string} id.query.required - ID of the appointment to check alternatives for
+ * @returns {Array.<Technician>} 200 - An array of available technician objects
+ * @returns {object} 400 - Invalid input (e.g. missing or malformed time/date, services not found)
+ * @returns {object} 404 - Appointment not found
+ * @returns {object} 500 - Server error
+ * 
+ * @example Request:
+ * GET /find_alternative_techs?id=123
+ * 
+ * @example Successful Response (200):
+ * [
+ *   {
+ *     "id": 1,
+ *     "name": "Jane Doe",
+ *     "description": "Senior technician with 5 years experience"
+ *     "unavailability": "0"
+ *   },
+ *   {
+ *     "id": 2,
+ *     "name": "John Smith",
+ *     "description": "Specialist in HVAC systems"
+ *     "unavailability": "1,3"
+ *   }
+ * ]
+ * 
+ * @description 
+ * This endpoint accepts an appointment ID, calculates the required service duration, 
+ * and then checks for available technicians who are not already scheduled for conflicting appointments.
+ * It returns a list of technicians who are free during that time window and not marked as deleted.
+ */
+router.get("/find_alternative_techs", async (req, res) => {
+  try {
+    const technicians = [];
+    const { id } = req.query;
+
+    const appointment = await Appointment.findByPk(id, {
+      include: [
+        {
+          model: Technician,
+          attributes: ["id", "name"],
+          through: { attributes: [] },
+        },
+        {
+          model: Service,
+          attributes: ["id", "name", "time", "price"],
+          through: { attributes: [] },
+        }
+      ]
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found." });
+    }
+
+    const listed_technicians = await Technician.findAll({
+      attributes: ["id", "name", "description", "unavailability"]
+    });
+
+    for (const tech of listed_technicians) {
+      if (await okayToAssign(tech, appointment)) {
+        technicians.push(tech);
+      }
+    }
+    
+    res.status(200).json(technicians);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
   }
 });
 

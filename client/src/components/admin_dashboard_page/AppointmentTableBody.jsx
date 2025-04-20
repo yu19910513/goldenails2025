@@ -26,7 +26,10 @@ const AppointmentTableBody = ({ appointments }) => {
     }
   };
 
-  const handleModifyTechnician = (appointment) => {
+  const handleModifyTechnician = async (appointment) => {
+    const response = await AppointmentService.find_alternative_techs(appointment.id);
+    console.log(response.data);
+    
     // Logic to modify the technician selection
     console.log(`Modify technician for appointment ID: ${appointment.id}`);
     // Add the logic for technician modification here (could open a modal, etc.)

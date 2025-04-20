@@ -1,6 +1,8 @@
 const fs = require('fs');
 const handlebars = require('handlebars');
 const path = require('path');
+const { Appointment, Technician, Service } = require("../models");
+const { Op } = require("sequelize");
 /**
  * Groups appointments into future, present, and past, and sorts each group by most recent date first.
  * 
@@ -112,6 +114,104 @@ const overlap = (existingAppointments, start_service_time_obj, end_service_time)
 }
 
 /**
+ * Determines whether a technician can be assigned to a given appointment without overlapping existing appointments.
+ *
+ * @async
+ * @function okayToAssign
+ * @param {Object} technician - The technician object. Must include at least an `id` property.
+ * @param {Object} appointment - The appointment object.
+ * @param {string} appointment.date - The date of the appointment in `YYYY-MM-DD` format.
+ * @param {string} appointment.start_service_time - The start time of the appointment in `HH:mm` format.
+ * @param {Array<Object>} appointment.Services - An array of service objects with a `time` (duration in minutes) property.
+ * @returns {Promise<boolean>} - Returns `true` if the technician is available during the given appointment time, otherwise `false`.
+ *
+ * @throws Will return `false` if the appointment data is incomplete or incorrectly formatted.
+ *
+ * @example
+ * const available = await okayToAssign(
+ *   { id: 1 },
+ *   {
+ *     date: '2025-04-20',
+ *     start_service_time: '10:30',
+ *     Services: [{ time: 30 }, { time: 45 }]
+ *   }
+ * );
+ * // returns true or false
+ *
+ * @description
+ * This function checks if a technician is available for a new appointment by:
+ * 1. Calculating the start and end time of the new appointment.
+ * 2. Fetching all existing, non-deleted appointments for the technician on the same date.
+ * 3. Checking for any time overlaps between the new appointment and existing ones.
+ * 4. If the technician is unavailable on the appointment's weekday.
+ */
+const okayToAssign = async (technician, appointment) => {
+    try {
+        if (!technician) {
+            return false;
+        }
+
+        if (!appointment || !appointment.date || !appointment.start_service_time) {
+            return false;
+        }
+
+        const start_service_time_obj = new Date(`${appointment.date}T${appointment.start_service_time}`);
+        if (isNaN(start_service_time_obj.getTime())) {
+            return false;
+        }
+
+        const services = appointment.Services;
+        if (!services || services.length === 0) {
+            return false;
+        }
+
+        const totalServiceTime = services.reduce((sum, service) => sum + service.time, 0);
+        const end_service_time = new Date(start_service_time_obj.getTime() + totalServiceTime * 60000);
+        const date = appointment.date;
+
+        // Parse the technician's unavailability into a set of unavailable weekdays (0=Sunday, 6=Saturday)
+        const unavailableDays = (technician.unavailability || "")
+            .split(",")
+            .map(day => day.trim()) // Remove spaces
+            .filter(day => day !== "") // Remove empty values
+            .map(Number)
+            .filter(day => !isNaN(day) && day >= 0 && day <= 6);
+        const selectedWeekday = (new Date(date).getDay() + 1) % 7;
+
+        if (unavailableDays.includes(selectedWeekday)) {
+            return false;
+        }
+
+        const existingAppointments = await Appointment.findAll({
+            include: [
+                {
+                    model: Technician,
+                    where: { id: technician.id }
+                },
+                {
+                    model: Service,
+                    attributes: ["time"],
+                    through: { attributes: [] },
+                }
+            ],
+            where: {
+                date,
+                [Op.or]: [
+                    { note: null },
+                    { note: { [Op.not]: "deleted" } },
+                ]
+            }
+        });
+
+        return !overlap(existingAppointments, start_service_time_obj, end_service_time);
+    } catch (err) {
+        console.error("Error in okayToAssign:", err);
+        return false;
+    }
+};
+
+
+/**
  * Validates whether the input is an email or a phone number.
  * @param {string} input - The input string to validate.
  * @returns {string} - Returns "email" if input is an email, "phone" if it's a phone number, otherwise "invalid".
@@ -171,4 +271,4 @@ const generateHtmlFromTemplate = (data_object) => {
 
 
 
-module.exports = { groupAppointments, now, overlap, validateContactType, generateHtmlFromTemplate };
+module.exports = { groupAppointments, now, overlap, validateContactType, generateHtmlFromTemplate, okayToAssign };

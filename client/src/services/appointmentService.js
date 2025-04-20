@@ -71,7 +71,7 @@ class AppointmentService {
   soft_delete(appointment_id) {
     return http.put(`/appointments/update_note`, { id: appointment_id, note: "deleted" });
   }
-  
+
   /**
    * Search for upcoming appointments matching a keyword.
    * Performs a case-insensitive search against customer name, phone, email,
@@ -83,6 +83,21 @@ class AppointmentService {
    */
   search(keyword) {
     return http.get(`/appointments/search?keyword=${keyword}`)
+  }
+
+  /**
+ * Fetches a list of alternative technicians for a given appointment.
+ *
+ * @param {string|number} appointment_id - The ID of the appointment for which alternative technicians are being sought.
+ * @returns {Promise<Object>} A promise that resolves with the response from the API.
+ *
+ * @example
+ * find_alternative_techs('123')
+ *   .then(response => console.log(response))
+ *   .catch(error => console.error(error));
+ */
+  find_alternative_techs(appointment_id) {
+    return http.get(`/appointments/find_alternative_techs?id=${appointment_id}`)
   }
 }
 
