@@ -99,6 +99,17 @@ class AppointmentService {
   find_alternative_techs(appointment_id) {
     return http.get(`/appointments/find_alternative_techs?id=${appointment_id}`)
   }
+
+  /**
+   * @function update_technician
+   * @description Sends a request to update the technician assigned to a specific appointment.
+   * @param {number} apptId - The ID of the appointment to update.
+   * @param {number} techId - The ID of the technician to assign to the appointment.
+   * @returns {Promise} Axios response promise that resolves with the server's response.
+   */
+  update_technician(apptId, techId) {
+    return http.put(`/appointments/update_technician`, { id: apptId, technician_id: techId })
+  }
 }
 
 export default new AppointmentService();

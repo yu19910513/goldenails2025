@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import ApptManagement from '../components/admin_dashboard_page/ApptManagement';
+import ApptManagement from '../components/admin_dashboard_page/appt_management_feature/ApptManagement';
 import CustomerManagement from '../components/admin_dashboard_page/CustomerManagement';
 import NewApptForm from '../components/admin_dashboard_page/NewApptForm';
 import TabbedView from '../components/shared/TabbedView';

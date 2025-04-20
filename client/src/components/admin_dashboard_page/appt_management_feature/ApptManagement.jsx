@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import AppointmentTableBody from './AppointmentTableBody';
-import AppointmentService from '../../services/appointmentService';
+import AppointmentService from '../../../services/appointmentService';
 import './ApptManagement.css';  // Import a CSS file for styling
 
+/**
+ * @component ApptManagement
+ * @description A component that manages appointments, including searching for appointments by customer information and displaying them in a table. It fetches appointments from the server based on a search keyword and passes the data to the `AppointmentTableBody` component for display.
+ * 
+ * @returns {JSX.Element} The rendered component with a search input field and a table displaying the filtered list of appointments.
+ */
 const ApptManagement = () => {
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('*');
   const [appointments, setAppointments] = useState([]);
 
   // Fetch filtered appointments from the server based on the keyword

@@ -589,6 +589,92 @@ router.get("/find_alternative_techs", async (req, res) => {
   }
 });
 
+/**
+ * @route PUT /update_technician
+ * @description Updates the technician assigned to a given appointment.
+ *
+ * This route:
+ * 1. Validates request body to ensure `id` and `technician_id` are provided.
+ * 2. Retrieves the appointment and the technician from the database.
+ * 3. Checks if the technician is available for the appointment time using `okayToAssign`.
+ * 4. If available, updates the technician assignment.
+ * 5. If not available, returns a 409 Conflict response.
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body
+ * @param {number|string} req.body.id - The ID of the appointment to update.
+ * @param {number|string} req.body.technician_id - The ID of the technician to assign.
+ * 
+ * @param {Object} res - Express response object
+ * 
+ * @returns {Object} JSON response:
+ * - 200 OK with success message and updated technician if update is successful.
+ * - 400 Bad Request if required fields are missing.
+ * - 404 Not Found if the appointment or technician is not found.
+ * - 409 Conflict if the technician is unavailable at the requested time.
+ * - 500 Server Error for unexpected issues.
+ * 
+ * @example
+ * PUT /update_technician
+ * Request Body:
+ * {
+ *   "id": 42,
+ *   "technician_id": 7
+ * }
+ * 
+ * Response (200):
+ * {
+ *   "message": "Technician updated successfully.",
+ *   "updatedTechnician": { ...technician object... }
+ * }
+ */
+router.put("/update_technician", async (req, res) => {
+  try {
+    const { id, technician_id } = req.body;
+
+    if (!id || !technician_id) {
+      return res.status(400).json({ message: "Missing appointment ID or technician ID." });
+    }
+
+    const appointment = await Appointment.findByPk(id, {
+      include: [
+        {
+          model: Service,
+          attributes: ["id", "name", "time", "price"],
+          through: { attributes: [] },
+        }
+      ]
+    });
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found." });
+    }
+
+    const technician = await Technician.findByPk(technician_id);
+    if (!technician) {
+      return res.status(404).json({ message: "Technician not found." });
+    }
+
+    if (await okayToAssign(technician, appointment)) {
+      await appointment.setTechnicians([technician]);
+    } else {
+      return res.status(409).json({
+        message: "Technician is not available at the selected appointment time.",
+        technician_id,
+        appointment_id: id,
+      });
+    }
+
+    res.status(200).json({
+      message: "Technician updated successfully.",
+      updatedTechnician: technician,
+    });
+  } catch (error) {
+    console.error("Error updating technician:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+});
+
+
 
 
 

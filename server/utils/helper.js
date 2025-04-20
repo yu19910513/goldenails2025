@@ -148,20 +148,24 @@ const overlap = (existingAppointments, start_service_time_obj, end_service_time)
 const okayToAssign = async (technician, appointment) => {
     try {
         if (!technician) {
+            console.log("tech not found");
             return false;
         }
 
         if (!appointment || !appointment.date || !appointment.start_service_time) {
+            console.log("appt not found");
             return false;
         }
 
         const start_service_time_obj = new Date(`${appointment.date}T${appointment.start_service_time}`);
         if (isNaN(start_service_time_obj.getTime())) {
+            console.log("start service time not found");
             return false;
         }
 
         const services = appointment.Services;
         if (!services || services.length === 0) {
+            console.log("no service found");
             return false;
         }
 
@@ -179,6 +183,7 @@ const okayToAssign = async (technician, appointment) => {
         const selectedWeekday = (new Date(date).getDay() + 1) % 7;
 
         if (unavailableDays.includes(selectedWeekday)) {
+            console.log("tech not available on this weekday");
             return false;
         }
 
