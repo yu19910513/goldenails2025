@@ -14,6 +14,8 @@ describe('Notification Functions', () => {
 
     beforeEach(() => {
         jest.clearAllMocks(); // Clear mocks before each test to avoid cross-test contamination
+        jest.spyOn(console, 'log').mockImplementation(() => { });
+        jest.spyOn(console, 'error').mockImplementation(() => { });
     });
 
     // Test for sendSMS function
