@@ -5,7 +5,7 @@ import ApptManagement from '../components/admin_dashboard_page/appt_management_f
 import CustomerManagement from '../components/admin_dashboard_page/CustomerManagement';
 import NewApptForm from '../components/admin_dashboard_page/NewApptForm';
 import TabbedView from '../components/shared/TabbedView';
-import Calendar from './calendar';
+import Calendar from '../components/admin_dashboard_page/calendar_feature/calendar';
 
 
 /**
