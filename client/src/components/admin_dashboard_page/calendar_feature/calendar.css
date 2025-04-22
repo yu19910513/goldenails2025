@@ -152,6 +152,69 @@
   margin: 2px 0;
 }
 
+/* calendar.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+  cursor: pointer;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  cursor: auto;
+  /* So inside the modal isn't pointer */
+}
+
+.add-appt-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: background-color 0.2s ease;
+}
+
+.add-appt-button:hover {
+  width: 70px;
+  height: 70px;
+  background-color: darkgreen;
+}
+
+.add-appt-button.open {
+  background-color: crimson;
+  z-index: 1003;
+}
+
+.add-appt-button.open:hover {
+  background-color: darkred;
+}
+
+
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .admin-header {

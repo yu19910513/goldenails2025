@@ -4,27 +4,32 @@ import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 import AppointmentService from "../../../services/appointmentService";
 import { calculateTotalTimePerAppointment } from "../../../common/utils";
+import NewApptForm from "../create_appt_feature/NewApptForm";
 import "./calendar.css";
 
 const Calendar = () => {
   const [groupedAppointments, setGroupedAppointments] = useState([]);
-  const [date, setDate] = useState(moment()); // Using moment
+  const [date, setDate] = useState(moment());
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const fetchGroupedAppointments = async () => {
-      try {
-        const formattedDate = date.format("YYYY-MM-DD");
-        const res = await AppointmentService.getTechnicianGroupedAppointments(
-          formattedDate
-        );
-        setGroupedAppointments(res.data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    };
-
-    fetchGroupedAppointments();
+    refreshAppointments();
   }, [date]);
+
+  const refreshAppointments = async () => {
+    try {
+      const formattedDate = date.format("YYYY-MM-DD");
+      const res = await AppointmentService.getTechnicianGroupedAppointments(formattedDate);
+      setGroupedAppointments(res.data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  };
+
+  const handleNewApptClose = () => {
+    setShowModal(false);
+    refreshAppointments();
+  };
 
   const goToNextDay = () => setDate(date.clone().add(1, "day"));
   const goToPreviousDay = () => setDate(date.clone().subtract(1, "day"));
@@ -54,6 +59,13 @@ const Calendar = () => {
         <button onClick={goToNextDay}>Next</button>
       </div>
 
+      <button
+        onClick={() => setShowModal(!showModal)}
+        className={`add-appt-button ${showModal ? "open" : ""}`}
+      >
+        {showModal ? "x" : "+"}
+      </button>
+
 
       <div className="admin-calendar">
         {groupedAppointments.map((tech) => (
@@ -72,9 +84,7 @@ const Calendar = () => {
                         const appointmentEnd = appointmentStart
                           .clone()
                           .add(
-                            calculateTotalTimePerAppointment(
-                              appointment.Services || []
-                            ),
+                            calculateTotalTimePerAppointment(appointment.Services || []),
                             "minutes"
                           );
                         return (
@@ -98,13 +108,8 @@ const Calendar = () => {
                             <span>{appointment.Customer.name}</span>
 
                             <span>
-                              {moment(
-                                `${appointment.date}T${appointment.start_service_time}`
-                              ).format("h:mm A")}{" "}
-                              -{" "}
-                              {moment(
-                                `${appointment.date}T${appointment.start_service_time}`
-                              )
+                              {moment(`${appointment.date}T${appointment.start_service_time}`).format("h:mm A")} -{" "}
+                              {moment(`${appointment.date}T${appointment.start_service_time}`)
                                 .add(totalTime, "minutes")
                                 .format("h:mm A")}
                             </span>
@@ -113,9 +118,7 @@ const Calendar = () => {
 
                             <span>
                               Services:{" "}
-                              {appointment.Services.map(
-                                (service) => service.name
-                              ).join(", ")}
+                              {appointment.Services.map((service) => service.name).join(", ")}
                             </span>
                           </div>
                         );
@@ -127,6 +130,16 @@ const Calendar = () => {
           </div>
         ))}
       </div>
+      {showModal && (
+        <div className="modal-overlay" onClick={handleNewApptClose}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()} // Prevents click from bubbling to overlay
+          >
+            <NewApptForm onClose={handleNewApptClose} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
