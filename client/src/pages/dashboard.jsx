@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import ApptManagement from '../components/admin_dashboard_page/appt_management_feature/ApptManagement';
 import CustomerManagement from '../components/admin_dashboard_page/CustomerManagement';
-import NewApptForm from '../components/admin_dashboard_page/create_appt_feature/NewApptForm';
+import AppointmentBookingLayout from '../components/admin_dashboard_page/create_appt_feature/AppointmentBookingLayout';
 import TabbedView from '../components/shared/TabbedView';
 import Calendar from '../components/admin_dashboard_page/calendar_feature/calendar';
 
@@ -17,7 +17,7 @@ import Calendar from '../components/admin_dashboard_page/calendar_feature/calend
  */
 const admin_tabs = [
     { key: 'Calendar', label: 'Calendar', Component: Calendar },
-    { key: 'NewAppt', label: 'New Appt Form', Component: NewApptForm },
+    { key: 'NewAppt', label: 'New Appt Form', Component: AppointmentBookingLayout },
     { key: 'CustMgt', label: 'Customer Management', Component: CustomerManagement },
     { key: 'ApptMgt', label: 'Appointment Management', Component: ApptManagement },
 ];

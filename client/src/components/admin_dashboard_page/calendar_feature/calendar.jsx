@@ -4,7 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 import AppointmentService from "../../../services/appointmentService";
 import { calculateTotalTimePerAppointment } from "../../../common/utils";
-import NewApptForm from "../create_appt_feature/NewApptForm";
+import AppointmentBookingLayout from "../create_appt_feature/AppointmentBookingLayout";
 import "./calendar.css";
 
 const Calendar = () => {
@@ -136,7 +136,7 @@ const Calendar = () => {
             className="modal-content"
             onClick={(e) => e.stopPropagation()} // Prevents click from bubbling to overlay
           >
-            <NewApptForm onClose={handleNewApptClose} />
+            <AppointmentBookingLayout onClose={handleNewApptClose} />
           </div>
         </div>
       )}
