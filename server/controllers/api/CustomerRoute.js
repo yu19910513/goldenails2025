@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Customer } = require("../../models");
+const { Op, fn, col, where } = require('sequelize');
 
 /**
  * @route GET /search
@@ -33,6 +34,56 @@ router.get("/search", async (req, res) => {
   } catch (error) {
     console.error("Error searching customer:", error);
     res.status(500).json({ error: "An error occurred while searching for the customer." });
+  }
+});
+
+/**
+ * @route GET /smart_search
+ * @desc Search for customers by keyword or return all customers if keyword is '*'.
+ *       Returns an empty array if no keyword is provided.
+ * @queryParam {string} keyword - The search keyword. Matches against name, phone, or email.
+ *                                If '*' is provided, returns all customers.
+ * @returns {Object[]} 200 - Array of matched customer objects
+ * @returns {string}   200[].id - Customer ID
+ * @returns {string}   200[].name - Customer name
+ * @returns {string}   200[].phone - Customer phone
+ * @returns {string}   200[].email - Customer email
+ * @returns {Object}   500 - Error object with message on failure
+ */
+router.get('/smart_search', async (req, res) => {
+  try {
+    const keyword = (req.query.keyword || '').trim().toLowerCase();
+
+    let whereCondition = {};
+
+    if (keyword && keyword !== '*') {
+      whereCondition = {
+        [Op.or]: [
+          where(fn('LOWER', col('Customer.name')), {
+            [Op.like]: `%${keyword}%`
+          }),
+          where(fn('LOWER', col('Customer.phone')), {
+            [Op.like]: `%${keyword}%`
+          }),
+          where(fn('LOWER', col('Customer.email')), {
+            [Op.like]: `%${keyword}%`
+          }),
+        ],
+      };
+    } else if (!keyword) {
+      return res.status(200).json([]); // No keyword → return empty array
+    }
+
+    const customers = await Customer.findAll({
+      where: whereCondition,
+      attributes: ['id', 'name', 'phone', 'email'],
+      order: [['name', 'ASC']],
+    });
+
+    res.status(200).json(customers);
+  } catch (error) {
+    console.error('Customer search error:', error);
+    res.status(500).json({ error: 'Failed to search customers.' });
   }
 });
 

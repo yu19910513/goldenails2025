@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import ApptManagement from '../components/admin_dashboard_page/appt_management_feature/ApptManagement';
 import CustomerManagement from '../components/admin_dashboard_page/CustomerManagement';
-import NewApptForm from '../components/admin_dashboard_page/NewApptForm';
+import NewApptForm from '../components/admin_dashboard_page/create_appt_feature/NewApptForm';
 import TabbedView from '../components/shared/TabbedView';
 import Calendar from '../components/admin_dashboard_page/calendar_feature/calendar';
 
