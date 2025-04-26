@@ -38,14 +38,19 @@ describe('Notification Functions', () => {
             });
         });
 
-        it('should throw an error if SMS fails', async () => {
+        it('should return an error object if SMS fails', async () => {
             const mockCreate = jest.fn().mockRejectedValue(new Error('Twilio error'));
             twilio.mockImplementation(() => ({ messages: { create: mockCreate } }));
 
             const recipientPhoneNumber = '+15551234567';
             const message = 'Test Message';
 
-            await expect(sendSMS(recipientPhoneNumber, message)).rejects.toThrow('Twilio error');
+            const result = await sendSMS(recipientPhoneNumber, message);
+
+            expect(result).toEqual({
+                success: false,
+                error: 'Twilio error'
+            });
         });
     });
 
@@ -74,7 +79,7 @@ describe('Notification Functions', () => {
             });
         });
 
-        it('should throw an error if email fails to send', async () => {
+        it('should return an error object if email fails to send', async () => {
             const mockSendMail = jest.fn().mockRejectedValue(new Error('Nodemailer error'));
             nodemailer.createTransport.mockReturnValue({ sendMail: mockSendMail });
 
@@ -85,7 +90,12 @@ describe('Notification Functions', () => {
                 html: '<h1>Test HTML</h1>',
             };
 
-            await expect(sendEmail(email_object)).rejects.toThrow('Nodemailer error');
+            const result = await sendEmail(email_object);
+
+            expect(result).toEqual({
+                success: false,
+                error: 'Nodemailer error'
+            });
         });
     });
 

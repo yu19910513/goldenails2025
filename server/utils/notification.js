@@ -8,11 +8,11 @@ dotenv.config();
 
 /**
  * Sends an SMS message using Twilio.
- * 
- * @param {string} recipientPhoneNumber - The recipient's phone number (e.g., "+15551234567" or "5551234567").
- * @param {string} message - The message content to be sent.
- * @returns {Promise<object>} A promise that resolves with the Twilio message object if successful.
- * @throws {Error} Throws an error if the message fails to send.
+ *
+ * @param {string} recipientPhoneNumber - The recipient's phone number. Can start with '+' or will default to +1 (US).
+ * @param {string} message - The message content to send.
+ * @returns {Promise<Object>} Returns the Twilio message object if successful,
+ * or an object with { success: false, error: string } if there was an error.
  */
 const sendSMS = async (recipientPhoneNumber, message) => {
     try {
@@ -34,15 +34,15 @@ const sendSMS = async (recipientPhoneNumber, message) => {
 
 
 /**
- * Sends an email using Gmail's SMTP service with HTML support.
+ * Sends an email using Nodemailer with a Gmail transporter.
  *
- * @param {Object} email_object - The email details.
- * @param {string|string[]} email_object.address - Recipient's email(s).
- * @param {string} email_object.subject - Email subject.
- * @param {string} [email_object.text] - Plain text version of the email.
- * @param {string} [email_object.html] - HTML content for the email body.
- *
- * @throws {Error} - If email fails to send.
+ * @param {Object} email_object - Object containing email details.
+ * @param {string|string[]} email_object.address - Recipient email address(es).
+ * @param {string} email_object.subject - Subject line of the email.
+ * @param {string} [email_object.text] - Plain text body of the email (optional).
+ * @param {string} email_object.html - HTML body of the email.
+ * @returns {Promise<Object|undefined>} Returns { success: false, error: string } on failure,
+ * otherwise returns undefined if the email is sent successfully.
  */
 const sendEmail = async (email_object) => {
     try {
