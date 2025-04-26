@@ -3,6 +3,7 @@ const handlebars = require('handlebars');
 const path = require('path');
 const { Appointment, Technician, Service } = require("../models");
 const { Op } = require("sequelize");
+const { DateTime } = require("luxon");
 const overlap = require('./overlap');
 
 /**
@@ -100,45 +101,50 @@ const now = () => {
 const okayToAssign = async (technician, appointment) => {
     try {
         if (!technician) {
-            console.log("tech not found");
+            console.log("Technician not found");
             return false;
         }
 
         if (!appointment || !appointment.date || !appointment.start_service_time) {
-            console.log("appt not found");
-            return false;
-        }
-
-        const start_service_time_obj = new Date(`${appointment.date}T${appointment.start_service_time}`);
-        if (isNaN(start_service_time_obj.getTime())) {
-            console.log("start service time not found");
+            console.log("Appointment or start time not found");
             return false;
         }
 
         const services = appointment.Services;
         if (!services || services.length === 0) {
-            console.log("no service found");
+            console.log("No services found for the appointment");
             return false;
         }
 
-        const totalServiceTime = services.reduce((sum, service) => sum + service.time, 0);
-        const end_service_time = new Date(start_service_time_obj.getTime() + totalServiceTime * 60000);
-        const date = appointment.date;
+        // Parse start_service_time correctly using Luxon
+        const startServiceTime = DateTime.fromISO(`${appointment.date}T${appointment.start_service_time}`, { zone: "America/Los_Angeles" });
+        if (!startServiceTime.isValid) {
+            console.log("Invalid start service time");
+            return false;
+        }
 
-        // Parse the technician's unavailability into a set of unavailable weekdays (0=Sunday, 6=Saturday)
+        // Calculate end service time
+        const totalServiceMinutes = services.reduce((sum, service) => sum + service.time, 0);
+        const endServiceTime = startServiceTime.plus({ minutes: totalServiceMinutes });
+
+        // Get selected weekday (0 = Sunday, 6 = Saturday)
+        const selectedWeekday = startServiceTime.weekday % 7;
+        // Note: Luxon weekday: 1 (Monday) to 7 (Sunday)
+
+        // Parse technician's unavailability
         const unavailableDays = (technician.unavailability || "")
             .split(",")
-            .map(day => day.trim()) // Remove spaces
-            .filter(day => day !== "") // Remove empty values
+            .map(day => day.trim())
+            .filter(day => day !== "")
             .map(Number)
             .filter(day => !isNaN(day) && day >= 0 && day <= 6);
-        const selectedWeekday = (new Date(date).getDay() + 1) % 7;
 
         if (unavailableDays.includes(selectedWeekday)) {
-            console.log("tech not available on this weekday");
+            console.log("Technician is unavailable on this weekday");
             return false;
         }
 
+        // Fetch existing appointments for the technician on that date
         const existingAppointments = await Appointment.findAll({
             include: [
                 {
@@ -152,7 +158,7 @@ const okayToAssign = async (technician, appointment) => {
                 }
             ],
             where: {
-                date,
+                date: appointment.date,
                 [Op.or]: [
                     { note: null },
                     { note: { [Op.not]: "deleted" } },
@@ -160,7 +166,11 @@ const okayToAssign = async (technician, appointment) => {
             }
         });
 
-        return !overlap(existingAppointments, start_service_time_obj, end_service_time);
+        // Check for overlap (convert Luxon DateTime back to JS Date for overlap check)
+        const hasConflict = overlap(existingAppointments, startServiceTime.toJSDate(), endServiceTime.toJSDate());
+
+        return !hasConflict;
+
     } catch (err) {
         console.error("Error in okayToAssign:", err);
         return false;
