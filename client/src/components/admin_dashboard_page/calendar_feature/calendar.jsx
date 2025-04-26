@@ -43,16 +43,16 @@ const Calendar = () => {
   };
 
   return (
-    <div className="admin-page-container">
-      <div className="admin-header">
+    <div className="calendar-admin-page-container">
+      <div className="calendar-admin-header">
         <button onClick={goToPreviousDay}>Previous</button>
 
-        <div className="datepicker-wrapper">
+        <div className="calendar-datepicker-wrapper">
           <DatePicker
             selected={date.toDate()}
             onChange={(newDate) => setDate(moment(newDate))}
             dateFormat="MMMM d, yyyy"
-            className="custom-datepicker"
+            className="calendar-custom-datepicker"
           />
         </div>
 
@@ -61,21 +61,20 @@ const Calendar = () => {
 
       <button
         onClick={() => setShowModal(!showModal)}
-        className={`add-appt-button ${showModal ? "open" : ""}`}
+        className={`calendar-add-appt-button ${showModal ? "open" : ""}`}
       >
         {showModal ? "x" : "+"}
       </button>
 
-
-      <div className="admin-calendar">
+      <div className="calendar-admin-calendar">
         {groupedAppointments.map((tech) => (
-          <div key={tech.id} className="admin-technician-calendar">
+          <div key={tech.id} className="calendar-admin-technician-calendar">
             <h3>{tech.name}</h3>
-            <div className="admin-time-slots">
+            <div className="calendar-admin-time-slots">
               {generateTimeSlots().map((slot, index) => (
-                <div key={index} className="admin-time-slot">
-                  <div className="admin-time">{slot.format("h:mm A")}</div>
-                  <div className="admin-appointments">
+                <div key={index} className="calendar-admin-time-slot">
+                  <div className="calendar-admin-time">{slot.format("h:mm A")}</div>
+                  <div className="calendar-admin-appointments">
                     {tech.appointments
                       .filter((appointment) => {
                         const appointmentStart = moment(
@@ -100,7 +99,7 @@ const Calendar = () => {
                         return (
                           <div
                             key={appointment.id}
-                            className="admin-appointment"
+                            className="calendar-admin-appointment"
                             style={{
                               height: `${totalTime}px`,
                             }}
@@ -130,10 +129,11 @@ const Calendar = () => {
           </div>
         ))}
       </div>
+
       {showModal && (
-        <div className="modal-overlay" onClick={handleNewApptClose}>
+        <div className="calendar-modal-overlay" onClick={handleNewApptClose}>
           <div
-            className="modal-content"
+            className="calendar-modal-content"
             onClick={(e) => e.stopPropagation()} // Prevents click from bubbling to overlay
           >
             <AppointmentBookingLayout onClose={handleNewApptClose} />

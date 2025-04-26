@@ -1,5 +1,5 @@
 /* Container for the entire layout */
-.container {
+.nail-service-container {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -10,18 +10,15 @@
     gap: 20px;
 }
 
-
-
-.title {
+.nail-service-title {
     font-family: "Optima", Arial, Helvetica, sans-serif;
     font-size: 1.5rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #444;
-
 }
 
-.heading {
+.nail-service-heading {
     font-family: "Didot", Georgia, serif;
     font-weight: bold;
     font-size: 2.5rem;
@@ -30,35 +27,33 @@
     color: #2c2c2c;
 }
 
-
-
-.description,
-.note,
-.gratuity {
+.nail-service-description,
+.nail-service-note,
+.nail-service-gratuity {
     font-family: "Optima", Arial, Helvetica, sans-serif;
     margin-bottom: 15px;
     line-height: 1.8;
     font-size: 1rem;
 }
 
-.link {
+.nail-service-link {
     color: #0056b3;
     text-decoration: underline;
     cursor: pointer;
 }
 
-.link:hover {
+.nail-service-link:hover {
     color: #003580;
 }
 
-.gratuity {
+.nail-service-gratuity {
     font-style: italic;
     color: #555;
     font-size: 0.9rem;
 }
 
 /* Image section styles */
-.image-section {
+.nail-service-image-section {
     flex: 1;
     display: flex;
     justify-content: center;
@@ -66,7 +61,7 @@
 }
 
 /* Animation for text fade-in and slide from the left */
-@keyframes fadeInLeft {
+@keyframes nail-service-fadeInLeft {
     0% {
         opacity: 0;
         transform: translateX(-50px);
@@ -81,7 +76,7 @@
 }
 
 /* Animation for image fade-in and slide from the right */
-@keyframes fadeInRight {
+@keyframes nail-service-fadeInRight {
     0% {
         opacity: 0;
         transform: translateX(50px);
@@ -96,7 +91,7 @@
 }
 
 /* Text section styles */
-.text-section {
+.nail-service-text-section {
     flex: 1;
     max-width: 600px;
     padding: 20px;
@@ -109,13 +104,13 @@
     /* Smooth transition */
 }
 
-.text-section.fade-in-left {
+.nail-service-text-section.nail-service-fade-in-left {
     opacity: 1;
     transform: translateX(0);
 }
 
 /* Image section styles */
-.image {
+.nail-service-image {
     width: 100%;
     max-width: 400px;
     padding-top: 10px;
@@ -131,31 +126,34 @@
     /* Smooth transition */
 }
 
-.image.fade-in-right {
+.nail-service-image.nail-service-fade-in-right {
     opacity: 1;
     transform: translateX(0);
 }
 
-
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
-    .container {
+    .nail-service-container {
         flex-direction: column;
         text-align: center;
     }
 
-    .text-section, .image {
+    .nail-service-text-section,
+    .nail-service-image {
         max-width: 100%;
-        animation: none; /* Disable animation */
-        transform: none; /* Reset the initial transform */
-        opacity: 1; /* Ensure elements are visible */
+        animation: none;
+        /* Disable animation */
+        transform: none;
+        /* Reset the initial transform */
+        opacity: 1;
+        /* Ensure elements are visible */
     }
 
-    .image-section {
+    .nail-service-image-section {
         max-width: 100%;
     }
 
-    .image {
+    .nail-service-image {
         padding-top: 0px;
     }
 }

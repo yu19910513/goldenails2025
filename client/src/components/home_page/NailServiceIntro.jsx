@@ -44,32 +44,32 @@ const NailServiceIntro = () => {
   }, []);
 
   return (
-    <div className="container">
-      <div ref={textRef} className={`text-section ${isTextVisible ? "fade-in-left" : ""}`}>
-        <h2 className="title">Elegant Beauty</h2>
-        <h1 className="heading">Nail Services</h1>
-        <p className="description">
+    <div className="nail-service-container">
+      <div ref={textRef} className={`nail-service-text-section ${isTextVisible ? "nail-service-fade-in-left" : ""}`}>
+        <h2 className="nail-service-title">Elegant Beauty</h2>
+        <h1 className="nail-service-heading">Nail Services</h1>
+        <p className="nail-service-description">
           Indulge in a luxurious nail care experience at Golden Nails in Gig Harbor. Our expert technicians offer a wide range of services, including manicures, pedicures, gel nails, and nail art, all designed to enhance the beauty of your hands and feet. Whether you’re looking for a classic look or a trendy design, we have something to suit every style.
         </p>
-        <p className="note">
+        <p className="nail-service-note">
           For same-day appointments, please{" "}
-          <a href="tel:+12538517563" className="link">
+          <a href="tel:+12538517563" className="nail-service-link">
             contact the salon
           </a>{" "}
           to check for availability.
         </p>
-        <p className="gratuity">
+        <p className="nail-service-gratuity">
           <em>
             We gladly accept cash, checks, and credit cards for payment. However, due to the fees associated with credit card transactions, we apply a 3.5% additional charge on all credit card payments.
           </em>
         </p>
       </div>
-      <div className="image-section" onClick={handleImageClick}>
+      <div className="nail-service-image-section" onClick={handleImageClick}>
         <img
           ref={imageRef}
           src={images[currentImageIndex]}
           alt="Nail Services"
-          className={`image ${isImageVisible ? "fade-in-right" : ""}`}
+          className={`nail-service-image ${isImageVisible ? "nail-service-fade-in-right" : ""}`}
         />
       </div>
     </div>

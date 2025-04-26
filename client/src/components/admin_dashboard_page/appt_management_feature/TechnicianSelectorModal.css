@@ -1,6 +1,7 @@
 /* TechnicianSelectorModal.css */
 
-.modal-backdrop {
+/* Modal backdrop style */
+.technician-selector-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
@@ -13,16 +14,18 @@
     z-index: 999;
 }
 
-.modal-content {
+/* Modal content style */
+.technician-selector-modal-content {
     background-color: white;
     border-radius: 8px;
     padding: 20px;
     width: 400px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.3s ease-in-out;
+    animation: technician-selector-modal-fadeIn 0.3s ease-in-out;
 }
 
-@keyframes fadeIn {
+/* Fade-in animation */
+@keyframes technician-selector-modal-fadeIn {
     from {
         opacity: 0;
         transform: scale(0.95);
@@ -34,7 +37,8 @@
     }
 }
 
-h3 {
+/* Header style */
+.technician-selector-modal-content h3 {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 20px;
@@ -42,13 +46,15 @@ h3 {
     text-align: center;
 }
 
-form {
+/* Form container style */
+.technician-selector-modal-content form {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-label {
+/* Label style */
+.technician-selector-modal-content label {
     font-size: 16px;
     font-weight: 500;
     color: #555;
@@ -56,7 +62,8 @@ label {
     margin-bottom: 5px;
 }
 
-select {
+/* Select box style */
+.technician-selector-modal-content select {
     padding: 10px;
     font-size: 16px;
     font-weight: 400;
@@ -67,28 +74,29 @@ select {
     transition: border-color 0.3s ease;
 }
 
-select:focus {
+.technician-selector-modal-content select:focus {
     border-color: #007bff;
     outline: none;
 }
 
-option {
+/* Option styling for select box */
+.technician-selector-modal-content option {
     padding: 10px;
     font-size: 16px;
 }
 
-.modal-actions {
+/* Actions container style */
+.technician-selector-modal-actions {
     display: flex;
     justify-content: space-evenly;
-    /* Adds even spacing between the buttons */
+    /* Even spacing between buttons */
     margin-top: 20px;
 }
 
-button {
+/* Button styles */
+.technician-selector-modal-actions button {
     padding: 8px 16px;
-    /* Reduced padding for smaller buttons */
     font-size: 14px;
-    /* Smaller font size */
     font-weight: 600;
     border-radius: 5px;
     border: none;
@@ -96,22 +104,24 @@ button {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-button[type="submit"] {
+/* Confirm button style */
+.technician-selector-modal-actions button[type="submit"] {
     background-color: #007bff;
     color: white;
 }
 
-button[type="submit"]:hover {
+.technician-selector-modal-actions button[type="submit"]:hover {
     background-color: #0056b3;
     transform: translateY(-2px);
 }
 
-button[type="button"] {
+/* Cancel button style */
+.technician-selector-modal-actions button[type="button"] {
     background-color: #f0f0f0;
     color: #555;
 }
 
-button[type="button"]:hover {
+.technician-selector-modal-actions button[type="button"]:hover {
     background-color: #e0e0e0;
     transform: translateY(-2px);
 }

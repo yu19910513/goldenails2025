@@ -2,8 +2,6 @@ import React from 'react';
 import './ServiceCards.css';
 
 const ServiceCards = () => {
-
-
   const services = [
     {
       title: "Nail Care",
@@ -26,16 +24,16 @@ const ServiceCards = () => {
   ];
 
   return (
-    <div className="horizontal-scroll-container">
+    <div className="service-cards-horizontal-scroll-container">
       <div className="service-cards-container">
         {services.map((service, index) => (
           <div key={index} className="service-card">
-            <div className="image-wrapper">
-              <img src={service.image} alt={service.title} className="service-image" />
-              <div className="service-title">{service.title}</div>
+            <div className="service-card-image-wrapper">
+              <img src={service.image} alt={service.title} className="service-card-image" />
+              <div className="service-card-title">{service.title}</div>
             </div>
-            <p className="service-description">{service.description}</p>
-            <div className="pricing">
+            <p className="service-card-description">{service.description}</p>
+            <div className="service-card-pricing">
               <h4>Pricing</h4>
               <ul>
                 {Object.entries(service.pricing).map(([key, price]) => (
@@ -47,7 +45,7 @@ const ServiceCards = () => {
                 ))}
               </ul>
             </div>
-            <a className="book-button" href="/ourservices">Detail</a>
+            <a className="service-card-book-button" href="/ourservices">Detail</a>
           </div>
         ))}
       </div>

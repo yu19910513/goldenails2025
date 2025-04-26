@@ -5,14 +5,16 @@ const LeaveWarningModal = ({ isOpen, onLeave, onCancel }) => {
   if (!isOpen) return null; // Do not render the modal if it's not open
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2 className="modal-header">Are you sure you want to leave the booking?</h2>
-        <div className="modal-buttons">
-          <button className="modal-button leave" onClick={onLeave}>
+    <div className="leave-warning-modal-overlay">
+      <div className="leave-warning-modal-content">
+        <h2 className="leave-warning-modal-header">
+          Are you sure you want to leave the booking?
+        </h2>
+        <div className="leave-warning-modal-buttons">
+          <button className="leave-warning-modal-button leave" onClick={onLeave}>
             Yes, Cancel Booking
           </button>
-          <button className="modal-button cancel" onClick={onCancel}>
+          <button className="leave-warning-modal-button cancel" onClick={onCancel}>
             No, Stay in Booking
           </button>
         </div>
