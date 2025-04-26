@@ -27,7 +27,8 @@ const sendSMS = async (recipientPhoneNumber, message) => {
         return sms;  // Return message object for further handling if needed
     } catch (err) {
         console.error('Error sending message:', err);
-        throw err;  // Rethrow error so the caller can handle it
+        // throw err;  // Rethrow error so the caller can handle it
+        return { success: false, error: err.message };
     }
 };
 
@@ -65,7 +66,8 @@ const sendEmail = async (email_object) => {
         console.log(`Email sent successfully to ${email_object.address}:`, info.response);
     } catch (error) {
         console.error("Failed to send email:", error.message);
-        throw error; // Propagate error
+        // throw error; // Propagate error
+        return { success: false, error: error.message };
     }
 };
 
