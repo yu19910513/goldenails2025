@@ -4,6 +4,7 @@ const { Appointment, Technician, Service, Customer } = require("../../models");
 const { Op, fn, col, where } = require("sequelize");
 const { groupAppointments, now, overlap, okayToAssign } = require("../../utils/helper");
 const moment = require('moment-timezone');
+const { DateTime } = require('luxon');
 
 
 /**
@@ -344,24 +345,26 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Date and start service time are required." });
     }
 
-    // Combine date and time into a single Date object
-    const start_service_time_obj = new Date(`${date}T${start_service_time}`);
-    if (isNaN(start_service_time_obj.getTime())) {
-      return res.status(400).json({ message: "Invalid date or time format." });
+    // Parse start service time using Luxon
+    const startServiceTime = DateTime.fromISO(`${date}T${start_service_time}`, { zone: "America/Los_Angeles" });
+    if (!startServiceTime.isValid) {
+      return res.status(400).json({ message: "Invalid date or start service time format." });
     }
 
-    // Fetch service times for the new appointment
+    // Fetch service durations
     const services = await Service.findAll({
       where: { id: service_ids },
-      attributes: ["id", "time"], // Using "time" instead of "duration"
+      attributes: ["id", "time"],
     });
 
     if (!services || services.length !== service_ids.length) {
       return res.status(400).json({ message: "Some services are invalid or not found." });
     }
 
-    const totalServiceTime = services.reduce((sum, service) => sum + service.time, 0);
-    const end_service_time = new Date(start_service_time_obj.getTime() + totalServiceTime * 60000);
+    // Calculate total service time
+    const totalServiceMinutes = services.reduce((sum, service) => sum + service.time, 0);
+
+    const endServiceTime = startServiceTime.plus({ minutes: totalServiceMinutes });
 
     // Fetch all existing appointments for the technician on the same date
     const existingAppointments = await Appointment.findAll({
@@ -372,51 +375,50 @@ router.post("/", async (req, res) => {
         },
         {
           model: Service,
-          attributes: ["time"], // Fetch service times for each appointment
-          through: { attributes: [] }, // Exclude through table attributes
+          attributes: ["time"],
+          through: { attributes: [] },
         },
       ],
       where: {
         date,
         [Op.or]: [
-          { note: null }, // Include records where note is NULL
-          { note: { [Op.not]: "deleted" } }, // Also include records where note is NOT "deleted"
+          { note: null },
+          { note: { [Op.not]: "deleted" } },
         ],
       },
     });
 
-    // Check if the new appointment overlaps 
-    if (
-      overlap(existingAppointments, start_service_time_obj, end_service_time)
-    ) {
+    // Check for overlaps
+    const hasOverlap = overlap(existingAppointments, startServiceTime, endServiceTime);
+
+    if (hasOverlap) {
       return res.status(400).json({
         message: "Appointment overlaps with an existing appointment.",
         conflictingSlot: start_service_time,
       });
     }
 
-    // Create the new appointment
+    // Create the appointment
     const newAppointment = await Appointment.create({
       customer_id,
       date,
       start_service_time,
     });
 
-    // Associate the new appointment with technicians
-    if (technician_id && technician_id.length > 0) {
-      await newAppointment.addTechnicians(technician_id);
+    // Associate technicians
+    if (technician_id) {
+      await newAppointment.addTechnicians(Array.isArray(technician_id) ? technician_id : [technician_id]);
     }
 
-    // Associate the new appointment with services
+    // Associate services
     if (service_ids && service_ids.length > 0) {
       await newAppointment.addServices(service_ids);
     }
 
-    // Return the newly created appointment
     return res.status(201).json(newAppointment);
   } catch (error) {
     console.error("Error creating appointment:", error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 });
 
@@ -581,7 +583,7 @@ router.get("/find_alternative_techs", async (req, res) => {
         technicians.push(tech);
       }
     }
-    
+
     res.status(200).json(technicians);
   } catch (error) {
     console.error(error);

@@ -66,6 +66,7 @@ jest.mock('../utils/helper', () => {
 });
 
 // Now import everything after mocks
+const { DateTime } = require('luxon');
 const { Appointment } = require('../models');
 const { overlap, now, validateContactType, generateHtmlFromTemplate, groupAppointments, okayToAssign } = require('../utils/helper');
 
@@ -73,14 +74,17 @@ jest.spyOn(console, 'warn').mockImplementation(() => { });
 jest.spyOn(console, 'error').mockImplementation(() => { });
 
 describe('Grouping Functions', () => {
-    const today = now();
+    const today = now(); // `now()` returns Luxon DateTime now, in Pacific Time
+
     test('groupAppointments correctly categorizes appointments', () => {
         const mockAppointments = [
-            { date: today.toISOString().split('T')[0] },
-            { date: new Date(today.getTime() - 86400000).toISOString().split('T')[0] },
-            { date: new Date(today.getTime() + 86400000).toISOString().split('T')[0] },
+            { date: today.toISODate() }, // same day
+            { date: today.minus({ days: 1 }).toISODate() }, // yesterday
+            { date: today.plus({ days: 1 }).toISODate() }, // tomorrow
         ];
+
         const grouped = groupAppointments(mockAppointments);
+
         expect(grouped.present.length).toBe(1);
         expect(grouped.past.length).toBe(1);
         expect(grouped.future.length).toBe(1);
@@ -88,7 +92,8 @@ describe('Grouping Functions', () => {
 
     test('now() returns the current date adjusted to Pacific Time', () => {
         const pacificTime = now();
-        expect(pacificTime).toBeInstanceOf(Date);
+        expect(pacificTime).toBeInstanceOf(DateTime); // Now returns Luxon DateTime
+        expect(pacificTime.zoneName).toBe('America/Los_Angeles'); // Check timezone too
     });
 });
 

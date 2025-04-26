@@ -8,17 +8,21 @@ const overlap = require('./overlap');
 
 /**
  * Groups appointments into future, present, and past, and sorts each group by most recent date first.
- * 
+ *
  * @param {Array<Object>} appointments - List of appointment objects, each containing at least a `date` property.
- * @param {string} appointments[].date - The date of the appointment in ISO format or a parsable string.
+ * @param {string} appointments[].date - The date of the appointment in ISO format (e.g., '2025-04-26').
  * @returns {Object} An object containing grouped and sorted appointments:
- *  - future: Array of appointments in the future.
- *  - present: Array of today's appointments.
- *  - past: Array of appointments in the past.
+ *  - future: Array of future appointments, sorted by latest date first.
+ *  - present: Array of today's appointments, sorted by latest date first.
+ *  - past: Array of past appointments, sorted by latest date first.
+ *
+ * @example
+ * const grouped = groupAppointments([{ date: '2025-04-27' }, { date: '2025-04-25' }]);
+ * console.log(grouped.future); // [{ date: '2025-04-27' }]
+ * console.log(grouped.past);   // [{ date: '2025-04-25' }]
  */
 const groupAppointments = (appointments) => {
-    const today = now();
-    today.setHours(0, 0, 0, 0); // Normalize to the start of the day
+    const today = now().startOf('day');
 
     const groupedAppointments = {
         future: [],
@@ -27,21 +31,24 @@ const groupAppointments = (appointments) => {
     };
 
     appointments.forEach((appointment) => {
-        const appointmentDate = new Date(appointment.date + 'T00:00:00');
-        appointmentDate.setHours(0, 0, 0, 0); // Normalize appointment date
+        const appointmentDate = DateTime.fromISO(appointment.date, { zone: 'America/Los_Angeles' }).startOf('day');
 
         if (appointmentDate > today) {
             groupedAppointments.future.push(appointment);
-        } else if (appointmentDate.getTime() === today.getTime()) {
+        } else if (appointmentDate.equals(today)) {
             groupedAppointments.present.push(appointment);
         } else {
             groupedAppointments.past.push(appointment);
         }
     });
 
-    // Sort each group by date (ascending)
+    // Sort each group by date (most recent first)
     Object.keys(groupedAppointments).forEach((group) => {
-        groupedAppointments[group].sort((a, b) => new Date(a.date) - new Date(b.date));
+        groupedAppointments[group].sort((a, b) => {
+            const dateA = DateTime.fromISO(a.date, { zone: 'America/Los_Angeles' });
+            const dateB = DateTime.fromISO(b.date, { zone: 'America/Los_Angeles' });
+            return dateB.toMillis() - dateA.toMillis(); // Descending order
+        });
     });
 
     return groupedAppointments;
@@ -49,21 +56,22 @@ const groupAppointments = (appointments) => {
 
 
 /**
- * Gets the current date and time adjusted to Pacific Time (PT).
+ * Returns the current date and time in the 'America/Los_Angeles' timezone.
  * 
- * The function calculates the UTC offset and adjusts the local time accordingly.
- * Pacific Standard Time (PST) is UTC-8, and Pacific Daylight Time (PDT) is UTC-7.
- * The adjustment considers the server's local time zone and ensures the returned 
- * time reflects Pacific Time.
- *
- * @returns {Date} The current date and time in Pacific Time.
+ * This function uses Luxon to correctly handle timezones, including automatic adjustments
+ * for Pacific Standard Time (PST) and Pacific Daylight Time (PDT) based on the current date.
+ * 
+ * @returns {DateTime} A Luxon DateTime object representing the current time in Los Angeles timezone.
+ * 
+ * @example
+ * const currentTime = now();
+ * console.log(currentTime.toISO()); // Outputs something like "2025-04-26T15:30:00.000-07:00"
  */
 const now = () => {
-    const now = new Date();
-    const offsetInHours = now.getTimezoneOffset() / 60 + 8; // Adjust UTC to Pacific Time (Standard Time: -8)
-    now.setHours(now.getHours() - offsetInHours);
-    return now;
-}
+    return DateTime.now().setZone('America/Los_Angeles');
+};
+
+
 
 
 /**
@@ -89,14 +97,6 @@ const now = () => {
  *     Services: [{ time: 30 }, { time: 45 }]
  *   }
  * );
- * // returns true or false
- *
- * @description
- * This function checks if a technician is available for a new appointment by:
- * 1. Calculating the start and end time of the new appointment.
- * 2. Fetching all existing, non-deleted appointments for the technician on the same date.
- * 3. Checking for any time overlaps between the new appointment and existing ones.
- * 4. If the technician is unavailable on the appointment's weekday.
  */
 const okayToAssign = async (technician, appointment) => {
     try {
@@ -116,22 +116,21 @@ const okayToAssign = async (technician, appointment) => {
             return false;
         }
 
-        // Parse start_service_time correctly using Luxon
+        // Parse start time correctly with Luxon
         const startServiceTime = DateTime.fromISO(`${appointment.date}T${appointment.start_service_time}`, { zone: "America/Los_Angeles" });
         if (!startServiceTime.isValid) {
             console.log("Invalid start service time");
             return false;
         }
 
-        // Calculate end service time
+        // Calculate end time
         const totalServiceMinutes = services.reduce((sum, service) => sum + service.time, 0);
         const endServiceTime = startServiceTime.plus({ minutes: totalServiceMinutes });
 
-        // Get selected weekday (0 = Sunday, 6 = Saturday)
-        const selectedWeekday = startServiceTime.weekday % 7;
-        // Note: Luxon weekday: 1 (Monday) to 7 (Sunday)
+        // Luxon weekday: Monday = 1, Sunday = 7
+        const selectedWeekday = startServiceTime.weekday % 7; // Make Sunday = 0, Monday = 1, etc.
 
-        // Parse technician's unavailability
+        // Parse technician's unavailability (array of numbers 0-6)
         const unavailableDays = (technician.unavailability || "")
             .split(",")
             .map(day => day.trim())
@@ -166,8 +165,8 @@ const okayToAssign = async (technician, appointment) => {
             }
         });
 
-        // Check for overlap (convert Luxon DateTime back to JS Date for overlap check)
-        const hasConflict = overlap(existingAppointments, startServiceTime.toJSDate(), endServiceTime.toJSDate());
+        // Check for overlap — PASS Luxon objects directly
+        const hasConflict = overlap(existingAppointments, startServiceTime, endServiceTime);
 
         return !hasConflict;
 
