@@ -19,8 +19,8 @@ const TechnicianSelectorModal = ({ isOpen, onClose, technicians, onSelect, selec
     if (!isOpen) return null;
 
     return (
-        <div className="modal-backdrop">
-            <div className="modal-content">
+        <div className="technician-selector-modal-backdrop">
+            <div className="technician-selector-modal-content">
                 <h3>Select a Technician</h3>
                 <form onSubmit={onSubmit}>
                     <div>
@@ -39,7 +39,7 @@ const TechnicianSelectorModal = ({ isOpen, onClose, technicians, onSelect, selec
                         </select>
                     </div>
 
-                    <div className="modal-actions">
+                    <div className="technician-selector-modal-actions">
                         <button type="submit">Confirm</button>
                         <button type="button" onClick={onClose}>Cancel</button>
                     </div>

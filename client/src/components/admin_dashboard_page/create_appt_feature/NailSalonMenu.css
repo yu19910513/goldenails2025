@@ -1,0 +1,102 @@
+/* Container setup */
+.page-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.menu-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  width: 100%;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  color: #333;
+  font-family: 'Arial', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Each category */
+.menu-section {
+  width: 100%;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.menu-category {
+  font-family: "Didot", Georgia, serif;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #d6336c;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #d6336c;
+  padding-bottom: 0.2rem;
+}
+
+/* Table styling */
+.menu-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-family: "Optima", Arial;
+}
+
+.menu-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.menu-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Interactive rows */
+.menu-item-row {
+  cursor: pointer;
+  background-color: transparent; /* ensure clean base background */
+}
+
+.menu-item-row.selected {
+  background-color: #d0f0d8 !important; /* green on select */
+}
+
+/* Hover affects text only */
+.menu-item-row:hover .item-name,
+.menu-item-row:hover .item-price {
+  color: #d6336c;
+  font-weight: 600;
+}
+
+/* Cell styling */
+.item-name,
+.item-price {
+  padding: 0.5rem 1rem;
+}
+
+.item-name {
+  text-align: left;
+}
+
+.item-price {
+  text-align: right;
+  color: #d6336c;
+  font-weight: 500;
+}
+
+/* States */
+.loading,
+.error {
+  font-size: 1.2rem;
+  color: #6c757d;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .menu-container {
+    padding: 1rem;
+    display: block;
+  }
+}

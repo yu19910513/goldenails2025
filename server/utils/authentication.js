@@ -18,6 +18,7 @@ const authenticate = (req, res, next) => {
     return res.status(401).send("Access Denied");
   }
   try {
+    const secret = process.env.JWT_SECRET;
     const decoded = jwt.verify(token, secret);
     req.token = decoded;
     next();

@@ -53,6 +53,22 @@ class CustomerService {
     return http.put(`/customers/`, customerData);
   }
 
+  /**
+   * Fetches customers matching the provided keyword by name, phone, or email.
+   *
+   * @function smart_search
+   * @param {string} keyword - The search keyword to filter customers.
+   * @returns {Promise<AxiosResponse<Object[]>>} A promise resolving to a list of matching customer objects.
+   *
+   * @example
+   * smart_search("john").then(response => {
+   *   console.log(response.data); // [{ id, name, phone, email }, ...]
+   * });
+   */
+  smart_search(keyword) {
+    return http.get(`/customers/smart_search?keyword=${keyword}`)
+  }
+
 }
 
 export default new CustomerService();

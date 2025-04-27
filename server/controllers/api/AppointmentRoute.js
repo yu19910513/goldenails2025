@@ -555,7 +555,14 @@ router.get("/find_alternative_techs", async (req, res) => {
     const technicians = [];
     const { id } = req.query;
 
-    const appointment = await Appointment.findByPk(id, {
+    const appointment = await Appointment.findOne({
+      where: {
+        id,
+        [Op.or]: [
+          { note: null },
+          { note: { [Op.not]: "deleted" } },
+        ],
+      },
       include: [
         {
           model: Technician,

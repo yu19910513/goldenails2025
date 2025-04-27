@@ -1,0 +1,245 @@
+/* Ensure styles only apply to this component */
+.calendar-admin-page-container {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Header Navigation */
+.calendar-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.calendar-admin-header button {
+  flex: 1;
+  max-width: 150px;
+  padding: 10px 0;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.calendar-admin-header button:hover {
+  background-color: #0056b3;
+}
+
+/* Datepicker Wrapper */
+.calendar-datepicker-wrapper {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  z-index: 1001;
+}
+
+/* DatePicker Styles */
+.calendar-custom-datepicker {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+  max-width: 200px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.calendar-custom-datepicker:hover,
+.calendar-custom-datepicker:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  outline: none;
+}
+
+/* Calendar Container */
+.calendar-admin-calendar {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.calendar-admin-technician-calendar {
+  flex: 1;
+  min-width: 300px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-admin-technician-calendar h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: center;
+  color: #555;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+/* Time Slots */
+.calendar-admin-time-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.calendar-admin-time-slot {
+  display: flex;
+  align-items: flex-start;
+  padding: 5px;
+  border: 1px solid #f0f0f0;
+  background-color: #fafafa;
+  border-radius: 5px;
+  position: relative;
+}
+
+.calendar-admin-time-slot .calendar-admin-time {
+  flex: 0 0 80px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+}
+
+.calendar-admin-time-slot .calendar-admin-appointments {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Appointment Blocks */
+.calendar-admin-appointment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 5px;
+  padding: 4px;
+  color: #155724;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-admin-appointment:hover {
+  background-color: #c3e6cb;
+  border-color: #a4d6aa;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.calendar-admin-appointment span {
+  margin: 2px 0;
+}
+
+/* calendar.css */
+.calendar-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+  cursor: pointer;
+}
+
+.calendar-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 2000px;
+  width: 90%;
+  cursor: auto;
+  max-height: 90vh;
+  /* Limit height to viewport */
+  overflow-y: auto;
+  /* Add vertical scroll if needed */
+  /* So inside the modal isn't pointer */
+}
+
+.calendar-add-appt-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: background-color 0.2s ease;
+}
+
+.calendar-add-appt-button:hover {
+  width: 70px;
+  height: 70px;
+  background-color: darkgreen;
+}
+
+.calendar-add-appt-button.open {
+  background-color: crimson;
+  z-index: 1003;
+}
+
+.calendar-add-appt-button.open:hover {
+  background-color: darkred;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .calendar-admin-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .calendar-admin-calendar {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .calendar-admin-technician-calendar {
+    min-width: 100%;
+  }
+
+  .calendar-datepicker-wrapper {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .calendar-custom-datepicker {
+    width: 100%;
+    max-width: 100%;
+  }
+}

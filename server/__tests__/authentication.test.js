@@ -1,5 +1,7 @@
 const { authenticate, basic_auth } = require('../utils/authentication'); // Update with the correct path
 const jwt = require('jsonwebtoken');
+process.env.JWT_SECRET = 'test_secret';
+const secret = process.env.JWT_SECRET;
 
 describe('authenticate', () => {
     const mockResponse = () => {
@@ -21,7 +23,7 @@ describe('authenticate', () => {
     });
 
     it('should call next if token is valid', () => {
-        const validToken = jwt.sign({ data: 'test' }, 'test_secret', { expiresIn: '2h' });
+        const validToken = jwt.sign({ data: 'test' }, secret, { expiresIn: '2h' });
         const req = { headers: { authorization: `Bearer ${validToken}` } };
         const res = mockResponse();
         authenticate(req, res, mockNext);

@@ -32,7 +32,7 @@ const SpaLocation = () => {
             <ul>
               <li><a href="/faq">FAQ</a></li>
               <li><a href="/contact">Contact Us</a></li>
-              <li><a href="/donations">Donation Requests</a></li>
+              <li><a href="/dashboard">Login</a></li>
             </ul>
           </div>
 
