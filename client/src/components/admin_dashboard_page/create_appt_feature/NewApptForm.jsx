@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomerService from "../../../services/customerService"; // must include smart_search
+import CustomerService from "../../../services/customerService";
+import "./NewApptForm.css"; // Make sure this file is imported
 
 const technicians = ["Alice", "Bob", "Charlie"];
 
@@ -23,7 +24,7 @@ const NewApptForm = ({ selectedServices }) => {
     const fetchSuggestions = async () => {
       const trimmed = form.phone.trim();
       if (trimmed.length < 3) {
-        if (trimmed !== '*') {
+        if (trimmed !== "*") {
           setSuggestions([]);
           return;
         }
@@ -73,29 +74,29 @@ const NewApptForm = ({ selectedServices }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto p-6 shadow-lg rounded-xl bg-white relative">
-      <h2 className="text-2xl font-bold mb-4">New Appointment</h2>
+    <form onSubmit={handleSubmit} className="new-appt-form">
+      <h2 className="new-appt-title">New Appointment</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-        <div className="relative">
+      <div className="new-appt-form-grid">
+        <div className="new-appt-suggestion-wrapper">
           <input
             type="tel"
             placeholder="Smart Search/ Phone Number"
             value={form.phone}
             onChange={handlePhoneChange}
             required
-            className="border rounded p-2 w-full"
+            className="new-appt-input"
           />
           {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded shadow-md mt-1 z-50 max-h-48 overflow-y-auto">
+            <ul className="new-appt-suggestions">
               {suggestions.map((cust) => (
                 <li
                   key={cust.id}
                   onClick={() => handleSelectSuggestion(cust)}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="new-appt-suggestion-item"
                 >
-                  <div className="font-medium">{cust.name}</div>
-                  <div className="text-sm text-gray-600">{cust.phone}</div>
+                  <div className="new-appt-suggestion-name">{cust.name}</div>
+                  <div className="new-appt-suggestion-phone">{cust.phone}</div>
                 </li>
               ))}
             </ul>
@@ -108,58 +109,61 @@ const NewApptForm = ({ selectedServices }) => {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
+
         <input
           type="email"
           placeholder="Email (optional)"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
+
         <select
           value={form.technician}
           onChange={(e) => setForm({ ...form, technician: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         >
           <option value="">Select Technician</option>
           {technicians.map((tech, i) => (
-            <option key={i} value={tech}>{tech}</option>
+            <option key={i} value={tech}>
+              {tech}
+            </option>
           ))}
         </select>
+
         <input
           type="date"
           value={form.date}
           onChange={(e) => setForm({ ...form, date: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
+
         <input
           type="time"
           value={form.time}
           onChange={(e) => setForm({ ...form, time: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
       </div>
 
-      {/* List selected services */}
-      <div>
-        <label className="font-semibold block mb-2">Selected Services</label>
-        <ul className="list-disc pl-5 text-gray-700">
+      <div className="new-appt-services">
+        <label className="new-appt-label">Selected Services</label>
+        <ul className="new-appt-services-list">
           {selectedServices.length === 0 ? (
             <li>No services selected.</li>
           ) : (
-            selectedServices.map((svc, idx) => (
-              <li key={idx}>{svc.name}</li>
-            ))
+            selectedServices.map((svc, idx) => <li key={idx}>{svc.name}</li>)
           )}
         </ul>
       </div>
 
-      <div className="flex gap-4 items-center">
-        <label className="flex items-center gap-2">
+      <div className="new-appt-options">
+        <label className="new-appt-checkbox">
           <input
             type="checkbox"
             checked={form.sendSMS}
@@ -167,7 +171,7 @@ const NewApptForm = ({ selectedServices }) => {
           />
           Send SMS
         </label>
-        <label className="flex items-center gap-2">
+        <label className="new-appt-checkbox">
           <input
             type="checkbox"
             checked={form.sendEmail}
@@ -177,7 +181,7 @@ const NewApptForm = ({ selectedServices }) => {
         </label>
       </div>
 
-      <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+      <button type="submit" className="new-appt-submit-btn">
         Submit
       </button>
     </form>
