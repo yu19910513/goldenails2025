@@ -2,13 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import CustomerService from "../../../services/customerService"; // must include smart_search
 
 const technicians = ["Alice", "Bob", "Charlie"];
-const serviceCategories = {
-  Hair: ["Haircut", "Coloring", "Styling"],
-  Nails: ["Manicure", "Pedicure", "Nail Art"],
-  Massage: ["Swedish", "Deep Tissue", "Hot Stone"],
-};
 
-const NewApptForm = () => {
+const NewApptForm = ({ selectedServices }) => {
   const selectionMade = useRef(false);
   const [form, setForm] = useState({
     phone: "",
@@ -17,7 +12,6 @@ const NewApptForm = () => {
     date: "",
     time: "",
     technician: "",
-    services: [{ category: "", service: "" }],
     sendSMS: false,
     sendEmail: false,
   });
@@ -29,14 +23,14 @@ const NewApptForm = () => {
     const fetchSuggestions = async () => {
       const trimmed = form.phone.trim();
       if (trimmed.length < 3) {
-        if (trimmed != '*') {
+        if (trimmed !== '*') {
           setSuggestions([]);
           return;
         }
       }
       if (selectionMade.current) {
-        selectionMade.current = false; // reset the flag
-        return; // don't fetch suggestions after selection
+        selectionMade.current = false;
+        return;
       }
       try {
         const res = await CustomerService.smart_search(trimmed);
@@ -66,20 +60,15 @@ const NewApptForm = () => {
     setForm({ ...form, phone: e.target.value });
   };
 
-  const handleServiceChange = (index, field, value) => {
-    const newServices = [...form.services];
-    newServices[index][field] = value;
-    if (field === "category") newServices[index]["service"] = "";
-    setForm({ ...form, services: newServices });
-  };
-
-  const addServiceRow = () => {
-    setForm({ ...form, services: [...form.services, { category: "", service: "" }] });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Submitted form:", form);
+
+    const fullForm = {
+      ...form,
+      services: selectedServices,
+    };
+
+    console.log("Submitted form:", fullForm);
     // Submit logic here
   };
 
@@ -155,44 +144,18 @@ const NewApptForm = () => {
         />
       </div>
 
+      {/* List selected services */}
       <div>
-        <label className="font-semibold block mb-2">Services</label>
-        {form.services.map((service, index) => (
-          <div key={index} className="flex gap-4 mb-2">
-            <select
-              value={service.category}
-              onChange={(e) => handleServiceChange(index, "category", e.target.value)}
-              required
-              className="border rounded p-2 flex-1"
-            >
-              <option value="">Category</option>
-              {Object.keys(serviceCategories).map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <select
-              value={service.service}
-              onChange={(e) => handleServiceChange(index, "service", e.target.value)}
-              required
-              className="border rounded p-2 flex-1"
-              disabled={!service.category}
-            >
-              <option value="">Service</option>
-              {serviceCategories[service.category]?.map((svc) => (
-                <option key={svc} value={svc}>{svc}</option>
-              ))}
-            </select>
-            {index === form.services.length - 1 && (
-              <button
-                type="button"
-                onClick={addServiceRow}
-                className="text-white bg-blue-500 px-3 py-1 rounded hover:bg-blue-600"
-              >
-                +
-              </button>
-            )}
-          </div>
-        ))}
+        <label className="font-semibold block mb-2">Selected Services</label>
+        <ul className="list-disc pl-5 text-gray-700">
+          {selectedServices.length === 0 ? (
+            <li>No services selected.</li>
+          ) : (
+            selectedServices.map((svc, idx) => (
+              <li key={idx}>{svc.name}</li>
+            ))
+          )}
+        </ul>
       </div>
 
       <div className="flex gap-4 items-center">
