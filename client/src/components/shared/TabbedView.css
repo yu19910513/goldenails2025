@@ -1,5 +1,5 @@
 .tabbed-view-container {
-  max-width: 1100px;
+  max-width: 2000px;
   margin: 40px auto;
 }
 
@@ -22,7 +22,6 @@
 }
 
 .tabbed-view-tab:hover {
-  color: #b03a2e;
   transform: scale(1.05);
 }
 
@@ -43,12 +42,12 @@
 /* Responsive Example */
 @media (max-width: 600px) {
   .tabbed-view-tabs {
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .tabbed-view-tab {
-    width: 100%;
+    width: 50%;
     text-align: center;
   }
 }
