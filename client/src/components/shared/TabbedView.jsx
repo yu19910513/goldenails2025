@@ -26,18 +26,18 @@ const TabbedView = ({ tabs }) => {
 
   return (
     <div className="tabbed-view-container">
-      <div className="tabs">
+      <div className="tabbed-view-tabs">
         {tabs.map(({ key, label }) => (
           <div
             key={key}
-            className={`tab ${activeTab === key ? 'active' : ''}`}
+            className={`tabbed-view-tab ${activeTab === key ? 'tabbed-view-active' : ''}`}
             onClick={() => setActiveTab(key)}
           >
             {label}
           </div>
         ))}
       </div>
-      <div className="tab-content" id="tabs">
+      <div className="tabbed-view-content" id="tabs">
         {tabs.map(({ key, Component }) =>
           activeTab === key ? <Component key={key} /> : null
         )}
