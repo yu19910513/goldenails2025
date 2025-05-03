@@ -23,8 +23,6 @@ const TechnicianSelection = ({
         const selectedCategoryIds = Object.keys(selectedServices);
         if (selectedCategoryIds.length > 0) {
           const response = await TechnicianService.getAvailableTechnicians(selectedCategoryIds);
-          console.log(response.data);
-          
           setTechnicians(response?.data || []);
         } else {
           setTechnicians([]);
