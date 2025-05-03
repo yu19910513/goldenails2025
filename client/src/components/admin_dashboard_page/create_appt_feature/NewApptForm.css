@@ -78,21 +78,6 @@
     color: #374151;
 }
 
-
-.new-appt-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1rem;
-  }
-  
-  .new-appt-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-  }
-
 .new-appt-form button[type="submit"] {
     background-color: #059669;
     color: white;

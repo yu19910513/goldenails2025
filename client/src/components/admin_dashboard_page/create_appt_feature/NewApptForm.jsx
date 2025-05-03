@@ -162,25 +162,6 @@ const NewApptForm = ({ selectedServices }) => {
         </ul>
       </div>
 
-      <div className="new-appt-options">
-        <label className="new-appt-checkbox">
-          <input
-            type="checkbox"
-            checked={form.sendSMS}
-            onChange={(e) => setForm({ ...form, sendSMS: e.target.checked })}
-          />
-          Send SMS
-        </label>
-        <label className="new-appt-checkbox">
-          <input
-            type="checkbox"
-            checked={form.sendEmail}
-            onChange={(e) => setForm({ ...form, sendEmail: e.target.checked })}
-          />
-          Send Email
-        </label>
-      </div>
-
       <button type="submit" className="new-appt-submit-btn">
         Submit
       </button>
