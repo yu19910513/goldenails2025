@@ -86,7 +86,8 @@ router.get("/", async (req, res) => {
           id: service.id,
           name: service.name,
           price: service.price,
-          time: service.time
+          time: service.time,
+          category_id: category.id
         });
       } else {
         // Add new category
@@ -98,7 +99,8 @@ router.get("/", async (req, res) => {
               id: service.id,
               name: service.name,
               price: service.price,
-              time: service.time
+              time: service.time,
+              category_id: category.id
             },
           ],
         });

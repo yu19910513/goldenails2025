@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomerService from "../../../services/customerService";
-import "./NewApptForm.css"; // Make sure this file is imported
-
-const technicians = ["Alice", "Bob", "Charlie"];
+import TechnicianService from "../../../services/technicianService";
+import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices }) => {
   const selectionMade = useRef(false);
@@ -12,22 +11,20 @@ const NewApptForm = ({ selectedServices }) => {
     email: "",
     date: "",
     time: "",
-    technician: "",
-    sendSMS: false,
-    sendEmail: false,
+    technician: ""
   });
 
+  const [technicianOptions, setTechnicianOptions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Fetch customer suggestions
   useEffect(() => {
     const fetchSuggestions = async () => {
       const trimmed = form.phone.trim();
-      if (trimmed.length < 3) {
-        if (trimmed !== "*") {
-          setSuggestions([]);
-          return;
-        }
+      if (trimmed.length < 3 && trimmed !== "*") {
+        setSuggestions([]);
+        return;
       }
       if (selectionMade.current) {
         selectionMade.current = false;
@@ -44,6 +41,35 @@ const NewApptForm = ({ selectedServices }) => {
 
     fetchSuggestions();
   }, [form.phone]);
+
+  // Fetch available technicians when services change
+  useEffect(() => {
+    const updateTechnicians = async () => {
+      const categoryIds = selectedServices.map((svc) => svc.category_id);
+      try {
+        const res = await TechnicianService.getAvailableTechnicians(categoryIds);
+        const available = res.data;
+
+        setTechnicianOptions(available);
+
+        const stillValid = available.some((tech) => tech.name === form.technician);
+        if (!stillValid) {
+          setForm((prev) => ({ ...prev, technician: "" }));
+        }
+      } catch (err) {
+        console.error("Error fetching technicians:", err);
+        setTechnicianOptions([]);
+        setForm((prev) => ({ ...prev, technician: "" }));
+      }
+    };
+
+    if (selectedServices.length > 0) {
+      updateTechnicians();
+    } else {
+      setTechnicianOptions([]);
+      setForm((prev) => ({ ...prev, technician: "" }));
+    }
+  }, [selectedServices]);
 
   const handleSelectSuggestion = (customer) => {
     selectionMade.current = true;
@@ -127,9 +153,9 @@ const NewApptForm = ({ selectedServices }) => {
           className="new-appt-input"
         >
           <option value="">Select Technician</option>
-          {technicians.map((tech, i) => (
-            <option key={i} value={tech}>
-              {tech}
+          {technicianOptions.map((tech) => (
+            <option key={tech.id} value={tech.name}>
+              {tech.name}
             </option>
           ))}
         </select>
