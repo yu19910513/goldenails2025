@@ -52,75 +52,69 @@ router.get("/", async (req, res) => {
   }
 });
 
-
 /**
- * POST /available
- * 
- * Endpoint to fetch technicians who can perform services across all the specified categories.
- * 
- * @param {Object} req - The request object.
- * @param {Object} req.body - The body of the request.
- * @param {Array<number>} req.body.categoryIds - An array of category IDs to filter technicians by.
- * @param {Object} res - The response object.
- * 
- * @returns {Object} JSON response with either:
- *  - A 200 status code and a list of technicians matching the criteria, or
- *  - A 400 status code if the request body is invalid, or
- *  - A 500 status code if an internal server error occurs.
- * 
- * @throws {Error} - Logs any unexpected errors during execution.
- * 
- * Example Request:
+ * @route POST /technicians/available
+ * @description Retrieves a list of technicians who can perform services in all specified categories.
+ *
+ * @param {Object} req - Express request object
+ * @param {Array<number>} req.body.categoryIds - An array of category IDs the technician must support
+ *
+ * @returns {Object} 200 - An array of matching technician objects
+ * @returns {Object} 400 - Bad request if categoryIds is missing or invalid
+ * @returns {Object} 500 - Internal server error on failure
+ *
+ * @example
+ * Request Body:
  * {
- *   "categoryIds": [1, 2, 3]
+ *   "categoryIds": [1, 5]
  * }
- * 
- * Example Successful Response:
+ *
+ * Successful Response:
  * [
  *   {
- *     "id": 1,
- *     "name": "Technician A",
- *     "categories": [
- *       { "id": 1, "name": "Category 1" },
- *       { "id": 2, "name": "Category 2" }
- *     ]
- *   },
- *   {
- *     "id": 2,
- *     "name": "Technician B",
- *     "categories": [
- *       { "id": 1, "name": "Category 1" },
- *       { "id": 2, "name": "Category 2" },
- *       { "id": 3, "name": "Category 3" }
- *     ]
+ *     "id": 3,
+ *     "name": "Alice",
+ *     "description": "Expert in nails",
+ *     "phone": "123-456-7890",
+ *     "unavailability": "...",
+ *     "categoryCount": "2"
  *   }
  * ]
- * 
- * Example Error Responses:
- * - 400: { "message": "Category IDs are required." }
- * - 500: { "message": "Internal server error." }
  */
 
 router.post("/available", async (req, res) => {
   try {
     const { categoryIds } = req.body;
-
-    // Validate the request body
+    
     if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) {
       return res.status(400).json({ message: "Category IDs are required." });
     }
 
-    // Fetch technicians capable of performing services in all the selected categories
     const technicians = await Technician.findAll({
       include: [
         {
           model: Category,
-          where: { id: categoryIds }, // Match the provided category IDs
-          through: { attributes: [] }, // Exclude join table attributes
+          where: { id: categoryIds },
+          through: { attributes: [] },
+          attributes: [], // Avoid selecting category fields to keep query clean
         },
       ],
-      group: ["Technician.id"],
-      having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${categoryIds.length}`), // Ensure all categories are matched
+      attributes: [
+        "id",
+        "name",
+        "description",
+        "phone",
+        "unavailability",
+        [Sequelize.fn("COUNT", Sequelize.fn("DISTINCT", Sequelize.col("Categories.id"))), "categoryCount"]
+      ],
+      group: [
+        "Technician.id",
+        "Technician.name",
+        "Technician.description",
+        "Technician.phone",
+        "Technician.unavailability"
+      ],
+      having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${categoryIds.length}`),
     });
 
     return res.status(200).json(technicians);

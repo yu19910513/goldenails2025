@@ -35,16 +35,15 @@ const AppointmentBookingLayout = () => {
       >
         <NewApptForm
           selectedServices={selectedServices}
-          onRemoveService={handleRemoveService}
         />
       </div>
-
+    
       {/* Toggle Button */}
       <button
         className="toggle-form-btn"
         onClick={() => setShowForm(!showForm)}
       >
-        {showForm ? "Close Form" : "Book Now"}
+        {showForm ? "📋" : "✏️"}
       </button>
     </div>
   );

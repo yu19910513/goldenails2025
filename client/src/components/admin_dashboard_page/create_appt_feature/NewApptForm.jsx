@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomerService from "../../../services/customerService"; // must include smart_search
+import CustomerService from "../../../services/customerService";
+import TechnicianService from "../../../services/technicianService";
+import "./NewApptForm.css";
 
-const technicians = ["Alice", "Bob", "Charlie"];
-const serviceCategories = {
-  Hair: ["Haircut", "Coloring", "Styling"],
-  Nails: ["Manicure", "Pedicure", "Nail Art"],
-  Massage: ["Swedish", "Deep Tissue", "Hot Stone"],
-};
-
-const NewApptForm = () => {
+const NewApptForm = ({ selectedServices }) => {
   const selectionMade = useRef(false);
   const [form, setForm] = useState({
     phone: "",
@@ -16,27 +11,24 @@ const NewApptForm = () => {
     email: "",
     date: "",
     time: "",
-    technician: "",
-    services: [{ category: "", service: "" }],
-    sendSMS: false,
-    sendEmail: false,
+    technician: ""
   });
 
+  const [technicianOptions, setTechnicianOptions] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Fetch customer suggestions
   useEffect(() => {
     const fetchSuggestions = async () => {
       const trimmed = form.phone.trim();
-      if (trimmed.length < 3) {
-        if (trimmed != '*') {
-          setSuggestions([]);
-          return;
-        }
+      if (trimmed.length < 3 && trimmed !== "*") {
+        setSuggestions([]);
+        return;
       }
       if (selectionMade.current) {
-        selectionMade.current = false; // reset the flag
-        return; // don't fetch suggestions after selection
+        selectionMade.current = false;
+        return;
       }
       try {
         const res = await CustomerService.smart_search(trimmed);
@@ -49,6 +41,35 @@ const NewApptForm = () => {
 
     fetchSuggestions();
   }, [form.phone]);
+
+  // Fetch available technicians when services change
+  useEffect(() => {
+    const updateTechnicians = async () => {
+      const categoryIds = selectedServices.map((svc) => svc.category_id);
+      try {
+        const res = await TechnicianService.getAvailableTechnicians(categoryIds);
+        const available = res.data;
+
+        setTechnicianOptions(available);
+
+        const stillValid = available.some((tech) => tech.name === form.technician);
+        if (!stillValid) {
+          setForm((prev) => ({ ...prev, technician: "" }));
+        }
+      } catch (err) {
+        console.error("Error fetching technicians:", err);
+        setTechnicianOptions([]);
+        setForm((prev) => ({ ...prev, technician: "" }));
+      }
+    };
+
+    if (selectedServices.length > 0) {
+      updateTechnicians();
+    } else {
+      setTechnicianOptions([]);
+      setForm((prev) => ({ ...prev, technician: "" }));
+    }
+  }, [selectedServices]);
 
   const handleSelectSuggestion = (customer) => {
     selectionMade.current = true;
@@ -66,47 +87,42 @@ const NewApptForm = () => {
     setForm({ ...form, phone: e.target.value });
   };
 
-  const handleServiceChange = (index, field, value) => {
-    const newServices = [...form.services];
-    newServices[index][field] = value;
-    if (field === "category") newServices[index]["service"] = "";
-    setForm({ ...form, services: newServices });
-  };
-
-  const addServiceRow = () => {
-    setForm({ ...form, services: [...form.services, { category: "", service: "" }] });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Submitted form:", form);
+
+    const fullForm = {
+      ...form,
+      services: selectedServices,
+    };
+
+    console.log("Submitted form:", fullForm);
     // Submit logic here
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-xl mx-auto p-6 shadow-lg rounded-xl bg-white relative">
-      <h2 className="text-2xl font-bold mb-4">New Appointment</h2>
+    <form onSubmit={handleSubmit} className="new-appt-form">
+      <h2 className="new-appt-title">New Appointment</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
-        <div className="relative">
+      <div className="new-appt-form-grid">
+        <div className="new-appt-suggestion-wrapper">
           <input
             type="tel"
             placeholder="Smart Search/ Phone Number"
             value={form.phone}
             onChange={handlePhoneChange}
             required
-            className="border rounded p-2 w-full"
+            className="new-appt-input"
           />
           {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded shadow-md mt-1 z-50 max-h-48 overflow-y-auto">
+            <ul className="new-appt-suggestions">
               {suggestions.map((cust) => (
                 <li
                   key={cust.id}
                   onClick={() => handleSelectSuggestion(cust)}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="new-appt-suggestion-item"
                 >
-                  <div className="font-medium">{cust.name}</div>
-                  <div className="text-sm text-gray-600">{cust.phone}</div>
+                  <div className="new-appt-suggestion-name">{cust.name}</div>
+                  <div className="new-appt-suggestion-phone">{cust.phone}</div>
                 </li>
               ))}
             </ul>
@@ -119,102 +135,60 @@ const NewApptForm = () => {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
+
         <input
           type="email"
           placeholder="Email (optional)"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
+
         <select
           value={form.technician}
           onChange={(e) => setForm({ ...form, technician: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         >
           <option value="">Select Technician</option>
-          {technicians.map((tech, i) => (
-            <option key={i} value={tech}>{tech}</option>
+          {technicianOptions.map((tech) => (
+            <option key={tech.id} value={tech.name}>
+              {tech.name}
+            </option>
           ))}
         </select>
+
         <input
           type="date"
           value={form.date}
           onChange={(e) => setForm({ ...form, date: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
+
         <input
           type="time"
           value={form.time}
           onChange={(e) => setForm({ ...form, time: e.target.value })}
           required
-          className="border rounded p-2 w-full"
+          className="new-appt-input"
         />
       </div>
 
-      <div>
-        <label className="font-semibold block mb-2">Services</label>
-        {form.services.map((service, index) => (
-          <div key={index} className="flex gap-4 mb-2">
-            <select
-              value={service.category}
-              onChange={(e) => handleServiceChange(index, "category", e.target.value)}
-              required
-              className="border rounded p-2 flex-1"
-            >
-              <option value="">Category</option>
-              {Object.keys(serviceCategories).map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <select
-              value={service.service}
-              onChange={(e) => handleServiceChange(index, "service", e.target.value)}
-              required
-              className="border rounded p-2 flex-1"
-              disabled={!service.category}
-            >
-              <option value="">Service</option>
-              {serviceCategories[service.category]?.map((svc) => (
-                <option key={svc} value={svc}>{svc}</option>
-              ))}
-            </select>
-            {index === form.services.length - 1 && (
-              <button
-                type="button"
-                onClick={addServiceRow}
-                className="text-white bg-blue-500 px-3 py-1 rounded hover:bg-blue-600"
-              >
-                +
-              </button>
-            )}
-          </div>
-        ))}
+      <div className="new-appt-services">
+        <label className="new-appt-label">Selected Services</label>
+        <ul className="new-appt-services-list">
+          {selectedServices.length === 0 ? (
+            <li>No services selected.</li>
+          ) : (
+            selectedServices.map((svc, idx) => <li key={idx}>{svc.name}</li>)
+          )}
+        </ul>
       </div>
 
-      <div className="flex gap-4 items-center">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={form.sendSMS}
-            onChange={(e) => setForm({ ...form, sendSMS: e.target.checked })}
-          />
-          Send SMS
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={form.sendEmail}
-            onChange={(e) => setForm({ ...form, sendEmail: e.target.checked })}
-          />
-          Send Email
-        </label>
-      </div>
-
-      <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+      <button type="submit" className="new-appt-submit-btn">
         Submit
       </button>
     </form>
