@@ -89,3 +89,16 @@
 .new-appt-form button[type="submit"]:hover {
     background-color: #047857;
 }
+
+.new-appt-suggestion-wrapper {
+    position: relative;
+}
+
+.new-appt-form-suggestion-name {
+    font-weight: bold;
+}
+
+.new-appt-form-suggestion-phone {
+    font-size: 0.875rem;
+    color: #555;
+}
