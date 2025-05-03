@@ -226,7 +226,10 @@ const calculateAvailableSlots = (
 
     if (slotEnd > endOfDay) break;
 
-    if (slotStart < currentTime) continue;
+    // if (slotStart < currentTime) continue;
+    const isToday = currentTime.toISOString().split("T")[0] === selectedDate;
+    const bufferTime = new Date(currentTime.getTime() + 2 * 60 * 60000);
+    if (isToday && slotStart < bufferTime) continue;
 
     const isAvailable = !occupiedSlots.some(
       (occupied) =>
