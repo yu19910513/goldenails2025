@@ -1,13 +1,16 @@
 /* Header Styles */
 .header {
-  background-color: #ffffff; /* Light purple background */
+  background-color: #ffffff;
+  /* Light purple background */
   color: rgb(0, 0, 0);
   padding: 10px;
-  position: sticky; /* Sticky header */
+  position: sticky;
+  /* Sticky header */
   top: 0;
   padding: 10px;
   width: 100%;
-  z-index: 1000; /* Ensure it stays on top of other content */
+  z-index: 1000;
+  /* Ensure it stays on top of other content */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -24,30 +27,39 @@ nav {
   text-decoration: none;
   padding: 10px;
   font-size: 1rem;
-  font-family: 'serif', sans-serif; /* Default font */
+  font-family: 'serif', sans-serif;
+  /* Default font */
 }
 
 /* Hover effect for nav links */
 .nav-link:hover,
 .active-link {
-  color: #000000; /* Change color on hover or when active (light pink color) */
+  color: #000000;
+  /* Change color on hover or when active (light pink color) */
 }
 
 /* Custom style for the "Golden Nails" link */
 .nav-link.gold-nails {
-  font-size: 1.6rem; /* Larger font size */
-  font-family: 'Didot', serif, 'Times New Roman', Times, serif; /* Use a different font (you can choose another one from Google Fonts) */
-  font-weight: bold; /* Bold font */
-  text-transform: uppercase; /* Optional: make the text uppercase */
-  letter-spacing: 2px; /* Optional: add some spacing between letters */
+  font-size: 1.6rem;
+  /* Larger font size */
+  font-family: 'Didot', serif, 'Times New Roman', Times, serif;
+  /* Use a different font (you can choose another one from Google Fonts) */
+  font-weight: bold;
+  /* Bold font */
+  text-transform: uppercase;
+  /* Optional: make the text uppercase */
+  letter-spacing: 2px;
+  /* Optional: add some spacing between letters */
 }
 
 /* Hamburger Icon */
 .hamburger {
-  display: none; /* Hide on large screens */
+  display: none;
+  /* Hide on large screens */
   cursor: pointer;
   position: absolute;
-  right: 10px; /* Position hamburger on the right */
+  right: 10px;
+  /* Position hamburger on the right */
   top: 10px;
 }
 
@@ -56,7 +68,8 @@ nav {
   height: 3px;
   background-color: rgb(77, 75, 75);
   margin: 5px 0;
-  transition: all 0.3s ease; /* Add transition for smooth animation */
+  transition: all 0.3s ease;
+  /* Add transition for smooth animation */
 }
 
 /* When the hamburger is clicked and the menu is open */
@@ -67,7 +80,8 @@ nav {
 }
 
 .hamburger.open .bar:nth-child(2) {
-  opacity: 0; /* Hide the middle bar */
+  opacity: 0;
+  /* Hide the middle bar */
 }
 
 .hamburger.open .bar:nth-child(3) {
@@ -80,11 +94,13 @@ nav {
 .nav-list {
   display: flex;
   gap: 20px;
-  justify-content: flex-start; /* Links are aligned to the left by default */
+  justify-content: flex-start;
+  /* Links are aligned to the left by default */
 }
 
 .nav-list.open {
-  display: block; /* Show on mobile when hamburger is clicked */
+  display: block;
+  /* Show on mobile when hamburger is clicked */
 }
 
 .nav-list li {
@@ -97,23 +113,33 @@ nav {
   color: rgb(0, 0, 0);
 }
 
+/* Active link style: Bold when selected */
+.active-link {
+  font-weight: bold;
+  /* Make the text bold when active */
+}
+
 /* Mobile Styles */
 @media (max-width: 768px) {
+
   /* Show hamburger menu on smaller screens */
   .hamburger {
     display: block;
   }
 
   .nav-list {
-    display: none; /* Hide links initially */
+    display: none;
+    /* Hide links initially */
     position: absolute;
     top: 60px;
     left: 0;
     width: 100%;
-    background-color: rgb(168, 168, 168); /* Light purple background for mobile */
+    background-color: rgb(168, 168, 168);
+    /* Light purple background for mobile */
     opacity: 88%;
     padding: 10px;
   }
+
   .nav-list a {
     padding: 10px;
     font-size: 1rem;
@@ -121,7 +147,8 @@ nav {
   }
 
   .nav-list.open {
-    display: block; /* Open menu when hamburger is clicked */
+    display: block;
+    /* Open menu when hamburger is clicked */
   }
 
   .nav-list li {

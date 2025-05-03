@@ -45,7 +45,7 @@ const NewApptForm = ({ selectedServices }) => {
   // Fetch available technicians when services change
   useEffect(() => {
     const updateTechnicians = async () => {
-      const categoryIds = selectedServices.map((svc) => svc.category_id);
+      const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
       try {
         const res = await TechnicianService.getAvailableTechnicians(categoryIds);
         const available = res.data;
@@ -114,12 +114,12 @@ const NewApptForm = ({ selectedServices }) => {
             className="new-appt-input"
           />
           {showSuggestions && suggestions.length > 0 && (
-            <ul className="new-appt-suggestions">
+            <ul className="new-appt-form-suggestions">
               {suggestions.map((cust) => (
                 <li
                   key={cust.id}
                   onClick={() => handleSelectSuggestion(cust)}
-                  className="new-appt-suggestion-item"
+                  className="new-appt-form-suggestion-item"
                 >
                   <div className="new-appt-suggestion-name">{cust.name}</div>
                   <div className="new-appt-suggestion-phone">{cust.phone}</div>
