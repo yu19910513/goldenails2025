@@ -197,7 +197,7 @@ const AvailabilitySelection = ({
                 availableSlots.map((slot, index) => (
                   <button
                     key={index}
-                    className={`slot border rounded p-2 m-2 max-w-[100px] ${selectedSlotIndex === index ? "bg-gray-500" : "bg-blue-500"} text-white hover:bg-blue-700`}
+                    className={`slot border rounded p-2 m-2 max-w-[100px] ${selectedSlotIndex === index ? "bg-gray-500 hover:bg-gray-700" : "bg-blue-500 hover:bg-blue-700"} text-white`}
                     onClick={() => handleSlotSelect(slot, index)}
                   >
                     {slot.toLocaleTimeString([], {
