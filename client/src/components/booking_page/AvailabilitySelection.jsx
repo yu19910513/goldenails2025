@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
 import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString } from "../../common/utils";
+import MiscellaneousService from "../../services/miscellaneousService";
 
 const AvailabilitySelection = ({
   customerInfo,
@@ -39,20 +40,54 @@ const AvailabilitySelection = ({
   }, [selectedTechnician]);
 
   useEffect(() => {
-    if (selectedDate) {
-      const date = new Date(`${selectedDate}T00:00:00`);
-      const isSunday = date.getDay() === 0;
+    const fetchSlots = async () => {
+      if (!selectedDate) return;
+      let bufferTimeHours = 0;
+      const today = new Date();
+      const selected = new Date(`${selectedDate}T00:00:00`);
+
+      const isToday =
+        today.getFullYear() === selected.getFullYear() &&
+        today.getMonth() === selected.getMonth() &&
+        today.getDate() === selected.getDate();
+
+      const isSunday = selected.getDay() === 0;
       const adjustedBusinessHours = isSunday
         ? { start: 11, end: 17 }
         : businessHours;
 
-      setAvailableSlots(calculateAvailableSlots(existingAppointments, selectedServices, selectedDate, adjustedBusinessHours, selectedTechnician));
-    }
+      if (isToday) {
+        try {
+          const response = await MiscellaneousService.find("bufferTime");
+          const raw = Number(response?.data?.context);
+          bufferTimeHours = raw > 0 ? Math.ceil(raw) : 0;
+        } catch (e) {
+          console.warn("Failed to fetch bufferTime. Defaulting to 0.");
+        }
+      }
+
+      const slots = calculateAvailableSlots(
+        existingAppointments,
+        selectedServices,
+        selectedDate,
+        adjustedBusinessHours,
+        selectedTechnician,
+        bufferTimeHours
+      );
+
+      setAvailableSlots(slots);
+    };
+
+    fetchSlots();
   }, [existingAppointments, selectedDate]);
+
 
   const handleDateChange = (event) => {
     localStorage.setItem("selectedDate", event.target.value);
     setSelectedDate(event.target.value);
+    setSelectedSlot(null);
+    setSelectedSlotIndex(null);
+    onSelectSlot(null);
   };
 
   const handleSlotSelect = (slot, index) => {

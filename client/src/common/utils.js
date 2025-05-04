@@ -1,4 +1,5 @@
 import NotificationService from "../services/notificationService";
+import MiscellaneousService from "../services/miscellaneousService";
 /**
  * Formats a price into a string based on specific conditions:
  * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
@@ -128,36 +129,42 @@ const calculateTotalAmount = (selectedServices) => {
 }
 
 /**
- * Calculates available time slots for appointments based on the selected date, business hours, and technician availability.
- * Takes into account technician-specific unavailability dates.
- * 
- * @param {Array} appointments - A list of existing appointments. Each appointment should have a `date`, `start_service_time`, and `Services` array.
- * @param {Array} selectedServices - An array of selected services for the appointment, where each service should have a `time` (duration) in minutes.
- * @param {string} selectedDate - The date for which available slots are to be calculated, formatted as "YYYY-MM-DD".
- * @param {Object} businessHours - An object containing `start` and `end` properties representing the business's opening and closing hours in 24-hour format.
- * @param {Object} technician - The technician object containing information about their name and unavailability. It has a `name` property and `unavailability` property for custom date ranges.
- * 
- * @returns {Array} - An array of available time slots, represented as `Date` objects. Each slot is 30 minutes long and can fit the selected services.
- * 
+ * Calculates available booking slots for a technician on a given date,
+ * considering existing appointments, service durations, business hours,
+ * technician unavailability, and optional buffer time (for today only).
+ *
+ * @param {Array<Object>} appointments - Existing appointments. Each object should include:
+ *   - date {string} (format: "YYYY-MM-DD")
+ *   - start_service_time {string} (format: "HH:mm")
+ *   - Services {Array<{ time: number }>} (duration in minutes)
+ *
+ * @param {Object} selectedServices - An object mapping technician/service IDs to arrays of service objects,
+ *   each with a `time` field in minutes.
+ *
+ * @param {string} selectedDate - The date to check availability for (format: "YYYY-MM-DD").
+ *
+ * @param {{ start: number, end: number }} businessHours - Business operating hours in 24-hour format.
+ *   For example: { start: 9, end: 17 }.
+ *
+ * @param {{ name: string, unavailability?: string }} technician - Technician's name and optional
+ *   unavailability string. This can include comma-separated weekday indices (0=Sunday, ..., 6=Saturday).
+ *
+ * @param {number} [bufferTimeHours=0] - Optional buffer time in hours, applied only if `selectedDate` is today.
+ *   Slots before the current time plus this buffer are excluded.
+ *
+ * @returns {Date[]} An array of available `Date` objects representing valid booking slot start times.
+ *
  * @example
- * const appointments = [
- *   { date: "2025-01-24", start_service_time: "10:00", Services: [{ time: 60 }] },
- *   { date: "2025-01-24", start_service_time: "11:30", Services: [{ time: 30 }] }
- * ];
- * const selectedServices = [{ time: 60 }];
- * const selectedDate = "2025-01-24";
- * const businessHours = { start: 9, end: 17 };
- * const technician = { name: "Lisa", unavailability: "" }; // Custom unavailability dates based on name
- * 
- * const availableSlots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
- * console.log(availableSlots);
+ * const slots = calculateAvailableSlots(appointments, selectedServices, "2025-05-03", { start: 9, end: 17 }, technician, 2);
+ * // Returns all available 30-minute slots starting after now + 2 hours (if today)
  */
 const calculateAvailableSlots = (
   appointments,
   selectedServices,
   selectedDate,
   businessHours,
-  technician
+  technician,
+  bufferTimeHours = 0
 ) => {
   const occupiedSlots = [];
 
@@ -226,10 +233,8 @@ const calculateAvailableSlots = (
 
     if (slotEnd > endOfDay) break;
 
-    // if (slotStart < currentTime) continue;
-    const isToday = currentTime.toISOString().split("T")[0] === selectedDate;
-    const bufferTime = new Date(currentTime.getTime() + 2 * 60 * 60000);
-    if (isToday && slotStart < bufferTime) continue;
+    const bufferTime = new Date(currentTime.getTime() + bufferTimeHours * 60 * 60000);
+    if (slotStart < bufferTime) continue;
 
     const isAvailable = !occupiedSlots.some(
       (occupied) =>

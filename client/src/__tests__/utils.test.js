@@ -132,6 +132,26 @@ describe("Utility Functions", () => {
             expect(slots[slots.length - 1].getHours()).toBeLessThanOrEqual(17); // Latest slot should not exceed business hours
         });
 
+        test("excludes slots within bufferTime from current time when selectedDate is today", () => {
+            const appointments = [];
+            const selectedServices = { "1": [{ time: 30 }] };
+
+            const now = new Date();
+            const selectedDate = now.toISOString().split("T")[0]; // Today
+            const businessHours = { start: now.getHours() - 1, end: now.getHours() + 3 }; // Surround current time for valid range
+            const technician = { name: "Tracy", unavailability: "" };
+            const bufferTime = 2; // 2 hours buffer
+
+            const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician, bufferTime);
+
+            const blockedUntil = new Date(now.getTime() + bufferTime * 60 * 60 * 1000);
+
+            // All returned slots must be after the buffer window
+            for (const slot of slots) {
+                expect(slot.getTime()).toBeGreaterThanOrEqual(blockedUntil.getTime());
+            }
+        });
+
     });
 
 
