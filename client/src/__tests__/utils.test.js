@@ -6,7 +6,9 @@ import {
     waTimeString,
     now,
     groupServicesByCategory,
-    formatTime
+    formatTime,
+    replaceEmptyStringsWithNull,
+    areCommonValuesEqual
 } from "../common/utils";
 
 describe("Utility Functions", () => {
@@ -245,6 +247,91 @@ describe("Utility Functions", () => {
         it('returns "23:59" for end of day', () => {
             const date = new Date('2025-01-25T23:59:00');
             expect(formatTime(date)).toBe('23:59');
+        });
+    });
+
+    describe('replaceEmptyStringsWithNull', () => {
+        it('replaces all empty strings with null', () => {
+            const input = {
+                phone: "",
+                name: "Alice",
+                email: "",
+                age: 30,
+                active: false
+            };
+
+            const expected = {
+                phone: null,
+                name: "Alice",
+                email: null,
+                age: 30,
+                active: false
+            };
+
+            expect(replaceEmptyStringsWithNull(input)).toEqual(expected);
+        });
+
+        it('returns an empty object when input is empty', () => {
+            expect(replaceEmptyStringsWithNull({})).toEqual({});
+        });
+
+        it('does not modify non-empty values', () => {
+            const input = {
+                key1: "value",
+                key2: 123,
+                key3: true
+            };
+
+            expect(replaceEmptyStringsWithNull(input)).toEqual(input);
+        });
+
+        it('does not modify the original object', () => {
+            const input = { a: "" };
+            const result = replaceEmptyStringsWithNull(input);
+            expect(result).not.toBe(input); // should be a new object
+            expect(input.a).toBe("");
+        });
+    });
+
+    describe('areCommonValuesEqual', () => {
+        it('returns true when all common keys have equal trimmed values', () => {
+            const control = { name: ' Alice ', phone: '123', email: 'a@test.com' };
+            const test = { name: 'Alice', phone: '123', email: 'a@test.com', extra: 'ignore' };
+            expect(areCommonValuesEqual(control, test)).toBe(true);
+        });
+
+        it('returns false when any common key has a different value', () => {
+            const control = { name: 'Alice', phone: '123' };
+            const test = { name: 'Bob', phone: '123' };
+            expect(areCommonValuesEqual(control, test)).toBe(false);
+        });
+
+        it('returns false when either object is null', () => {
+            expect(areCommonValuesEqual(null, { name: 'Alice' })).toBe(false);
+            expect(areCommonValuesEqual({ name: 'Alice' }, null)).toBe(false);
+        });
+
+        it('returns false when either object is empty', () => {
+            expect(areCommonValuesEqual({}, { name: 'Alice' })).toBe(false);
+            expect(areCommonValuesEqual({ name: 'Alice' }, {})).toBe(false);
+        });
+
+        it('ignores non-common keys', () => {
+            const control = { name: 'Alice' };
+            const test = { name: 'Alice', age: 30 };
+            expect(areCommonValuesEqual(control, test)).toBe(true);
+        });
+
+        it('handles non-string values correctly', () => {
+            const control = { active: true, count: 5 };
+            const test = { active: true, count: 5 };
+            expect(areCommonValuesEqual(control, test)).toBe(true);
+        });
+
+        it('trims string values before comparing', () => {
+            const control = { email: ' user@example.com ' };
+            const test = { email: 'user@example.com' };
+            expect(areCommonValuesEqual(control, test)).toBe(true);
         });
     });
 

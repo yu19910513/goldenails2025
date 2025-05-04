@@ -2,7 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import CustomerService from "../../../services/customerService";
 import TechnicianService from "../../../services/technicianService";
 import AppointmentService from "../../../services/appointmentService";
-import { calculateAvailableSlots, groupServicesByCategory, formatTime } from "../../../common/utils";
+import {
+  calculateAvailableSlots,
+  groupServicesByCategory,
+  formatTime,
+  replaceEmptyStringsWithNull,
+  areCommonValuesEqual
+} from "../../../common/utils";
 import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices }) => {
@@ -22,6 +28,7 @@ const NewApptForm = ({ selectedServices }) => {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState({});
 
   /**
    * Fetches customer suggestions based on the current phone input.
@@ -187,8 +194,10 @@ const NewApptForm = ({ selectedServices }) => {
   }, [form.technician]);
 
   const isFormValid = () => {
+    const phone = form.phone.trim();
+    const isPhoneValid = /^\d{10,15}$/.test(phone); // allows 10 to 15 digits, adjust as needed
     return (
-      form.phone.trim() !== "" &&
+      isPhoneValid &&
       form.name.trim() !== "" &&
       form.date.trim() !== "" &&
       form.time.trim() !== "" &&
@@ -206,6 +215,7 @@ const NewApptForm = ({ selectedServices }) => {
       email: customer.email || "",
       customer_id: customer.id || ""
     });
+    setSelectedCustomer(customer);
     setSuggestions([]);
     setShowSuggestions(false);
   };
@@ -214,9 +224,32 @@ const NewApptForm = ({ selectedServices }) => {
     setForm({
       ...form,
       phone: e.target.value,
-      customer_id: ""
+      email: ""
     });
   };
+
+  const formMatchesSelectedCustomer = () => {
+    return areCommonValuesEqual(selectedCustomer, replaceEmptyStringsWithNull(form));
+  };
+  
+  /**
+   * Handles the form submission for booking an appointment.
+   * 
+   * Prevents default form behavior, validates technician selection,
+   * checks if the form matches an existing customer, and if not,
+   * attempts to update or create the customer before booking the appointment.
+   * 
+   * Upon successful booking, the form and related UI state are reset.
+   * 
+   * Alerts the user in case of any validation errors or service failures.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   *
+   * @returns {Promise<void>} Does not return a value; performs side effects like API calls, form reset, and user alerts.
+   *
+   * @example
+   * <form onSubmit={handleSubmit}>...</form>
+   */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -229,15 +262,27 @@ const NewApptForm = ({ selectedServices }) => {
         return;
       }
 
-      const appointmentData = {
+      let appointmentData = {
         customer_id: form.customer_id, // You may want to map this to a real customer_id if the customer already exists
         date: form.date,
         start_service_time: form.time,
         technician_id: technicianId,
         service_ids: selectedServices.map((svc) => svc.id)
       };
-      console.log(appointmentData);
 
+      if (!formMatchesSelectedCustomer()) {
+        try {
+          const res = await CustomerService.updateOrCreate(replaceEmptyStringsWithNull(form));
+          if (!res?.data?.id) {
+            throw new Error("Customer creation failed");
+          }
+          appointmentData.customer_id = res.data.id;
+        } catch (customerErr) {
+          console.error("Error updating/creating customer:", customerErr);
+          alert("Customer information could not be saved.");
+          return;
+        }
+      }
 
       const response = await AppointmentService.create(appointmentData);
       console.log("Appointment successfully created:", response.data);

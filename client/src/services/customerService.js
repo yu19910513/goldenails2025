@@ -54,6 +54,20 @@ class CustomerService {
   }
 
   /**
+   * Sends a request to update an existing customer by phone or create a new one.
+   * 
+   * @param {Object} customerData - The customer data to update or create.
+   * @param {string} customerData.name - Customer's name (required).
+   * @param {string} customerData.phone - Customer's phone number (required).
+   * @param {string} [customerData.email] - Customer's email (optional).
+   * 
+   * @returns {Promise} Axios promise resolving with the created or updated customer.
+   */
+  updateOrCreate(customerData) {
+    return http.put(`/customers/update_or_create`, customerData);
+  }
+
+  /**
    * Fetches customers matching the provided keyword by name, phone, or email.
    *
    * @function smart_search

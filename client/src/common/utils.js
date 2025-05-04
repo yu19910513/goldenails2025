@@ -405,6 +405,67 @@ const formatTime = (dateObj) => {
   return `${hrs}:${mins}`;
 };
 
+/**
+ * Replaces all empty string ("") values in an object with null.
+ *
+ * @param {Object} obj - The input object to process.
+ * @returns {Object} A new object with all empty string values replaced by null.
+ *
+ * @example
+ * const input = { name: "", email: "test@example.com" };
+ * const result = replaceEmptyStringsWithNull(input);
+ * // result: { name: null, email: "test@example.com" }
+ */
+const replaceEmptyStringsWithNull = (obj) => {
+  return Object.keys(obj).reduce((acc, key) => {
+    acc[key] = obj[key] === "" ? null : obj[key];
+    return acc;
+  }, {});
+};
+
+/**
+ * Compares the values of all keys that exist in both the `control` and `test` objects.
+ * Trims string values before comparing. Returns `true` only if all common keys have equal values.
+ * Returns `false` if either object is null, not an object, empty, or if any common key's values differ.
+ *
+ * @param {Object|null} control - The reference object containing keys to compare.
+ * @param {Object|null} test - The object being compared against the control.
+ * @returns {boolean} `true` if all common keys have equal (trimmed) values, `false` otherwise.
+ *
+ * @example
+ * const control = { name: " Alice ", phone: "123" };
+ * const test = { name: "Alice", phone: "123", extra: "ignore me" };
+ * areCommonValuesEqual(control, test); // true
+ *
+ * @example
+ * const control = { name: "Alice", phone: "123" };
+ * const test = { name: "Bob", phone: "123" };
+ * areCommonValuesEqual(control, test); // false
+ */
+const areCommonValuesEqual = (control, test) => {
+  if (
+    !control || !test ||
+    typeof control !== 'object' || typeof test !== 'object' ||
+    Object.keys(control).length === 0 ||
+    Object.keys(test).length === 0
+  ) {
+    return false;
+  }
+
+  for (const key of Object.keys(control)) {
+    if (key in test) {
+      const controlVal = typeof control[key] === "string" ? control[key].trim() : control[key];
+      const testVal = typeof test[key] === "string" ? test[key].trim() : test[key];
+
+      if (controlVal !== testVal) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 
 
 export {
@@ -417,5 +478,7 @@ export {
   calculateTotalTimePerAppointment,
   sendCancellationNotification,
   groupServicesByCategory,
-  formatTime
+  formatTime,
+  replaceEmptyStringsWithNull,
+  areCommonValuesEqual
 };
