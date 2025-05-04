@@ -11,6 +11,7 @@ const NewApptForm = ({ selectedServices }) => {
   const [form, setForm] = useState({
     phone: "",
     name: "",
+    customer_id: "",
     email: "",
     date: "",
     time: "",
@@ -164,6 +165,7 @@ const NewApptForm = ({ selectedServices }) => {
       phone: customer.phone || "",
       name: customer.name || "",
       email: customer.email || "",
+      customer_id: customer.id || ""
     });
     setSuggestions([]);
     setShowSuggestions(false);
@@ -173,15 +175,51 @@ const NewApptForm = ({ selectedServices }) => {
     setForm({ ...form, phone: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const fullForm = {
-      ...form,
-      services: selectedServices,
-    };
-    console.log("Submitted form:", fullForm);
-    // Submit logic here
+
+    try {
+      const technicianId = techNameToId.current[form.technician];
+
+      if (!technicianId) {
+        alert("Please select a valid technician.");
+        return;
+      }
+
+      const appointmentData = {
+        customer_id: form.customer_id, // You may want to map this to a real customer_id if the customer already exists
+        date: form.date,
+        start_service_time: form.time,
+        technician_id: technicianId,
+        service_ids: selectedServices.map((svc) => svc.id)
+      };
+      console.log(appointmentData);
+
+
+      const response = await AppointmentService.create(appointmentData);
+      console.log("Appointment successfully created:", response.data);
+      alert("Appointment successfully booked!");
+
+      // Optionally reset the form
+      setForm({
+        phone: "",
+        name: "",
+        email: "",
+        date: "",
+        time: "",
+        technician: "",
+        customer_id: ""
+      });
+      setAvailableTimes([]);
+      setSuggestions([]);
+      setShowSuggestions(false);
+
+    } catch (err) {
+      console.error("Error creating appointment:", err);
+      alert("Failed to book the appointment. Please try again.");
+    }
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="new-appt-form">
