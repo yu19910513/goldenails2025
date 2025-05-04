@@ -29,6 +29,9 @@ const NewApptForm = ({ selectedServices }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState({});
+  const [isCustomerLoading, setIsCustomerLoading] = useState(false);
+  const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
+
 
   /**
    * Fetches customer suggestions based on the current phone input.
@@ -231,7 +234,7 @@ const NewApptForm = ({ selectedServices }) => {
   const formMatchesSelectedCustomer = () => {
     return areCommonValuesEqual(selectedCustomer, replaceEmptyStringsWithNull(form));
   };
-  
+
   /**
    * Handles the form submission for booking an appointment.
    * 
@@ -263,7 +266,7 @@ const NewApptForm = ({ selectedServices }) => {
       }
 
       let appointmentData = {
-        customer_id: form.customer_id, // You may want to map this to a real customer_id if the customer already exists
+        customer_id: form.customer_id,
         date: form.date,
         start_service_time: form.time,
         technician_id: technicianId,
@@ -271,24 +274,25 @@ const NewApptForm = ({ selectedServices }) => {
       };
 
       if (!formMatchesSelectedCustomer()) {
+        setIsCustomerLoading(true);
         try {
           const res = await CustomerService.updateOrCreate(replaceEmptyStringsWithNull(form));
-          if (!res?.data?.id) {
-            throw new Error("Customer creation failed");
-          }
+          if (!res?.data?.id) throw new Error("Customer creation failed");
           appointmentData.customer_id = res.data.id;
         } catch (customerErr) {
           console.error("Error updating/creating customer:", customerErr);
           alert("Customer information could not be saved.");
           return;
+        } finally {
+          setIsCustomerLoading(false);
         }
       }
 
+      setIsAppointmentLoading(true);
       const response = await AppointmentService.create(appointmentData);
       console.log("Appointment successfully created:", response.data);
       alert("Appointment successfully booked!");
 
-      // Optionally reset the form
       setForm({
         phone: "",
         name: "",
@@ -301,10 +305,11 @@ const NewApptForm = ({ selectedServices }) => {
       setAvailableTimes([]);
       setSuggestions([]);
       setShowSuggestions(false);
-
     } catch (err) {
       console.error("Error creating appointment:", err);
       alert("Failed to book the appointment. Please try again.");
+    } finally {
+      setIsAppointmentLoading(false);
     }
   };
 
@@ -412,6 +417,14 @@ const NewApptForm = ({ selectedServices }) => {
       >
         Submit
       </button>
+      {isCustomerLoading && (
+        <div className="loading-overlay">Saving customer info...</div>
+      )}
+
+      {isAppointmentLoading && (
+        <div className="loading-overlay">Creating appointment...</div>
+      )}
+
     </form>
   );
 };
