@@ -1,4 +1,4 @@
-import { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now } from "../common/utils";
+import { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, groupServicesByCategory } from "../common/utils";
 
 describe("Utility Functions", () => {
 
@@ -154,7 +154,6 @@ describe("Utility Functions", () => {
 
     });
 
-
     // Testing waTimeString function
     describe("waTimeString", () => {
         test("should return formatted time string in Pacific Time", () => {
@@ -177,6 +176,44 @@ describe("Utility Functions", () => {
             expect(pacificNow.getMonth()).toBe(utcNow.getMonth());
             expect(pacificNow.getDate()).toBe(utcNow.getDate());
             expect(pacificNow.getHours()).toBe(utcNow.getHours());
+        });
+    });
+
+    describe('groupServicesByCategory', () => {
+        it('should group services by category_id', () => {
+            const input = [
+                { id: 1, name: 'Mini Facial', price: 45, time: 34, category_id: 4 },
+                { id: 2, name: 'Deep Cleanse', price: 60, time: 50, category_id: 4 },
+                { id: 3, name: 'Basic Pedicure', price: 30, time: 40, category_id: 2 },
+            ];
+
+            const expected = {
+                4: [
+                    { id: 1, name: 'Mini Facial', price: 45, time: 34, category_id: 4 },
+                    { id: 2, name: 'Deep Cleanse', price: 60, time: 50, category_id: 4 },
+                ],
+                2: [
+                    { id: 3, name: 'Basic Pedicure', price: 30, time: 40, category_id: 2 },
+                ],
+            };
+
+            expect(groupServicesByCategory(input)).toEqual(expected);
+        });
+
+        it('should return an empty object for an empty array', () => {
+            expect(groupServicesByCategory([])).toEqual({});
+        });
+
+        it('should throw an error if input is not an array', () => {
+            expect(() => groupServicesByCategory(null)).toThrow(
+                'Input must be an array of service objects.'
+            );
+            expect(() => groupServicesByCategory({})).toThrow(
+                'Input must be an array of service objects.'
+            );
+            expect(() => groupServicesByCategory('not an array')).toThrow(
+                'Input must be an array of service objects.'
+            );
         });
     });
 

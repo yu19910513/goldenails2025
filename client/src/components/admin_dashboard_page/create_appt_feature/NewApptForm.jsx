@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomerService from "../../../services/customerService";
 import TechnicianService from "../../../services/technicianService";
+import AppointmentService from "../../../services/appointmentService";
+import { calculateAvailableSlots, groupServicesByCategory } from "../../../common/utils";
 import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices }) => {
   const selectionMade = useRef(false);
+  const techNameToId = useRef({});
   const [form, setForm] = useState({
     phone: "",
     name: "",
@@ -15,6 +18,7 @@ const NewApptForm = ({ selectedServices }) => {
   });
 
   const [technicianOptions, setTechnicianOptions] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -49,8 +53,8 @@ const NewApptForm = ({ selectedServices }) => {
       try {
         const res = await TechnicianService.getAvailableTechnicians(categoryIds);
         const available = res.data;
-
         setTechnicianOptions(available);
+        techNameToId.current = Object.fromEntries(available.map(tech => [tech.name, tech.id]));
 
         const stillValid = available.some((tech) => tech.name === form.technician);
         if (!stillValid) {
@@ -70,6 +74,63 @@ const NewApptForm = ({ selectedServices }) => {
       setForm((prev) => ({ ...prev, technician: "" }));
     }
   }, [selectedServices]);
+
+  // Check available slots when date or technician changes
+  useEffect(() => {
+    const checkAvailability = async () => {
+      if (!form.date || !selectedServices.length || !technicianOptions.length) return;
+
+      const selectedDate = form.date;
+      const businessHours = { start: 9, end: 19 };
+
+      let chosenTech = form.technician;
+      let availableSlots = [];
+
+      for (let tech of technicianOptions) {
+        const techId = techNameToId.current[tech.name];
+       
+        
+        try {
+          const res = await AppointmentService.findByTechId(techId);
+          const appointments = res.data;
+          const slots = calculateAvailableSlots(
+            appointments,
+            groupServicesByCategory(selectedServices),
+            selectedDate,
+            businessHours,
+            tech
+          );
+          if (slots.length > 0) {
+            chosenTech = tech.name;
+            availableSlots = slots;
+            break;
+          }
+        } catch (err) {
+          console.error(`Error checking availability for ${tech.name}`, err);
+        }
+      }
+
+      if (availableSlots.length > 0) {
+        setAvailableTimes(availableSlots);
+        setForm((prev) => ({
+          ...prev,
+          technician: chosenTech,
+          time: formatTime(availableSlots[0])
+        }));
+      } else {
+        setAvailableTimes([]);
+        setForm((prev) => ({ ...prev, time: "", technician: "" }));
+      }
+    };
+
+    checkAvailability();
+  }, [form.date, selectedServices]);
+
+  const formatTime = (dateObj) => {
+    const hrs = String(dateObj.getHours()).padStart(2, "0");
+    const mins = String(dateObj.getMinutes()).padStart(2, "0");
+    return `${hrs}:${mins}`;
+  };
 
   const handleSelectSuggestion = (customer) => {
     selectionMade.current = true;
@@ -168,13 +229,19 @@ const NewApptForm = ({ selectedServices }) => {
           className="new-appt-input"
         />
 
-        <input
-          type="time"
+        <select
           value={form.time}
           onChange={(e) => setForm({ ...form, time: e.target.value })}
           required
           className="new-appt-input"
-        />
+        >
+          <option value="">Select Time</option>
+          {availableTimes.map((time, idx) => (
+            <option key={idx} value={formatTime(time)}>
+              {formatTime(time)}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="new-appt-services">
