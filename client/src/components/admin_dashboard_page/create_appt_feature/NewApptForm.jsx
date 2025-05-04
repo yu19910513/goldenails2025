@@ -22,7 +22,6 @@ const NewApptForm = ({ selectedServices }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Fetch customer suggestions
   useEffect(() => {
     const fetchSuggestions = async () => {
       const trimmed = form.phone.trim();
@@ -46,24 +45,17 @@ const NewApptForm = ({ selectedServices }) => {
     fetchSuggestions();
   }, [form.phone]);
 
-  // Fetch available technicians when services change
   useEffect(() => {
     const updateTechnicians = async () => {
       const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
       try {
         const res = await TechnicianService.getAvailableTechnicians(categoryIds);
         const available = res.data;
-        setTechnicianOptions(available);
         techNameToId.current = Object.fromEntries(available.map(tech => [tech.name, tech.id]));
-
-        const stillValid = available.some((tech) => tech.name === form.technician);
-        if (!stillValid) {
-          setForm((prev) => ({ ...prev, technician: "" }));
-        }
+        setTechnicianOptions(available);
       } catch (err) {
         console.error("Error fetching technicians:", err);
         setTechnicianOptions([]);
-        setForm((prev) => ({ ...prev, technician: "" }));
       }
     };
 
@@ -71,25 +63,21 @@ const NewApptForm = ({ selectedServices }) => {
       updateTechnicians();
     } else {
       setTechnicianOptions([]);
-      setForm((prev) => ({ ...prev, technician: "" }));
+      setForm((prev) => ({ ...prev, technician: "", time: "" }));
     }
   }, [selectedServices]);
 
-  // Check available slots when date or technician changes
   useEffect(() => {
     const checkAvailability = async () => {
       if (!form.date || !selectedServices.length || !technicianOptions.length) return;
 
       const selectedDate = form.date;
       const businessHours = { start: 9, end: 19 };
-
-      let chosenTech = form.technician;
-      let availableSlots = [];
+      const availableTechs = [];
+      const techSlotsMap = {};
 
       for (let tech of technicianOptions) {
         const techId = techNameToId.current[tech.name];
-       
-        
         try {
           const res = await AppointmentService.findByTechId(techId);
           const appointments = res.data;
@@ -101,30 +89,67 @@ const NewApptForm = ({ selectedServices }) => {
             tech
           );
           if (slots.length > 0) {
-            chosenTech = tech.name;
-            availableSlots = slots;
-            break;
+            availableTechs.push(tech);
+            techSlotsMap[tech.name] = slots;
           }
         } catch (err) {
           console.error(`Error checking availability for ${tech.name}`, err);
         }
       }
 
-      if (availableSlots.length > 0) {
-        setAvailableTimes(availableSlots);
+      setTechnicianOptions(availableTechs);
+
+      if (form.technician && techSlotsMap[form.technician]) {
+        setAvailableTimes(techSlotsMap[form.technician]);
+      } else if (availableTechs.length > 0) {
+        const defaultTech = availableTechs[0].name;
         setForm((prev) => ({
           ...prev,
-          technician: chosenTech,
-          time: formatTime(availableSlots[0])
+          technician: defaultTech,
+          time: formatTime(techSlotsMap[defaultTech][0])
         }));
+        setAvailableTimes(techSlotsMap[defaultTech]);
       } else {
+        setForm((prev) => ({ ...prev, technician: "", time: "" }));
         setAvailableTimes([]);
-        setForm((prev) => ({ ...prev, time: "", technician: "" }));
       }
     };
 
     checkAvailability();
   }, [form.date, selectedServices]);
+
+  useEffect(() => {
+    const fetchTechAvailability = async () => {
+      if (!form.date || !form.technician) return;
+
+      const tech = technicianOptions.find(t => t.name === form.technician);
+      if (!tech) return;
+
+      const techId = techNameToId.current[tech.name];
+      const businessHours = { start: 9, end: 19 };
+
+      try {
+        const res = await AppointmentService.findByTechId(techId);
+        const appointments = res.data;
+        const slots = calculateAvailableSlots(
+          appointments,
+          groupServicesByCategory(selectedServices),
+          form.date,
+          businessHours,
+          tech
+        );
+
+        setAvailableTimes(slots);
+        if (!slots.some((slot) => formatTime(slot) === form.time)) {
+          setForm((prev) => ({ ...prev, time: slots.length > 0 ? formatTime(slots[0]) : "" }));
+        }
+      } catch (err) {
+        console.error(`Error updating availability for selected technician: ${tech.name}`, err);
+      }
+    };
+
+    fetchTechAvailability();
+  }, [form.technician]);
 
   const formatTime = (dateObj) => {
     const hrs = String(dateObj.getHours()).padStart(2, "0");
@@ -150,12 +175,10 @@ const NewApptForm = ({ selectedServices }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const fullForm = {
       ...form,
       services: selectedServices,
     };
-
     console.log("Submitted form:", fullForm);
     // Submit logic here
   };
