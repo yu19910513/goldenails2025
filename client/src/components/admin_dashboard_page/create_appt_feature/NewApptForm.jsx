@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import CustomerService from "../../../services/customerService";
 import TechnicianService from "../../../services/technicianService";
 import AppointmentService from "../../../services/appointmentService";
-import { calculateAvailableSlots, groupServicesByCategory } from "../../../common/utils";
+import { calculateAvailableSlots, groupServicesByCategory, formatTime } from "../../../common/utils";
 import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices }) => {
@@ -23,6 +23,14 @@ const NewApptForm = ({ selectedServices }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  /**
+   * Fetches customer suggestions based on the current phone input.
+   * Triggers when `form.phone` changes.
+   * 
+   * - Ignores input shorter than 3 characters unless it's "*".
+   * - Skips if a previous suggestion was just selected.
+   * - Calls the `CustomerService.smart_search` API and updates suggestions.
+   */
   useEffect(() => {
     const fetchSuggestions = async () => {
       const trimmed = form.phone.trim();
@@ -46,6 +54,15 @@ const NewApptForm = ({ selectedServices }) => {
     fetchSuggestions();
   }, [form.phone]);
 
+  /**
+   * Updates the list of available technicians based on selected service categories.
+   * Triggers when `selectedServices` changes.
+   * 
+   * - Extracts unique `category_id`s from selected services.
+   * - Calls `TechnicianService.getAvailableTechnicians` to fetch matching technicians.
+   * - Sets `technicianOptions` state and a map of tech names to their IDs.
+   * - Clears technician/time selection if no services are selected.
+   */
   useEffect(() => {
     const updateTechnicians = async () => {
       const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
@@ -68,6 +85,15 @@ const NewApptForm = ({ selectedServices }) => {
     }
   }, [selectedServices]);
 
+  /**
+   * Checks appointment availability for each technician on the selected date.
+   * Triggers when `form.date` or `selectedServices` changes.
+   * 
+   * - Fetches existing appointments for each technician.
+   * - Uses `calculateAvailableSlots` to determine open time slots.
+   * - Sets `technicianOptions` and `availableTimes` based on results.
+   * - Auto-selects the first available technician and time if none is chosen.
+   */
   useEffect(() => {
     const checkAvailability = async () => {
       if (!form.date || !selectedServices.length || !technicianOptions.length) return;
@@ -119,6 +145,14 @@ const NewApptForm = ({ selectedServices }) => {
     checkAvailability();
   }, [form.date, selectedServices]);
 
+  /**
+   * Updates available time slots when a technician is selected or changed.
+   * Triggers when `form.technician` changes.
+   * 
+   * - Fetches technician's appointments.
+   * - Recalculates available slots using `calculateAvailableSlots`.
+   * - Updates `availableTimes` and resets `form.time` if current time is no longer valid.
+   */
   useEffect(() => {
     const fetchTechAvailability = async () => {
       if (!form.date || !form.technician) return;
@@ -152,10 +186,15 @@ const NewApptForm = ({ selectedServices }) => {
     fetchTechAvailability();
   }, [form.technician]);
 
-  const formatTime = (dateObj) => {
-    const hrs = String(dateObj.getHours()).padStart(2, "0");
-    const mins = String(dateObj.getMinutes()).padStart(2, "0");
-    return `${hrs}:${mins}`;
+  const isFormValid = () => {
+    return (
+      form.phone.trim() !== "" &&
+      form.name.trim() !== "" &&
+      form.date.trim() !== "" &&
+      form.time.trim() !== "" &&
+      form.technician.trim() !== "" &&
+      selectedServices.length > 0
+    );
   };
 
   const handleSelectSuggestion = (customer) => {
@@ -172,7 +211,11 @@ const NewApptForm = ({ selectedServices }) => {
   };
 
   const handlePhoneChange = (e) => {
-    setForm({ ...form, phone: e.target.value });
+    setForm({
+      ...form,
+      phone: e.target.value,
+      customer_id: ""
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -266,6 +309,7 @@ const NewApptForm = ({ selectedServices }) => {
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           className="new-appt-input"
+          disabled
         />
 
         <select
@@ -316,7 +360,11 @@ const NewApptForm = ({ selectedServices }) => {
         </ul>
       </div>
 
-      <button type="submit" className="new-appt-submit-btn">
+      <button
+        type="submit"
+        className="new-appt-submit-btn"
+        disabled={!isFormValid()}
+      >
         Submit
       </button>
     </form>

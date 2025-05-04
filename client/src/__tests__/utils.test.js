@@ -1,4 +1,13 @@
-import { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, groupServicesByCategory } from "../common/utils";
+import {
+    formatPrice,
+    calculateTotalTime,
+    calculateTotalAmount,
+    calculateAvailableSlots,
+    waTimeString,
+    now,
+    groupServicesByCategory,
+    formatTime
+} from "../common/utils";
 
 describe("Utility Functions", () => {
 
@@ -214,6 +223,28 @@ describe("Utility Functions", () => {
             expect(() => groupServicesByCategory('not an array')).toThrow(
                 'Input must be an array of service objects.'
             );
+        });
+    });
+
+    describe('formatTime', () => {
+        it('formats single-digit hours and minutes with leading zeros', () => {
+            const date = new Date('2025-01-25T09:05:00');
+            expect(formatTime(date)).toBe('09:05');
+        });
+
+        it('formats double-digit hours and minutes correctly', () => {
+            const date = new Date('2025-01-25T13:45:00');
+            expect(formatTime(date)).toBe('13:45');
+        });
+
+        it('returns "00:00" for midnight', () => {
+            const date = new Date('2025-01-25T00:00:00');
+            expect(formatTime(date)).toBe('00:00');
+        });
+
+        it('returns "23:59" for end of day', () => {
+            const date = new Date('2025-01-25T23:59:00');
+            expect(formatTime(date)).toBe('23:59');
         });
     });
 

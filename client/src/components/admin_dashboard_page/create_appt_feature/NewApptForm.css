@@ -90,6 +90,13 @@
     background-color: #047857;
 }
 
+.new-appt-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
 .new-appt-suggestion-wrapper {
     position: relative;
 }

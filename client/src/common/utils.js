@@ -386,11 +386,36 @@ const groupServicesByCategory = (services) => {
   }, {});
 };
 
+/**
+ * Format a JavaScript Date object into a time string (HH:MM).
+ *
+ * Pads hours and minutes with leading zeros if necessary to ensure a 24-hour format.
+ *
+ * @function
+ * @param {Date} dateObj - A valid JavaScript Date object.
+ * @returns {string} The formatted time string in "HH:MM" 24-hour format.
+ *
+ * @example
+ * const date = new Date("2025-01-25T09:05:00");
+ * formatTime(date); // Returns "09:05"
+ */
+const formatTime = (dateObj) => {
+  const hrs = String(dateObj.getHours()).padStart(2, "0");
+  const mins = String(dateObj.getMinutes()).padStart(2, "0");
+  return `${hrs}:${mins}`;
+};
 
 
 
-
-
-
-
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment, sendCancellationNotification, groupServicesByCategory };
+export {
+  formatPrice,
+  calculateTotalTime,
+  calculateTotalAmount,
+  calculateAvailableSlots,
+  waTimeString,
+  now,
+  calculateTotalTimePerAppointment,
+  sendCancellationNotification,
+  groupServicesByCategory,
+  formatTime
+};
