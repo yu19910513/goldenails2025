@@ -32,6 +32,15 @@ const NewApptForm = ({ selectedServices }) => {
   const [isCustomerLoading, setIsCustomerLoading] = useState(false);
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
 
+  // Set default date and time on mount
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+    setForm((prev) => ({
+      ...prev,
+      date: today,
+      time: "11:00"
+    }));
+  }, []);
 
   /**
    * Fetches customer suggestions based on the current phone input.
@@ -64,96 +73,96 @@ const NewApptForm = ({ selectedServices }) => {
     fetchSuggestions();
   }, [form.phone]);
 
-  /**
-   * Updates the list of available technicians based on selected service categories.
-   * Triggers when `selectedServices` changes.
-   * 
-   * - Extracts unique `category_id`s from selected services.
-   * - Calls `TechnicianService.getAvailableTechnicians` to fetch matching technicians.
-   * - Sets `technicianOptions` state and a map of tech names to their IDs.
-   * - Clears technician/time selection if no services are selected.
-   */
-  useEffect(() => {
-    const updateTechnicians = async () => {
-      const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
-      try {
-        const res = await TechnicianService.getAvailableTechnicians(categoryIds);
-        const available = res.data;
-        techNameToId.current = Object.fromEntries(available.map(tech => [tech.name, tech.id]));
-        setTechnicianOptions(available);
-      } catch (err) {
-        console.error("Error fetching technicians:", err);
-        setTechnicianOptions([]);
-      }
-    };
-
-    if (selectedServices.length > 0) {
-      updateTechnicians();
-    } else {
-      setTechnicianOptions([]);
-      setForm((prev) => ({ ...prev, technician: "", time: "" }));
-    }
-  }, [selectedServices]);
-
-  /**
-   * Checks appointment availability for each technician on the selected date.
-   * Triggers when `form.date` or `selectedServices` changes.
-   * 
-   * - Fetches existing appointments for each technician.
-   * - Uses `calculateAvailableSlots` to determine open time slots.
-   * - Sets `technicianOptions` and `availableTimes` based on results.
-   * - Auto-selects the first available technician and time if none is chosen.
-   */
+/**
+ * Effect hook that checks technician availability whenever the selected date or services change.
+ *
+ * - Fetches a list of available technicians based on the selected service categories.
+ * - For each technician, retrieves existing appointments and calculates available time slots.
+ * - Updates technician options and available time slots accordingly.
+ * - Auto-selects a default technician and preferred/fallback time if none is selected.
+ * 
+ * Triggers on changes to:
+ * - `form.date`: The date of the intended appointment.
+ * - `selectedServices`: The list of currently selected services.
+ * 
+ * Dependencies:
+ * - `TechnicianService.getAvailableTechnicians`: Fetches techs matching selected service categories.
+ * - `AppointmentService.findByTechId`: Fetches existing appointments per technician.
+ * - `calculateAvailableSlots`: Computes open time slots based on appointments, services, and business hours.
+ * - `groupServicesByCategory`: Organizes services by category for slot calculations.
+ * - `formatTime`: Formats slot Date objects into time strings.
+ * 
+ * State updates:
+ * - `setTechnicianOptions`: Updated with only technicians who have at least one open slot.
+ * - `setAvailableTimes`: Set based on selected/default technician's open slots.
+ * - `setForm`: Technician and time auto-filled based on availability if not yet selected.
+ */
   useEffect(() => {
     const checkAvailability = async () => {
-      if (!form.date || !selectedServices.length || !technicianOptions.length) return;
+      if (!form.date || selectedServices.length === 0) return;
 
-      const selectedDate = form.date;
+      const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
       const businessHours = { start: 9, end: 19 };
-      const availableTechs = [];
-      const techSlotsMap = {};
 
-      for (let tech of technicianOptions) {
-        const techId = techNameToId.current[tech.name];
-        try {
-          const res = await AppointmentService.findByTechId(techId);
-          const appointments = res.data;
-          const slots = calculateAvailableSlots(
-            appointments,
-            groupServicesByCategory(selectedServices),
-            selectedDate,
-            businessHours,
-            tech
-          );
-          if (slots.length > 0) {
-            availableTechs.push(tech);
-            techSlotsMap[tech.name] = slots;
+      try {
+        const res = await TechnicianService.getAvailableTechnicians(categoryIds);
+        const allTechnicians = res.data;
+        techNameToId.current = Object.fromEntries(allTechnicians.map(tech => [tech.name, tech.id]));
+
+        const availableTechs = [];
+        const techSlotsMap = {};
+
+        for (let tech of allTechnicians) {
+          const techId = techNameToId.current[tech.name];
+          try {
+            const res = await AppointmentService.findByTechId(techId);
+            const appointments = res.data;
+            const slots = calculateAvailableSlots(
+              appointments,
+              groupServicesByCategory(selectedServices),
+              form.date,
+              businessHours,
+              tech
+            );
+            if (slots.length > 0) {
+              availableTechs.push(tech);
+              techSlotsMap[tech.name] = slots;
+            }
+          } catch (err) {
+            console.error(`Error checking availability for ${tech.name}`, err);
           }
-        } catch (err) {
-          console.error(`Error checking availability for ${tech.name}`, err);
         }
-      }
 
-      setTechnicianOptions(availableTechs);
+        setTechnicianOptions(availableTechs);
 
-      if (form.technician && techSlotsMap[form.technician]) {
-        setAvailableTimes(techSlotsMap[form.technician]);
-      } else if (availableTechs.length > 0) {
-        const defaultTech = availableTechs[0].name;
-        setForm((prev) => ({
-          ...prev,
-          technician: defaultTech,
-          time: formatTime(techSlotsMap[defaultTech][0])
-        }));
-        setAvailableTimes(techSlotsMap[defaultTech]);
-      } else {
-        setForm((prev) => ({ ...prev, technician: "", time: "" }));
-        setAvailableTimes([]);
+        if (form.technician && techSlotsMap[form.technician]) {
+          setAvailableTimes(techSlotsMap[form.technician]);
+        } else if (availableTechs.length > 0) {
+          const defaultTech = availableTechs[0].name;
+          const preferredTime = "11:00";
+          const fallbackTime = formatTime(techSlotsMap[defaultTech][0]);
+          const timeToSet = techSlotsMap[defaultTech].some(slot => formatTime(slot) === preferredTime)
+            ? preferredTime
+            : fallbackTime;
+
+          setForm((prev) => ({
+            ...prev,
+            technician: defaultTech,
+            time: timeToSet
+          }));
+          setAvailableTimes(techSlotsMap[defaultTech]);
+        } else {
+          setForm((prev) => ({ ...prev, technician: "", time: "" }));
+          setAvailableTimes([]);
+        }
+      } catch (err) {
+        console.error("Error checking technician availability:", err);
       }
     };
 
     checkAvailability();
   }, [form.date, selectedServices]);
+
 
   /**
    * Updates available time slots when a technician is selected or changed.
@@ -198,7 +207,7 @@ const NewApptForm = ({ selectedServices }) => {
 
   const isFormValid = () => {
     const phone = form.phone.trim();
-    const isPhoneValid = /^\d{10,15}$/.test(phone); // allows 10 to 15 digits, adjust as needed
+    const isPhoneValid = /^\d{10,15}$/.test(phone);
     return (
       isPhoneValid &&
       form.name.trim() !== "" &&
@@ -259,7 +268,6 @@ const NewApptForm = ({ selectedServices }) => {
 
     try {
       const technicianId = techNameToId.current[form.technician];
-
       if (!technicianId) {
         alert("Please select a valid technician.");
         return;
@@ -312,7 +320,6 @@ const NewApptForm = ({ selectedServices }) => {
       setIsAppointmentLoading(false);
     }
   };
-
 
   return (
     <form onSubmit={handleSubmit} className="new-appt-form">
@@ -424,7 +431,6 @@ const NewApptForm = ({ selectedServices }) => {
       {isAppointmentLoading && (
         <div className="loading-overlay">Creating appointment...</div>
       )}
-
     </form>
   );
 };
