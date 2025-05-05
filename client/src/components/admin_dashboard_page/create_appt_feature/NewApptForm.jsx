@@ -32,13 +32,13 @@ const NewApptForm = ({ selectedServices }) => {
   const [isCustomerLoading, setIsCustomerLoading] = useState(false);
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
 
-  // Set default date and time on mount
+  // Set default date on mount
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+    const today = new Date().toISOString().split("T")[0];
     setForm((prev) => ({
       ...prev,
       date: today,
-      time: "11:00"
+      time: "" // Leave blank initially
     }));
   }, []);
 
@@ -139,12 +139,7 @@ const NewApptForm = ({ selectedServices }) => {
           setAvailableTimes(techSlotsMap[form.technician]);
         } else if (availableTechs.length > 0) {
           const defaultTech = availableTechs[0].name;
-          const preferredTime = "11:00";
-          const fallbackTime = formatTime(techSlotsMap[defaultTech][0]);
-          const timeToSet = techSlotsMap[defaultTech].some(slot => formatTime(slot) === preferredTime)
-            ? preferredTime
-            : fallbackTime;
-
+          const timeToSet = formatTime(techSlotsMap[defaultTech][0]); // earliest slot
           setForm((prev) => ({
             ...prev,
             technician: defaultTech,
@@ -389,6 +384,7 @@ const NewApptForm = ({ selectedServices }) => {
           onChange={(e) => setForm({ ...form, date: e.target.value })}
           required
           className="new-appt-input"
+          min={new Date().toISOString().split("T")[0]}
         />
 
         <select
@@ -424,6 +420,7 @@ const NewApptForm = ({ selectedServices }) => {
       >
         Submit
       </button>
+
       {isCustomerLoading && (
         <div className="loading-overlay">Saving customer info...</div>
       )}
