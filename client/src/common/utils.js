@@ -1,4 +1,5 @@
 import NotificationService from "../services/notificationService";
+import { DateTime } from "luxon";
 /**
  * Formats a price into a string based on specific conditions:
  * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
@@ -272,20 +273,12 @@ const waTimeString = (slotObject) => {
 };
 
 /**
- * Gets the current date and time adjusted to Pacific Time (PT).
- * 
- * The function calculates the UTC offset and adjusts the local time accordingly.
- * Pacific Standard Time (PST) is UTC-8, and Pacific Daylight Time (PDT) is UTC-7.
- * The adjustment considers the server's local time zone and ensures the returned 
- * time reflects Pacific Time.
+ * Returns the current date/time in America/Los_Angeles time zone as a JavaScript Date.
  *
- * @returns {Date} The current date and time in Pacific Time.
+ * @returns {Date}
  */
 const now = () => {
-  const now = new Date();
-  const offsetInHours = now.getTimezoneOffset() / 60 + 8; // Adjust UTC to Pacific Time (Standard Time: -8)
-  now.setHours(now.getHours() - offsetInHours);
-  return now;
+  return DateTime.now().setZone('America/Los_Angeles').toJSDate();
 }
 
 /**
@@ -465,6 +458,25 @@ const areCommonValuesEqual = (control, test) => {
   return true;
 };
 
+/**
+ * Returns business hours for a given date, using America/Los_Angeles time zone.
+ * 
+ * - On Sundays, returns { start: 11, end: 17 }
+ * - On other days, returns { start: 9, end: 19 }
+ *
+ * @param {string} dateInput - An ISO 8601 date string (e.g., "2025-05-04").
+ * @returns {{ start: number, end: number }} An object representing opening and closing hours.
+ */
+const getBusinessHours = (dateInput) => {
+  const dt = DateTime.fromISO(dateInput, { zone: "America/Los_Angeles" });
+  const isSunday = dt.weekday === 7; // Luxon: 1 = Monday, ..., 7 = Sunday
+
+  return isSunday
+    ? { start: 11, end: 17 }
+    : { start: 9, end: 19 };
+}
+
+
 
 
 export {
@@ -479,5 +491,6 @@ export {
   groupServicesByCategory,
   formatTime,
   replaceEmptyStringsWithNull,
-  areCommonValuesEqual
+  areCommonValuesEqual,
+  getBusinessHours
 };

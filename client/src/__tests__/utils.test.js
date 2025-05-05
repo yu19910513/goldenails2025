@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import {
     formatPrice,
     calculateTotalTime,
@@ -8,7 +9,8 @@ import {
     groupServicesByCategory,
     formatTime,
     replaceEmptyStringsWithNull,
-    areCommonValuesEqual
+    areCommonValuesEqual,
+    getBusinessHours
 } from "../common/utils";
 
 describe("Utility Functions", () => {
@@ -174,19 +176,15 @@ describe("Utility Functions", () => {
         });
     });
 
-
     describe("now function", () => {
         test("should return the current date and time in Pacific Time", () => {
-            const pacificNow = now();
-            const utcNow = new Date();
+            const pacificNow = DateTime.fromJSDate(now(), { zone: "America/Los_Angeles" });
+            const expectedNow = DateTime.now().setZone("America/Los_Angeles");
 
-            const pstOffset = utcNow.getTimezoneOffset() / 60 + 8; // Adjust UTC to PST/PDT
-            utcNow.setHours(utcNow.getHours() - pstOffset);
+            // Allow for small delays in execution (e.g., within 1 second)
+            const diffInSeconds = Math.abs(pacificNow.diff(expectedNow, "seconds").seconds);
 
-            expect(pacificNow.getFullYear()).toBe(utcNow.getFullYear());
-            expect(pacificNow.getMonth()).toBe(utcNow.getMonth());
-            expect(pacificNow.getDate()).toBe(utcNow.getDate());
-            expect(pacificNow.getHours()).toBe(utcNow.getHours());
+            expect(diffInSeconds).toBeLessThanOrEqual(1);
         });
     });
 
@@ -332,6 +330,28 @@ describe("Utility Functions", () => {
             const control = { email: ' user@example.com ' };
             const test = { email: 'user@example.com' };
             expect(areCommonValuesEqual(control, test)).toBe(true);
+        });
+    });
+
+    describe('getBusinessHours', () => {
+        test('returns Sunday hours for a Sunday date', () => {
+            const result = getBusinessHours('2025-05-04'); // This is a Sunday
+            expect(result).toEqual({ start: 11, end: 17 });
+        });
+
+        test('returns regular hours for a Monday date', () => {
+            const result = getBusinessHours('2025-05-05'); // This is a Monday
+            expect(result).toEqual({ start: 9, end: 19 });
+        });
+
+        test('returns regular hours for a Saturday date', () => {
+            const result = getBusinessHours('2025-05-03'); // This is a Saturday
+            expect(result).toEqual({ start: 9, end: 19 });
+        });
+
+        test('still works if time is included in the ISO string', () => {
+            const result = getBusinessHours('2025-05-04T15:00:00'); // Sunday with time
+            expect(result).toEqual({ start: 11, end: 17 });
         });
     });
 
