@@ -52,7 +52,6 @@ const formatPrice = (price) => {
  * calculateTotalTime(selectedServices); // 4
  */
 const calculateTotalTime = (selectedServices) => {
-  console.log(selectedServices);
 
   if (typeof selectedServices !== 'object' || selectedServices === null) {
     throw new Error("Invalid input. `selectedServices` must be an object.");
