@@ -1,5 +1,4 @@
 import NotificationService from "../services/notificationService";
-import MiscellaneousService from "../services/miscellaneousService";
 /**
  * Formats a price into a string based on specific conditions:
  * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
@@ -129,35 +128,37 @@ const calculateTotalAmount = (selectedServices) => {
 }
 
 /**
- * Calculates available booking slots for a technician on a given date,
- * considering existing appointments, service durations, business hours,
- * technician unavailability, and optional buffer time (for today only).
+ * Calculates available time slots for a technician on a given date, considering
+ * appointments, service durations, technician unavailability, business hours, and optional buffer time.
  *
- * @param {Array<Object>} appointments - Existing appointments. Each object should include:
- *   - date {string} (format: "YYYY-MM-DD")
- *   - start_service_time {string} (format: "HH:mm")
- *   - Services {Array<{ time: number }>} (duration in minutes)
+ * @param {Array<Object>} appointments - An array of existing appointments for the technician.
+ * @param {Object<string, Array<{ time: number }>>} selectedServices 
+ *   An object where each key is a service category ID, and the value is an array of service objects.
+ *   Each service object must include a `time` field representing its duration in minutes.
+ * @param {string} selectedDate - The selected date in `YYYY-MM-DD` format.
+ * @param {{ start: number, end: number }} businessHours - Object defining start and end business hours (24-hour format).
+ * @param {{ name: string, unavailability: string }} technician - The technician object. `unavailability` can be a comma-separated string of weekday indices (0–6).
+ * @param {number} [bufferTimeHours=0] - Optional buffer time (in hours) that restricts today's bookings before the buffer window.
  *
- * @param {Object} selectedServices - An object mapping technician/service IDs to arrays of service objects,
- *   each with a `time` field in minutes.
+ * @returns {Array<Date>} - Array of available slot start times as Date objects.
  *
- * @param {string} selectedDate - The date to check availability for (format: "YYYY-MM-DD").
- *
- * @param {{ start: number, end: number }} businessHours - Business operating hours in 24-hour format.
- *   For example: { start: 9, end: 17 }.
- *
- * @param {{ name: string, unavailability?: string }} technician - Technician's name and optional
- *   unavailability string. This can include comma-separated weekday indices (0=Sunday, ..., 6=Saturday).
- *
- * @param {number} [bufferTimeHours=0] - Optional buffer time in hours, applied only if `selectedDate` is today.
- *   Slots before the current time plus this buffer are excluded.
- *
- * @returns {Date[]} An array of available `Date` objects representing valid booking slot start times.
+ * @throws {Error} - May throw if service data is malformed or if dates are invalid.
  *
  * @example
- * const slots = calculateAvailableSlots(appointments, selectedServices, "2025-05-03", { start: 9, end: 17 }, technician, 2);
- * // Returns all available 30-minute slots starting after now + 2 hours (if today)
+ * const slots = calculateAvailableSlots(
+ *   [{ date: "2025-03-01", start_service_time: "10:00", Services: [{ time: 60 }] }],
+ *   {
+ *     "1": [{ time: 30 }, { time: 60 }],
+ *     "2": [{ time: 45 }]
+ *   },
+ *   "2025-03-02",
+ *   { start: 9, end: 17 },
+ *   { name: "Tracy", unavailability: "0,6" },
+ *   2
+ * );
+ * // => [Date, Date, ...]
  */
+
 const calculateAvailableSlots = (
   appointments,
   selectedServices,
@@ -344,11 +345,140 @@ const sendCancellationNotification = async (appointment) => {
   }
 };
 
+/**
+ * Groups an array of service objects by their category ID.
+ *
+ * This function is primarily used to convert a flat list of selected services
+ * into the grouped format required by the `calculateAvailableSlots` function,
+ * where each key is a category ID and the value is an array of service objects
+ * belonging to that category.
+ *
+ * @param {Array<Object>} services - An array of service objects, each expected to have a `category_id` property.
+ * @returns {Object<string, Array<Object>>} An object mapping category IDs to arrays of services.
+ *
+ * @throws {Error} If the input is not an array.
+ *
+ * @example
+ * const selectedServices = [
+ *   { id: 1, category_id: "nails", time: 30 },
+ *   { id: 2, category_id: "nails", time: 45 },
+ *   { id: 3, category_id: "waxing", time: 20 }
+ * ];
+ *
+ * const grouped = groupServicesByCategory(selectedServices);
+ * // => {
+ * //   nails: [{...}, {...}],
+ * //   waxing: [{...}]
+ * // }
+ */
+const groupServicesByCategory = (services) => {
+  if (!Array.isArray(services)) {
+    throw new Error("Input must be an array of service objects.");
+  }
+
+  return services.reduce((acc, service) => {
+    const categoryId = service.category_id;
+    if (!acc[categoryId]) {
+      acc[categoryId] = [];
+    }
+    acc[categoryId].push(service);
+    return acc;
+  }, {});
+};
+
+/**
+ * Format a JavaScript Date object into a time string (HH:MM).
+ *
+ * Pads hours and minutes with leading zeros if necessary to ensure a 24-hour format.
+ *
+ * @function
+ * @param {Date} dateObj - A valid JavaScript Date object.
+ * @returns {string} The formatted time string in "HH:MM" 24-hour format.
+ *
+ * @example
+ * const date = new Date("2025-01-25T09:05:00");
+ * formatTime(date); // Returns "09:05"
+ */
+const formatTime = (dateObj) => {
+  const hrs = String(dateObj.getHours()).padStart(2, "0");
+  const mins = String(dateObj.getMinutes()).padStart(2, "0");
+  return `${hrs}:${mins}`;
+};
+
+/**
+ * Replaces all empty string ("") values in an object with null.
+ *
+ * @param {Object} obj - The input object to process.
+ * @returns {Object} A new object with all empty string values replaced by null.
+ *
+ * @example
+ * const input = { name: "", email: "test@example.com" };
+ * const result = replaceEmptyStringsWithNull(input);
+ * // result: { name: null, email: "test@example.com" }
+ */
+const replaceEmptyStringsWithNull = (obj) => {
+  return Object.keys(obj).reduce((acc, key) => {
+    acc[key] = obj[key] === "" ? null : obj[key];
+    return acc;
+  }, {});
+};
+
+/**
+ * Compares the values of all keys that exist in both the `control` and `test` objects.
+ * Trims string values before comparing. Returns `true` only if all common keys have equal values.
+ * Returns `false` if either object is null, not an object, empty, or if any common key's values differ.
+ *
+ * @param {Object|null} control - The reference object containing keys to compare.
+ * @param {Object|null} test - The object being compared against the control.
+ * @returns {boolean} `true` if all common keys have equal (trimmed) values, `false` otherwise.
+ *
+ * @example
+ * const control = { name: " Alice ", phone: "123" };
+ * const test = { name: "Alice", phone: "123", extra: "ignore me" };
+ * areCommonValuesEqual(control, test); // true
+ *
+ * @example
+ * const control = { name: "Alice", phone: "123" };
+ * const test = { name: "Bob", phone: "123" };
+ * areCommonValuesEqual(control, test); // false
+ */
+const areCommonValuesEqual = (control, test) => {
+  if (
+    !control || !test ||
+    typeof control !== 'object' || typeof test !== 'object' ||
+    Object.keys(control).length === 0 ||
+    Object.keys(test).length === 0
+  ) {
+    return false;
+  }
+
+  for (const key of Object.keys(control)) {
+    if (key in test) {
+      const controlVal = typeof control[key] === "string" ? control[key].trim() : control[key];
+      const testVal = typeof test[key] === "string" ? test[key].trim() : test[key];
+
+      if (controlVal !== testVal) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
 
 
 
-
-
-
-
-export { formatPrice, calculateTotalTime, calculateTotalAmount, calculateAvailableSlots, waTimeString, now, calculateTotalTimePerAppointment, sendCancellationNotification };
+export {
+  formatPrice,
+  calculateTotalTime,
+  calculateTotalAmount,
+  calculateAvailableSlots,
+  waTimeString,
+  now,
+  calculateTotalTimePerAppointment,
+  sendCancellationNotification,
+  groupServicesByCategory,
+  formatTime,
+  replaceEmptyStringsWithNull,
+  areCommonValuesEqual
+};

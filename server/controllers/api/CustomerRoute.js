@@ -162,6 +162,47 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * @route PUT /update_or_create
+ * @description Updates an existing customer by phone number, or creates a new one if not found.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request payload
+ * @param {string} req.body.name - Customer's name (required)
+ * @param {string} req.body.phone - Customer's phone number (required, used for lookup)
+ * @param {string} [req.body.email] - Customer's email (optional)
+ * 
+ * @param {Object} res - Express response object
+ * 
+ * @returns {Object} 201 - JSON object of the created or updated customer
+ * @returns {Object} 400 - Error if required fields are missing
+ * @returns {Object} 500 - Error if database operation fails
+ */
+router.put("/update_or_create", async (req, res) => {
+  const { name, phone, email } = req.body;
+
+  if (!name || !phone) {
+    return res.status(400).json({ error: "Name and phone number are required." });
+  }
+
+  try {
+    let customer;
+    const existingCustomer = await Customer.findOne({ where: { phone } });
+
+    if (existingCustomer) {
+      await existingCustomer.update({ name, phone, email });
+      customer = existingCustomer;
+    } else {
+      customer = await Customer.create({ name, phone, email });
+    }
+
+    res.status(201).json(customer);
+  } catch (error) {
+    console.error("Error processing customer:", error);
+    res.status(500).json({ error: "An error occurred while processing the customer." });
+  }
+});
+
 
 /**
  * Updates an existing customer in the database.

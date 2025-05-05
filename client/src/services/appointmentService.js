@@ -40,13 +40,30 @@ class AppointmentService {
 
   /**
    * Create a new appointment.
-   * 
-   * @param {Object} appointmentData - The data for the new appointment.
-   * @param {string} appointmentData.date - The date of the appointment in ISO format.
-   * @param {number|string} appointmentData.customer_id - The ID of the customer booking the appointment.
-   * @param {Array<Object>} appointmentData.services - The list of services for the appointment.
-   * @param {number|string} appointmentData.technician_id - The ID of the technician for the appointment.
-   * @returns {Promise<Object>} A promise resolving to the response containing the created appointment details.
+   *
+   * Sends a POST request to the `/appointments` endpoint with the provided appointment data.
+   * The server will validate the input, check for time conflicts, and create a new appointment
+   * if all conditions are met.
+   *
+   * @function
+   * @param {Object} appointmentData - The appointment details to be created.
+   * @param {number} appointmentData.customer_id - ID of the customer making the appointment.
+   * @param {string} appointmentData.date - Appointment date in YYYY-MM-DD format.
+   * @param {string} appointmentData.start_service_time - Appointment start time in HH:MM format.
+   * @param {number|number[]} appointmentData.technician_id - ID or array of IDs of assigned technician(s).
+   * @param {number[]} appointmentData.service_ids - Array of service IDs included in the appointment.
+   *
+   * @returns {Promise<Object>} A promise resolving to the newly created appointment object,
+   * or rejecting with an error response if the creation fails.
+   *
+   * @example
+   * create({
+   *   customer_id: 123,
+   *   date: "2025-01-25",
+   *   start_service_time: "14:00",
+   *   technician_id: [456],
+   *   service_ids: [1, 2, 3]
+   * });
    */
   create(appointmentData) {
     return http.post("/appointments", appointmentData); // Pass appointmentData as the body of the POST request
