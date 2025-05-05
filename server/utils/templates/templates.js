@@ -16,7 +16,7 @@
 const appointmentMessage = (data, recipient) => {
     if (recipient === "customer") {
         if (data.action === "confirm") {
-            return `Dear ${data.recipient_name},\nYour appointment at Golden Nails Gig Harbor for ${data.appointment_services} on ${data.appointment_date} at ${data.appointment_start_time} is confirmed.\n\nNeed to cancel or check your appointment? Tap this link: https://www.goldennailsgigharbor.com/appointmenthistory and enter your name and phone number. You can also call the store at (253) 851-7563 to reschedule or ask questions! 😊`;
+            return `Dear ${data.recipient_name},\nYour appointment at Golden Nails Gig Harbor for ${data.appointment_services} on ${data.appointment_date} at ${data.appointment_start_time} is confirmed.\n\nNeed to cancel or check your appointment? Tap this link: https://www.goldennailsgigharbor.com/appointmenthistory and enter your name and phone number. Appointments cannot be cancelled online within 24 hours of the scheduled time. If you need to reschedule, please contact the store directly at (253) 851-7563! 😊`;
         } else if (data.action === "cancel") {
             return `Dear ${data.recipient_name}, We would like to inform you that your appointment at Golden Nails Gig Harbor, scheduled for ${data.appointment_date}, at ${data.appointment_start_time}, has been successfully cancelled. If you have any further questions or would like to reschedule, please feel free to contact us at (253) 851-7563.`;
         }
