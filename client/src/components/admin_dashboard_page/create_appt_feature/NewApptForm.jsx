@@ -7,7 +7,8 @@ import {
   groupServicesByCategory,
   formatTime,
   replaceEmptyStringsWithNull,
-  areCommonValuesEqual
+  areCommonValuesEqual,
+  getBusinessHours
 } from "../../../common/utils";
 import "./NewApptForm.css";
 
@@ -102,7 +103,6 @@ const NewApptForm = ({ selectedServices }) => {
       if (!form.date || selectedServices.length === 0) return;
 
       const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
-      const businessHours = { start: 9, end: 19 };
 
       try {
         const res = await TechnicianService.getAvailableTechnicians(categoryIds);
@@ -121,7 +121,7 @@ const NewApptForm = ({ selectedServices }) => {
               appointments,
               groupServicesByCategory(selectedServices),
               form.date,
-              businessHours,
+              getBusinessHours(form.date),
               tech
             );
             if (slots.length > 0) {
@@ -175,7 +175,6 @@ const NewApptForm = ({ selectedServices }) => {
       if (!tech) return;
 
       const techId = techNameToId.current[tech.name];
-      const businessHours = { start: 9, end: 19 };
 
       try {
         const res = await AppointmentService.findByTechId(techId);
@@ -184,7 +183,7 @@ const NewApptForm = ({ selectedServices }) => {
           appointments,
           groupServicesByCategory(selectedServices),
           form.date,
-          businessHours,
+          getBusinessHours(form.date),
           tech
         );
 

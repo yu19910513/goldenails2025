@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
-import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString } from "../../common/utils";
+import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString,   getBusinessHours } from "../../common/utils";
 import MiscellaneousService from "../../services/miscellaneousService";
 
 const AvailabilitySelection = ({
@@ -16,7 +16,6 @@ const AvailabilitySelection = ({
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
-  const businessHours = { start: 9, end: 19 }; // 9 AM to 7 PM
   const [selectedSlot, setSelectedSlot] = useState(null); // Store selected time slot for appointment
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // Index of selected slot for styling
 
@@ -51,11 +50,6 @@ const AvailabilitySelection = ({
         today.getMonth() === selected.getMonth() &&
         today.getDate() === selected.getDate();
 
-      const isSunday = selected.getDay() === 0;
-      const adjustedBusinessHours = isSunday
-        ? { start: 11, end: 17 }
-        : businessHours;
-
       if (isToday) {
         try {
           const response = await MiscellaneousService.find("bufferTime");
@@ -70,7 +64,7 @@ const AvailabilitySelection = ({
         existingAppointments,
         selectedServices,
         selectedDate,
-        adjustedBusinessHours,
+        getBusinessHours(selectedDate),
         selectedTechnician,
         bufferTimeHours
       );
