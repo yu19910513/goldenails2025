@@ -66,7 +66,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
     const newCustomer = { phone, name: name.trim().toUpperCase(), email: email || null, optInSms };
     try {
       const createdCustomer = await CustomerService.upsert(newCustomer);
-      onVerify(createdCustomer.data);
+      onVerify(createdCustomer.data.customer);
     } catch (error) {
       setErrorMessage(error.response.data.error);
     }
