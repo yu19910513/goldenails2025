@@ -278,9 +278,9 @@ const NewApptForm = ({ selectedServices }) => {
       if (!formMatchesSelectedCustomer()) {
         setIsCustomerLoading(true);
         try {
-          const res = await CustomerService.updateOrCreate(replaceEmptyStringsWithNull(form));
-          if (!res?.data?.id) throw new Error("Customer creation failed");
-          appointmentData.customer_id = res.data.id;
+          const res = await CustomerService.upsert(replaceEmptyStringsWithNull(form));
+          if (!res?.data?.customer?.id) throw new Error("Customer creation failed");
+          appointmentData.customer_id = res.data.customer.id;
         } catch (customerErr) {
           console.error("Error updating/creating customer:", customerErr);
           alert("Customer information could not be saved.");

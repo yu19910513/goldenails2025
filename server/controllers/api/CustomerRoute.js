@@ -121,126 +121,59 @@ router.get("/validate", async (req, res) => {
   }
 });
 
-
 /**
- * @route POST /
- * @description Creates a new customer if the phone number does not already exist.
- * @param {Object} req - The request object.
- * @param {Object} req.body - The request body.
- * @param {string} req.body.name - The name of the customer (required).
- * @param {string} req.body.phone - The phone number of the customer (required).
- * @param {string} [req.body.email] - The email of the customer (optional).
- * @param {Object} res - The response object.
- * @returns {Object} 201 - Returns the newly created customer if successful.
- * @returns {Object} 400 - Returns an error if name or phone number is missing.
- * @returns {Object} 409 - Returns an error if a customer with the phone number already exists.
- * @returns {Object} 500 - Returns an error if an internal server error occurs.
- */
-router.post("/", async (req, res) => {
-  const { name, phone, email } = req.body;
-
-  if (!name || !phone) {
-    return res.status(400).json({ error: "Name and phone number are required." });
-  }
-
-  try {
-    // Check if customer already exists
-    const existingCustomer = await Customer.findOne({ where: { phone } });
-
-    if (existingCustomer) {
-      // Reject the request if the customer already exists
-      return res.status(409).json({ error: "Customer with this phone number already exists." });
-    }
-
-    // If the customer does not exist, create a new customer
-    const newCustomer = await Customer.create({ name, phone, email });
-
-    res.status(201).json(newCustomer); // Return the newly created customer
-  } catch (error) {
-    console.error("Error processing customer:", error);
-    res.status(500).json({ error: "An error occurred while processing the customer." });
-  }
-});
-
-/**
- * @route PUT /update_or_create
- * @description Updates an existing customer by phone number, or creates a new one if not found.
- * 
- * @param {Object} req - Express request object
- * @param {Object} req.body - Request payload
- * @param {string} req.body.name - Customer's name (required)
- * @param {string} req.body.phone - Customer's phone number (required, used for lookup)
- * @param {string} [req.body.email] - Customer's email (optional)
- * 
- * @param {Object} res - Express response object
- * 
- * @returns {Object} 201 - JSON object of the created or updated customer
- * @returns {Object} 400 - Error if required fields are missing
- * @returns {Object} 500 - Error if database operation fails
- */
-router.put("/update_or_create", async (req, res) => {
-  const { name, phone, email } = req.body;
-
-  if (!name || !phone) {
-    return res.status(400).json({ error: "Name and phone number are required." });
-  }
-
-  try {
-    let customer;
-    const existingCustomer = await Customer.findOne({ where: { phone } });
-
-    if (existingCustomer) {
-      await existingCustomer.update({ name, phone, email });
-      customer = existingCustomer;
-    } else {
-      customer = await Customer.create({ name, phone, email });
-    }
-
-    res.status(201).json(customer);
-  } catch (error) {
-    console.error("Error processing customer:", error);
-    res.status(500).json({ error: "An error occurred while processing the customer." });
-  }
-});
-
-
-/**
- * Updates an existing customer in the database.
+ * @route PUT /
+ * @description Creates a new customer if not found by phone, updates by phone if found, or updates by ID if provided.
  *
- * @route PUT /customers/
- * @param {Object} req - The request object.
- * @param {Object} req.body - The customer data to update.
- * @param {number} req.body.id - The unique identifier of the customer.
- * @param {string} [req.body.name] - The updated name of the customer.
- * @param {string} [req.body.phone] - The updated phone number of the customer.
- * @param {string} [req.body.email] - The updated email address of the customer.
- * @param {boolean} [req.body.optInSms] - Indicates if the customer opts into SMS notifications.
- * @param {Object} res - The response object.
- * @returns {Object} 200 - Updated customer data.
- * @returns {Object} 400 - Bad request if the ID is missing.
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - Customer data.
+ * @param {number} [req.body.id] - (Optional) Customer ID for direct update.
+ * @param {string} req.body.name - Customer name (required for creation).
+ * @param {string} req.body.phone - Customer phone (required for creation or phone lookup).
+ * @param {string} [req.body.email] - Optional email.
+ * @param {boolean} [req.body.optInSms] - Optional SMS opt-in.
+ *
+ * @param {Object} res - Express response object.
+ *
+ * @returns {Object} 200 - Updated or newly created customer.
+ * @returns {Object} 400 - Bad request for missing required fields.
  * @returns {Object} 500 - Internal server error.
  */
 router.put("/", async (req, res) => {
+  const { id, name, phone, email, optInSms } = req.body;
+
   try {
-    const { id, name, phone, email, optInSms } = req.body;
+    let customer;
 
-    if (!id) {
-      return res.status(400).json({ message: "Customer ID is required." });
+    // If ID is provided, update by ID
+    if (id) {
+      customer = await Customer.findByPk(id);
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found." });
+      }
+      await customer.update({ name, phone, email, optInSms });
+      return res.status(200).json({ message: "Customer updated by ID.", customer });
     }
 
-    // Find the customer by ID
-    const customer = await Customer.findByPk(id);
-
-    if (!customer) {
-      return res.status(404).json({ message: "Customer not found." });
+    // Require name and phone if creating/updating by phone
+    if (!name || !phone) {
+      return res.status(400).json({ message: "Name and phone are required." });
     }
 
-    // Update the customer record
-    await customer.update({ name, phone, email, optInSms });
+    // Lookup by phone number
+    customer = await Customer.findOne({ where: { phone } });
 
-    return res.status(200).json({ message: "Customer updated successfully.", customer });
+    if (customer) {
+      // Update if found
+      await customer.update({ name, email, optInSms });
+      return res.status(200).json({ message: "Customer updated by phone.", customer });
+    } else {
+      // Create if not found
+      const newCustomer = await Customer.create({ name, phone, email, optInSms });
+      return res.status(201).json({ message: "Customer created.", customer: newCustomer });
+    }
   } catch (error) {
-    console.error("Error updating customer:", error);
+    console.error("Error processing customer:", error);
     return res.status(500).json({ message: "Internal server error." });
   }
 });

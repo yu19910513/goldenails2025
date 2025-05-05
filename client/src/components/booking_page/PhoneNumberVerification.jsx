@@ -65,7 +65,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
 
     const newCustomer = { phone, name: name.trim().toUpperCase(), email: email || null, optInSms };
     try {
-      const createdCustomer = await CustomerService.createCustomer(newCustomer);
+      const createdCustomer = await CustomerService.upsert(newCustomer);
       onVerify(createdCustomer.data);
     } catch (error) {
       setErrorMessage(error.response.data.error);
@@ -79,7 +79,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
     }
     try {
       const updatedCustomer = { ...customerData, email };
-      await CustomerService.updateCustomer(updatedCustomer);
+      await CustomerService.upsert(updatedCustomer);
       setShowEmailModal(false);
       onVerify(updatedCustomer);
     } catch (error) {
