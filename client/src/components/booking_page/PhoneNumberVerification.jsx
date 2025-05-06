@@ -63,6 +63,17 @@ const PhoneNumberVerification = ({ onVerify }) => {
       return;
     }
 
+    try {
+      const existingCustomer = await CustomerService.smart_search(phone);
+
+      if (existingCustomer?.data?.length > 0) {
+        setErrorMessage("This phone number is already associated with an existing account. Duplicate accounts are not allowed.");
+        return;
+      }
+    } catch (error) {
+      console.error('smart_search failed:', error);
+    }
+
     const newCustomer = { phone, name: name.trim().toUpperCase(), email: email || null, optInSms };
     try {
       const createdCustomer = await CustomerService.upsert(newCustomer);
