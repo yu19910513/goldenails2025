@@ -10,7 +10,8 @@ import {
     formatTime,
     replaceEmptyStringsWithNull,
     areCommonValuesEqual,
-    getBusinessHours
+    getBusinessHours,
+    sanitizeObjectInput
 } from "../common/utils";
 
 describe("Utility Functions", () => {
@@ -352,6 +353,68 @@ describe("Utility Functions", () => {
         test('still works if time is included in the ISO string', () => {
             const result = getBusinessHours('2025-05-04T15:00:00'); // Sunday with time
             expect(result).toEqual({ start: 11, end: 17 });
+        });
+    });
+
+    describe('sanitizeObjectInput', () => {
+
+        it('should trim and convert name to uppercase', () => {
+            const input = { name: '  John Doe  ' };
+            const result = sanitizeObjectInput(input);
+            expect(result.name).toBe('JOHN DOE');
+        });
+
+        it('should trim and convert email to lowercase', () => {
+            const input = { email: '  ExAMPLE@EMAIL.COM  ' };
+            const result = sanitizeObjectInput(input);
+            expect(result.email).toBe('example@email.com');
+        });
+
+        it('should trim other string fields', () => {
+            const input = { phone: '  123-456-7890  ' };
+            const result = sanitizeObjectInput(input);
+            expect(result.phone).toBe('123-456-7890');
+        });
+
+        it('should leave non-string fields unchanged', () => {
+            const input = { age: 30, isActive: true };
+            const result = sanitizeObjectInput(input);
+            expect(result.age).toBe(30);
+            expect(result.isActive).toBe(true);
+        });
+
+        it('should handle empty object', () => {
+            const input = {};
+            const result = sanitizeObjectInput(input);
+            expect(result).toEqual({});
+        });
+
+        it('should handle mixed object with different types of values', () => {
+            const input = {
+                name: '  Alice  ',
+                email: '  ALICE@EXAMPLE.COM  ',
+                phone: '  987-654-3210  ',
+                age: 25,
+                isActive: false
+            };
+            const result = sanitizeObjectInput(input);
+            expect(result).toEqual({
+                name: 'ALICE',
+                email: 'alice@example.com',
+                phone: '987-654-3210',
+                age: 25,
+                isActive: false
+            });
+        });
+
+        it('should handle null or undefined values in object fields', () => {
+            const input = { name: null, email: undefined, phone: '  555-1234  ' };
+            const result = sanitizeObjectInput(input);
+            expect(result).toEqual({
+                name: null,
+                email: undefined,
+                phone: '555-1234'
+            });
         });
     });
 
