@@ -63,10 +63,21 @@ const PhoneNumberVerification = ({ onVerify }) => {
       return;
     }
 
+    try {
+      const existingCustomer = await CustomerService.smart_search(phone);
+
+      if (existingCustomer?.data?.length > 0) {
+        setErrorMessage("This phone number is already associated with an existing account. Duplicate accounts are not allowed.");
+        return;
+      }
+    } catch (error) {
+      console.error('smart_search failed:', error);
+    }
+
     const newCustomer = { phone, name: name.trim().toUpperCase(), email: email || null, optInSms };
     try {
-      const createdCustomer = await CustomerService.createCustomer(newCustomer);
-      onVerify(createdCustomer.data);
+      const createdCustomer = await CustomerService.upsert(newCustomer);
+      onVerify(createdCustomer.data.customer);
     } catch (error) {
       setErrorMessage(error.response.data.error);
     }
@@ -79,7 +90,7 @@ const PhoneNumberVerification = ({ onVerify }) => {
     }
     try {
       const updatedCustomer = { ...customerData, email };
-      await CustomerService.updateCustomer(updatedCustomer);
+      await CustomerService.upsert(updatedCustomer);
       setShowEmailModal(false);
       onVerify(updatedCustomer);
     } catch (error) {

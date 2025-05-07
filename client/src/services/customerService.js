@@ -26,45 +26,21 @@ class CustomerService {
   }
 
   /**
-   * Creates a new customer record.
+   * Creates a new customer or updates an existing one.
    * 
-   * @param {Object} customerData - The data for the new customer.
-   * @param {string} customerData.name - The customer's name.
-   * @param {string} customerData.phone - The customer's phone number.
-   * @param {string} [customerData.email] - The customer's email address (optional).
-   * @returns {Promise<Object>} A promise resolving to the created customer data.
+   * - If `id` is provided, updates the customer with that ID.
+   * - Otherwise, looks up the customer by `phone`. If found, updates; if not, creates a new customer.
+   * 
+   * @param {Object} customerData - The customer data to send.
+   * @param {number} [customerData.id] - Optional customer ID for direct update.
+   * @param {string} customerData.name - Customer's name (required for create/update by phone).
+   * @param {string} customerData.phone - Customer's phone number (required for create/update by phone).
+   * @param {string} [customerData.email] - Optional email address.
+   * @param {boolean} [customerData.optInSms] - Optional flag for SMS opt-in.
+   * @returns {Promise<Object>} - The API response containing the created or updated customer.
    */
-  createCustomer(customerData) {
-    return http.post(`/customers/`, customerData);
-  }
-
-  /**
- * Updates customer information in the database.
- * 
- * @param {Object} customerData - The customer data to update.
- * @param {string} customerData.id - The unique identifier of the customer.
- * @param {string} [customerData.name] - The updated name of the customer.
- * @param {string} [customerData.phone] - The updated phone number of the customer.
- * @param {string} [customerData.email] - The updated email address of the customer.
- * @param {boolean} [customerData.optInSms] - Indicates if the customer opts into SMS notifications.
- * @returns {Promise} - A promise resolving with the server response.
- */
-  updateCustomer(customerData) {
+  upsert(customerData) {
     return http.put(`/customers/`, customerData);
-  }
-
-  /**
-   * Sends a request to update an existing customer by phone or create a new one.
-   * 
-   * @param {Object} customerData - The customer data to update or create.
-   * @param {string} customerData.name - Customer's name (required).
-   * @param {string} customerData.phone - Customer's phone number (required).
-   * @param {string} [customerData.email] - Customer's email (optional).
-   * 
-   * @returns {Promise} Axios promise resolving with the created or updated customer.
-   */
-  updateOrCreate(customerData) {
-    return http.put(`/customers/update_or_create`, customerData);
   }
 
   /**
