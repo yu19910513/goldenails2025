@@ -476,6 +476,63 @@ const getBusinessHours = (dateInput) => {
     : { start: 9, end: 19 };
 }
 
+/**
+ * Sanitizes an object by trimming whitespace from all string values, 
+ * converting the "name" field to uppercase, and converting the "email" field to lowercase.
+ * All other fields are trimmed but remain unchanged.
+ *
+ * @param {Object} object - The input object containing the fields to sanitize.
+ * @returns {Object} - A new object with sanitized values:
+ *   - The "name" field will be trimmed and converted to uppercase.
+ *   - The "email" field will be trimmed and converted to lowercase.
+ *   - Other string fields will be trimmed.
+ *   - Non-string fields will remain unchanged.
+ * 
+ * @example
+ * const input = {
+ *   name: "  John Doe  ",
+ *   phone: " 123-456-7890 ",
+ *   email: "  ExAMPLE@EMAIL.COM  ",
+ *   address: "123 Main St"
+ * };
+ * 
+ * const sanitizedInput = sanitizeObjectInput(input);
+ * console.log(sanitizedInput);
+ * // Output:
+ * // {
+ * //   name: "JOHN DOE",
+ * //   phone: "123-456-7890",
+ * //   email: "example@email.com",
+ * //   address: "123 Main St"
+ * // }
+ */
+const sanitizeObjectInput = (object) => {
+  console.log("sanitizing the form...");
+  const sanitized = {};
+
+  for (let key in object) {
+    if (object.hasOwnProperty(key)) {
+      let value = object[key];
+
+      // If the value is a string, apply trimming, uppercasing, and lowercasing
+      if (typeof value === "string") {
+        if (key === "name") {
+          sanitized[key] = value.trim().toUpperCase();
+        } else if (key === "email") {
+          sanitized[key] = value.trim().toLowerCase();
+        } else {
+          sanitized[key] = value.trim();
+        }
+      } else {
+        sanitized[key] = value;
+      }
+    }
+  }
+
+  return sanitized;
+}
+
+
 
 
 
@@ -492,5 +549,6 @@ export {
   formatTime,
   replaceEmptyStringsWithNull,
   areCommonValuesEqual,
-  getBusinessHours
+  getBusinessHours,
+  sanitizeObjectInput
 };

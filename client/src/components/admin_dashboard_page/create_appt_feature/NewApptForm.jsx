@@ -8,7 +8,8 @@ import {
   formatTime,
   replaceEmptyStringsWithNull,
   areCommonValuesEqual,
-  getBusinessHours
+  getBusinessHours,
+  sanitizeObjectInput
 } from "../../../common/utils";
 import "./NewApptForm.css";
 
@@ -227,11 +228,14 @@ const NewApptForm = ({ selectedServices }) => {
   };
 
   const handlePhoneChange = (e) => {
-    setForm({
-      ...form,
-      phone: e.target.value,
-      email: ""
-    });
+    const newPhone = e.target.value.trim();
+    if (form.phone !== newPhone) {
+      setForm({
+        ...form,
+        phone: newPhone,
+        email: ""
+      });
+    }
   };
 
   const formMatchesSelectedCustomer = () => {
@@ -278,7 +282,8 @@ const NewApptForm = ({ selectedServices }) => {
       if (!formMatchesSelectedCustomer()) {
         setIsCustomerLoading(true);
         try {
-          const res = await CustomerService.upsert(replaceEmptyStringsWithNull(form));
+          const sanitizeForm = sanitizeObjectInput(form);
+          const res = await CustomerService.upsert(replaceEmptyStringsWithNull(sanitizeForm));
           if (!res?.data?.customer?.id) throw new Error("Customer creation failed");
           appointmentData.customer_id = res.data.customer.id;
         } catch (customerErr) {
