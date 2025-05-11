@@ -5,7 +5,7 @@ import Footer from './components/global/Footer';
 import Home from './pages/home';
 import Booking from './pages/booking';
 import AppointmentHistory from './pages/appointmentHistory';
-import Calendar from './pages/calendar';
+import Config from './pages/config';
 import ServicesMenu from './pages/servicemenu';
 import ContactForm from './pages/contactForm';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
@@ -22,7 +22,7 @@ const App = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<PasswordlessLogin />} />
-      <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
+      <Route path="/config" element={<PrivateRoute><Config /></PrivateRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/booking" element={<Booking />} />
