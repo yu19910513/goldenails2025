@@ -330,7 +330,11 @@ const sendCancellationNotification = async (appointment) => {
       owner_email_subject: "Cancellation Request"
     };
 
-    await NotificationService.notify(messageData);
+    await new Promise((resolve) => {
+      // Simulate async behavior (like sending an SMS or email)
+      NotificationService.notify(messageData);  // Assuming it's async
+      resolve();  // Resolve immediately after calling the notify method
+    });
     console.log("Cancellation SMS sent successfully");
   } catch (error) {
     console.error("Failed to send cancellation SMS:", error);
