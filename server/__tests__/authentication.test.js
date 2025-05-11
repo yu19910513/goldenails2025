@@ -1,62 +1,56 @@
-const { authenticateUser, authorizeAdmin, basic_auth } = require('../utils/authentication'); // Update with the correct path
+const { authenticateUser, authorizeAdmin, basic_auth, signToken } = require('../utils/authentication'); // Update with the correct path
 const jwt = require('jsonwebtoken');
 process.env.JWT_SECRET = 'test_secret';
 const secret = process.env.JWT_SECRET;
 jest.mock('jsonwebtoken');
 
 describe('authenticateUser middleware', () => {
-    const secret = process.env.JWT_SECRET || 'your_secret'; // Use the secret key
-    const mockResponse = () => {
-        const res = {};
-        res.status = jest.fn().mockReturnValue(res);
-        res.send = jest.fn().mockReturnValue(res);
-        res.json = jest.fn().mockReturnValue(res);
-        return res;
-    };
-    const mockNext = jest.fn();
+    let req;
+    let res;
+    let next;
 
     beforeEach(() => {
-        // Clear all mocks before each test
-        jest.clearAllMocks();
+        req = {
+            headers: {},
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+        next = jest.fn();
     });
 
     it('should return 401 if no token is provided', () => {
-        const req = { headers: {} };
-        const res = mockResponse();
-        authenticateUser(req, res, mockNext);
+        authenticateUser(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.send).toHaveBeenCalledWith('Access Denied');
-    });
-
-    it('should call next if token is valid', () => {
-        const validToken = jwt.sign({ data: 'test' }, secret, { expiresIn: '2h' });
-        const req = { headers: { authorization: `Bearer ${validToken}` } };
-        const res = mockResponse();
-
-        // Mock jwt.verify to return a valid token
-        jwt.verify = jest.fn().mockReturnValue({ data: 'test' });
-
-        authenticateUser(req, res, mockNext);
-
-        expect(mockNext).toHaveBeenCalled();
-        expect(jwt.verify).toHaveBeenCalledWith(validToken, secret); // Ensure the correct token and secret are passed
+        expect(res.send).toHaveBeenCalledWith("Access Denied");
+        expect(next).not.toHaveBeenCalled();
     });
 
     it('should return 400 if token is invalid', () => {
-        const invalidToken = 'invalid_token';
-        const req = { headers: { authorization: `Bearer ${invalidToken}` } };
-        const res = mockResponse();
-
-        // Mock jwt.verify to throw an error for an invalid token
-        jwt.verify = jest.fn().mockImplementation(() => {
-            throw new Error('Invalid Token');
+        req.headers.authorization = 'Bearer invalidtoken';
+        jwt.verify.mockImplementation(() => {
+            throw new Error('Invalid token');
         });
 
-        authenticateUser(req, res, mockNext);
+        authenticateUser(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.send).toHaveBeenCalledWith('Invalid Token');
+        expect(res.send).toHaveBeenCalledWith("Invalid Token");
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should call next and attach user to request if token is valid', () => {
+        const mockUserData = { id: 1, name: 'Test User' };
+        req.headers.authorization = 'Bearer validtoken';
+        jwt.verify.mockReturnValue({ data: mockUserData });
+
+        authenticateUser(req, res, next);
+
+        expect(req.user).toEqual(mockUserData);
+        expect(next).toHaveBeenCalled();
+        expect(res.status).not.toHaveBeenCalled();
     });
 });
 
@@ -177,5 +171,27 @@ describe('basic_auth', () => {
 
         expect(res.status).toHaveBeenCalledWith(403);
         expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized referrer' });
+    });
+});
+
+describe('signToken', () => {
+    const mockPayload = { id: 123, name: 'John Doe' };
+
+    beforeEach(() => {
+        process.env.JWT_SECRET = 'testsecret';
+    });
+
+    it('should call jwt.sign with correct arguments and return the token', () => {
+        const mockToken = 'mock.jwt.token';
+        jwt.sign.mockReturnValue(mockToken);
+
+        const token = signToken(mockPayload);
+
+        expect(jwt.sign).toHaveBeenCalledWith(
+            { data: mockPayload },
+            'testsecret',
+            { expiresIn: '2h' }
+        );
+        expect(token).toBe(mockToken);
     });
 });

@@ -1,6 +1,4 @@
 const jwt = require("jsonwebtoken");
-const secret = process.env.JWT_SECRET;
-const expiration = "2h";
 
 /**
  * Middleware to authenticate a user via JWT.
@@ -113,6 +111,8 @@ const basic_auth = (req, res, next) => {
  * @returns {string} The signed JWT token.
  */
 const signToken = (payload) => {
+  const secret = process.env.JWT_SECRET;
+  const expiration = "2h";
   return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
 };
 
