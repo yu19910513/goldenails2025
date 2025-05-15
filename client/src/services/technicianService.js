@@ -1,16 +1,16 @@
-import http from "../common/NodeCommon";
+import Service from "./service";
 
 /**
  * A service class for managing technicians.
  */
-class TechnicianService {
+class TechnicianService extends Service {
   /**
    * Retrieves a list of all technicians.
    * 
    * @returns {Promise<Array<Object>>} A promise resolving to an array of technician objects.
    */
   getAll() {
-    return http.get("/technicians/");
+    return this.http.get("/technicians/");
   }
 
   /**
@@ -20,7 +20,7 @@ class TechnicianService {
    * @returns {Promise<Array<Object>>} A promise resolving to an array of available technician objects.
    */
   getAvailableTechnicians(categoryIds) {
-    return http.post("/technicians/available", { categoryIds });
+    return this.http.post("/technicians/available", { categoryIds });
   }
 }
 

@@ -1,9 +1,8 @@
-
-import http from "../common/NodeCommon";
+import Service from "./service";
 /**
  * A service class for managing appointments.
  */
-class AppointmentService {
+class AppointmentService extends Service {
 
   /**
    * Fetches grouped appointments for a specific date, grouped by technician.
@@ -25,7 +24,7 @@ class AppointmentService {
     }
 
     // Perform the GET request to fetch appointments for the given date
-    return http.get(`/appointments/calender?date=${date}`);
+    return this.http.get(`/appointments/calender?date=${date}`);
   }
 
   /**
@@ -35,7 +34,7 @@ class AppointmentService {
    * @returns {Promise<Object>} A promise resolving to the response containing the list of appointments.
    */
   findByTechId(technicianId) {
-    return http.get(`/appointments/upcoming?tech_id=${technicianId}`);
+    return this.http.get(`/appointments/upcoming?tech_id=${technicianId}`);
   }
 
   /**
@@ -66,7 +65,7 @@ class AppointmentService {
    * });
    */
   create(appointmentData) {
-    return http.post("/appointments", appointmentData); // Pass appointmentData as the body of the POST request
+    return this.http.post("/appointments", appointmentData); // Pass appointmentData as the body of the POST request
   }
 
   /**
@@ -76,7 +75,7 @@ class AppointmentService {
    * @returns {Promise<Object>} A promise resolving to the response containing the customer's appointment history.
    */
   customer_history(customer_id) {
-    return http.get(`/appointments/customer_history?customer_id=${customer_id}`);
+    return this.http.get(`/appointments/customer_history?customer_id=${customer_id}`);
   }
 
   /**
@@ -86,7 +85,7 @@ class AppointmentService {
  * @returns {Promise} - A promise resolving to the HTTP response from the API.
  */
   soft_delete(appointment_id) {
-    return http.put(`/appointments/update_note`, { id: appointment_id, note: "deleted" });
+    return this.http.put(`/appointments/update_note`, { id: appointment_id, note: "deleted" });
   }
 
   /**
@@ -99,7 +98,7 @@ class AppointmentService {
    * @returns {Promise<AxiosResponse>} A promise that resolves to the list of matching appointments.
    */
   search(keyword) {
-    return http.get(`/appointments/search?keyword=${keyword}`)
+    return this.http.get(`/appointments/search?keyword=${keyword}`)
   }
 
   /**
@@ -114,7 +113,7 @@ class AppointmentService {
  *   .catch(error => console.error(error));
  */
   find_alternative_techs(appointment_id) {
-    return http.get(`/appointments/find_alternative_techs?id=${appointment_id}`)
+    return this.http.get(`/appointments/find_alternative_techs?id=${appointment_id}`)
   }
 
   /**
@@ -125,7 +124,7 @@ class AppointmentService {
    * @returns {Promise} Axios response promise that resolves with the server's response.
    */
   update_technician(apptId, techId) {
-    return http.put(`/appointments/update_technician`, { id: apptId, technician_id: techId })
+    return this.http.put(`/appointments/update_technician`, { id: apptId, technician_id: techId })
   }
 }
 

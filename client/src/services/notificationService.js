@@ -1,7 +1,7 @@
-import http from "../common/NodeCommon";
+import Service from "./service";
 
 
-class NotificationService {
+class NotificationService extends Service{
 
     /**
      * Sends a notification to a customer and/or business owner via SMS and/or email.
@@ -22,7 +22,7 @@ class NotificationService {
      * @returns {Promise} HTTP response promise.
      */
     notify(messageData) {
-        return http.post(`/notification/notify`, { messageData: messageData });
+        return this.http.post(`/notification/notify`, { messageData: messageData });
     }
 
 
@@ -38,7 +38,7 @@ class NotificationService {
      * @throws {Error} If the request fails, the API response may include an error message.
      */
     contact(email_object) {
-        return http.post(`/notification/contact`, { email_object: email_object });
+        return this.http.post(`/notification/contact`, { email_object: email_object });
     }
 
 }
