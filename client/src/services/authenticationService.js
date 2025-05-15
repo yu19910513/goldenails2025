@@ -1,9 +1,9 @@
-import http from "../common/NodeCommon";
+import Service from "./service";
 
 /**
  * AuthenticationService handles authentication-related API calls.
  */
-class AuthenticationService {
+class AuthenticationService extends Service {
 
     /**
      * Sends a passcode to the specified identifier (email or phone number).
@@ -11,7 +11,7 @@ class AuthenticationService {
      * @returns {Promise} - A promise that resolves with the server response.
      */
     send_code(identifier) {
-        return http.post(`/authentication/send-passcode`, { identifier });
+        return this.http.post(`/authentication/send-passcode`, { identifier });
     }
 
     /**
@@ -21,7 +21,7 @@ class AuthenticationService {
      * @returns {Promise} - A promise that resolves with the server response.
      */
     verify_passcode(identifier, passcode) {
-        return http.post(`/authentication/verify-passcode`, { identifier, passcode });
+        return this.http.post(`/authentication/verify-passcode`, { identifier, passcode });
     }
 }
 

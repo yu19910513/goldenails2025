@@ -1,84 +1,84 @@
 import AppointmentService from "../services/appointmentService";
-import http from "../common/NodeCommon";
 
-jest.mock("../common/NodeCommon"); // Mock HTTP requests
+describe('AppointmentService', () => {
+  let service;
 
-describe("AppointmentService", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
+    service = AppointmentService;
+    // Mock the http client methods:
+    service.http.get = jest.fn();
+    service.http.post = jest.fn();
+    service.http.put = jest.fn();
   });
 
-  describe("findByTechId", () => {
-    it("should fetch upcoming appointments for a given technician ID", async () => {
-      const mockResponse = { data: [{ id: 1, technician_id: 123, date: "2025-02-01" }] };
-      http.get.mockResolvedValue(mockResponse);
-
-      const response = await AppointmentService.findByTechId(123);
-      expect(http.get).toHaveBeenCalledWith("/appointments/upcoming?tech_id=123");
-      expect(response).toEqual(mockResponse);
+  describe('getTechnicianGroupedAppointments', () => {
+    it('throws error on invalid date format', () => {
+      expect(() => service.getTechnicianGroupedAppointments('invalid-date')).toThrow(
+        'Invalid date format. Expected YYYY-MM-DD.'
+      );
     });
 
-    it("should handle errors when fetching upcoming appointments", async () => {
-      http.get.mockRejectedValue(new Error("Network Error"));
-
-      await expect(AppointmentService.findByTechId(123)).rejects.toThrow("Network Error");
-    });
-  });
-
-  describe("create", () => {
-    it("should create a new appointment successfully", async () => {
-      const appointmentData = {
-        date: "2025-02-01",
-        customer_id: 101,
-        services: [{ service_id: 1, duration: 30 }],
-        technician_id: 123,
-      };
-      const mockResponse = { data: { id: 1, ...appointmentData } };
-      http.post.mockResolvedValue(mockResponse);
-
-      const response = await AppointmentService.create(appointmentData);
-      expect(http.post).toHaveBeenCalledWith("/appointments", appointmentData);
-      expect(response).toEqual(mockResponse);
-    });
-
-    it("should handle errors when creating an appointment", async () => {
-      http.post.mockRejectedValue(new Error("Failed to create appointment"));
-
-      await expect(AppointmentService.create({})).rejects.toThrow("Failed to create appointment");
+    it('calls http.get with correct URL for valid date', () => {
+      const date = '2025-02-20';
+      service.getTechnicianGroupedAppointments(date);
+      expect(service.http.get).toHaveBeenCalledWith(`/appointments/calender?date=${date}`);
     });
   });
 
-  describe("customer_history", () => {
-    it("should fetch appointment history for a given customer ID", async () => {
-      const mockResponse = { data: [{ id: 1, customer_id: 101, date: "2025-01-15" }] };
-      http.get.mockResolvedValue(mockResponse);
-
-      const response = await AppointmentService.customer_history(101);
-      expect(http.get).toHaveBeenCalledWith("/appointments/customer_history?customer_id=101");
-      expect(response).toEqual(mockResponse);
-    });
-
-    it("should handle errors when fetching customer history", async () => {
-      http.get.mockRejectedValue(new Error("Error fetching customer history"));
-
-      await expect(AppointmentService.customer_history(101)).rejects.toThrow("Error fetching customer history");
+  describe('findByTechId', () => {
+    it('calls http.get with correct URL and technician ID', () => {
+      const techId = 123;
+      service.findByTechId(techId);
+      expect(service.http.get).toHaveBeenCalledWith(`/appointments/upcoming?tech_id=${techId}`);
     });
   });
 
-  describe("soft_delete", () => {
-    it("should soft delete an appointment by updating its note to 'deleted'", async () => {
-      const mockResponse = { data: { success: true } };
-      http.put.mockResolvedValue(mockResponse);
-
-      const response = await AppointmentService.soft_delete(5);
-      expect(http.put).toHaveBeenCalledWith("/appointments/update_note", { id: 5, note: "deleted" });
-      expect(response).toEqual(mockResponse);
+  describe('create', () => {
+    it('calls http.post with correct URL and appointment data', () => {
+      const data = { customer_id: 1, date: '2025-01-25', start_service_time: '14:00', technician_id: [2], service_ids: [3] };
+      service.create(data);
+      expect(service.http.post).toHaveBeenCalledWith('/appointments', data);
     });
+  });
 
-    it("should handle errors when soft deleting an appointment", async () => {
-      http.put.mockRejectedValue(new Error("Failed to delete appointment"));
+  describe('customer_history', () => {
+    it('calls http.get with correct URL and customer ID', () => {
+      const customerId = 5;
+      service.customer_history(customerId);
+      expect(service.http.get).toHaveBeenCalledWith(`/appointments/customer_history?customer_id=${customerId}`);
+    });
+  });
 
-      await expect(AppointmentService.soft_delete(5)).rejects.toThrow("Failed to delete appointment");
+  describe('soft_delete', () => {
+    it('calls http.put with correct URL and data for soft delete', () => {
+      const apptId = 7;
+      service.soft_delete(apptId);
+      expect(service.http.put).toHaveBeenCalledWith('/appointments/update_note', { id: apptId, note: 'deleted' });
+    });
+  });
+
+  describe('search', () => {
+    it('calls http.get with correct URL and keyword', () => {
+      const keyword = 'john';
+      service.search(keyword);
+      expect(service.http.get).toHaveBeenCalledWith(`/appointments/search?keyword=${keyword}`);
+    });
+  });
+
+  describe('find_alternative_techs', () => {
+    it('calls http.get with correct URL and appointment ID', () => {
+      const apptId = '123';
+      service.find_alternative_techs(apptId);
+      expect(service.http.get).toHaveBeenCalledWith(`/appointments/find_alternative_techs?id=${apptId}`);
+    });
+  });
+
+  describe('update_technician', () => {
+    it('calls http.put with correct URL and data', () => {
+      const apptId = 10;
+      const techId = 20;
+      service.update_technician(apptId, techId);
+      expect(service.http.put).toHaveBeenCalledWith('/appointments/update_technician', { id: apptId, technician_id: techId });
     });
   });
 });

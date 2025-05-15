@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
-import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString,   getBusinessHours } from "../../common/utils";
+import { calculateTotalAmount, calculateTotalTime, calculateAvailableSlots, waTimeString,   getBusinessHours } from "../../utils/helper";
 import MiscellaneousService from "../../services/miscellaneousService";
 
 const AvailabilitySelection = ({

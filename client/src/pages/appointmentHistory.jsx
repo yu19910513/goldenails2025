@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CustomerService from '../services/customerService';
 import AppointmentService from '../services/appointmentService';
-import NotificationService from "../services/notificationService";
+import { sendCancellationNotification } from '../utils/helper'
 import './appointmentHistory.css';
 
 const AppointmentHistory = () => {
@@ -48,56 +48,6 @@ const AppointmentHistory = () => {
     };
 
 
-    /**
-     * Sends an appointment cancellation notification via SMS and email.
-     * 
-     * This function extracts customer and appointment details, then triggers `NotificationService.notify()`.
-     * If required data is missing, an error is logged and the function exits early.
-     * 
-     * @async
-     * @function sendCancellationNotification
-     * @param {Object} appointment - The appointment details.
-     * @param {string} appointment.date - The appointment date.
-     * @param {string} appointment.start_service_time - The start time of the appointment.
-     * @param {Array} appointment.Technicians - List of technicians assigned to the appointment.
-     * @throws {Error} Logs an error if notification fails.
-     */
-    const sendCancellationNotification = async (appointment) => {
-        try {
-            if (!appointment || !appointment.date || !appointment.start_service_time || !appointment.Technicians?.length) {
-                console.error("Missing or invalid appointment details.");
-                return;
-            }
-
-            if (!customerInfo?.name || !customerInfo?.phone) {
-                console.error("Missing customer information.");
-                return;
-            }
-
-            const { name, phone, email } = customerInfo;
-            const technicianName = appointment.Technicians[0].name;
-
-            const messageData = {
-                recipient_name: name,
-                recipient_phone: phone,
-                recipient_email_address: email,
-                recipient_email_subject: "Cancellation",
-                recipient_optInSMS: true,
-                action: "cancel",
-                appointment_date: appointment.date,
-                appointment_start_time: appointment.start_service_time,
-                appointment_technician: technicianName,
-                owner_email_subject: "Cancellation Request"
-            };
-
-            await NotificationService.notify(messageData);
-            console.log("Cancellation SMS sent successfully");
-        } catch (error) {
-            console.error("Failed to send cancellation SMS:", error);
-        }
-    };
-
-
     // Handle appointment cancellation
     const handleCancel = async (appointment) => {
         const confirmCancel = window.confirm("Are you sure you want to cancel this appointment?");
@@ -106,7 +56,7 @@ const AppointmentHistory = () => {
         try {
             await AppointmentService.soft_delete(appointment.id);
             alert("Appointment successfully canceled.");
-            sendCancellationNotification(appointment);
+            sendCancellationNotification({ ...appointment, Customer: customerInfo });
             fetchAppointments(customerInfo.id); // Refresh appointments after cancellation
         } catch (error) {
             alert("Failed to cancel appointment.");

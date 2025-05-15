@@ -12,9 +12,9 @@ import {
     areCommonValuesEqual,
     getBusinessHours,
     sanitizeObjectInput
-} from "../common/utils";
+} from "../utils/helper";
 
-describe("Utility Functions", () => {
+describe("Helper Functions", () => {
 
     // Testing formatPrice function
     describe('formatPrice', () => {

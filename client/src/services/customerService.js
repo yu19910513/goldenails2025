@@ -1,9 +1,9 @@
-import http from "../common/NodeCommon";
+import Service from "./service";
 
 /**
  * A service class for managing customer-related operations.
  */
-class CustomerService {
+class CustomerService extends Service {
   /**
    * Retrieves a customer by their phone number.
    * 
@@ -11,7 +11,7 @@ class CustomerService {
    * @returns {Promise<Object>} A promise resolving to the customer data, or an empty response if not found.
    */
   getOneByPhoneNumber(phoneNumber) {
-    return http.get(`/customers/search?phone=${phoneNumber}`);
+    return this.http.get(`/customers/search?phone=${phoneNumber}`);
   }
 
   /**
@@ -22,7 +22,7 @@ class CustomerService {
    * @returns {Promise<Object>} A promise resolving to the validated customer data, or an error if validation fails.
    */
   validateUsingNumberAndName(phoneNumber, enteredName) {
-    return http.get(`/customers/validate?phone=${phoneNumber}&name=${enteredName}`);
+    return this.http.get(`/customers/validate?phone=${phoneNumber}&name=${enteredName}`);
   }
 
   /**
@@ -40,7 +40,7 @@ class CustomerService {
    * @returns {Promise<Object>} - The API response containing the created or updated customer.
    */
   upsert(customerData) {
-    return http.put(`/customers/`, customerData);
+    return this.http.put(`/customers/`, customerData);
   }
 
   /**
@@ -56,7 +56,7 @@ class CustomerService {
    * });
    */
   smart_search(keyword) {
-    return http.get(`/customers/smart_search?keyword=${keyword}`)
+    return this.http.get(`/customers/smart_search?keyword=${keyword}`)
   }
 
 }

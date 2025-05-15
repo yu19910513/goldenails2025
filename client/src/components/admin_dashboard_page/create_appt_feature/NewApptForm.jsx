@@ -10,7 +10,7 @@ import {
   areCommonValuesEqual,
   getBusinessHours,
   sanitizeObjectInput
-} from "../../../common/utils";
+} from "../../../utils/helper";
 import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices }) => {

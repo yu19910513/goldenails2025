@@ -16,10 +16,10 @@ import Calendar from '../components/admin_dashboard_page/calendar_feature/calend
  * @type {Array<{ key: string, label: string, Component: React.ComponentType }>}
  */
 const admin_tabs = [
-    { key: 'Calendar', label: 'Calendar', Component: Calendar },
-    { key: 'NewAppt', label: 'New Appt Form', Component: AppointmentBookingLayout },
-    { key: 'CustMgt', label: 'Customer Management', Component: CustomerManagement },
-    { key: 'ApptMgt', label: 'Appointment Management', Component: ApptManagement },
+    { key: 'Calendar', label: 'Appt Calendar', Component: Calendar },
+    { key: 'NewAppt', label: 'Create Appt', Component: AppointmentBookingLayout },
+    { key: 'CustMgt', label: 'Client Database', Component: CustomerManagement },
+    { key: 'ApptMgt', label: 'Appt Database', Component: ApptManagement },
 ];
 
 /**
