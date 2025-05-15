@@ -1,5 +1,6 @@
 import React from 'react';
 import './SpaLocation.css'; // Import the CSS file
+import LoginStatus from '../utils/LoginStatus';
 
 const SpaLocation = () => {
   return (
@@ -32,7 +33,7 @@ const SpaLocation = () => {
             <ul>
               <li><a href="/faq">FAQ</a></li>
               <li><a href="/contact">Contact Us</a></li>
-              <li><a href="/dashboard">Login</a></li>
+              <li><LoginStatus targetPath="/dashboard" targetText="Dashboard" /></li>
             </ul>
           </div>
 

@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Import hooks for routing
-import "./Header.css"; // Import the external CSS
+import { useLocation, useNavigate } from "react-router-dom";
+import "./Header.css";
 import LeaveWarningModal from "../booking_page/LeaveWarningModal";
+import { isTokenValid } from '../../utils/helper'
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
   const [isBookingActive, setIsBookingActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for controlling hamburger menu
-  const [isMobile, setIsMobile] = useState(false); // Track screen size for responsive design
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 New state
 
   const isActive = (path) => location.pathname === path;
-
+  // Toggle booking state
   const handleBookingToggle = () => {
     if (isBookingActive) {
-      // Show modal when user clicks "Cancel Booking"
-      setIsModalOpen(true);
+      setIsModalOpen(true); // Ask for confirmation before canceling
     } else {
-      // Navigate to booking page when "Book Now" is clicked
       setIsBookingActive(true);
       navigate("/booking");
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(isTokenValid(token));
+  }, [location.pathname]);
 
   useEffect(() => {
     if (location.pathname === "/booking") {
@@ -32,49 +38,49 @@ const Header = () => {
     }
   }, [location.pathname]);
 
-  // Detect screen size changes and toggle mobile state
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
       if (window.innerWidth > 768) {
-        setIsMenuOpen(false); // Close the menu when resizing to a larger screen
+        setIsMenuOpen(false);
       }
     };
-
     window.addEventListener("resize", handleResize);
-    handleResize(); // Initial check on load
-
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleLeaveBooking = () => {
-    // Clear local storage and navigate to home when user confirms exit
     localStorage.clear();
     setIsBookingActive(false);
+    setIsLoggedIn(false);
     navigate("/");
-    setIsModalOpen(false); // Close the modal after confirming leave
+    setIsModalOpen(false);
   };
 
   const handleCancelLeave = () => {
-    // Close the modal without doing anything
     setIsModalOpen(false);
   };
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
   return (
     <header className="header">
       <nav>
-        {/* Hamburger button for small screens */}
         <div className={`hamburger ${isMenuOpen ? "open" : ""}`} onClick={toggleMenu}>
           <div className="bar"></div>
           <div className="bar"></div>
           <div className="bar"></div>
         </div>
 
-        {/* Navigation links */}
         <a href="/" className={`nav-link gold-nails ${isActive("/") ? "active-link" : ""}`}>
           Golden Nails
         </a>
@@ -95,10 +101,24 @@ const Header = () => {
               {isBookingActive ? "Cancel Booking" : "Book Now"}
             </a>
           </li>
+
+          {isLoggedIn && (
+            <>
+              <li>
+                <a href="/dashboard" className={`nav-link ${isActive("/dashboard") ? "active-link" : ""}`}>
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <a href="#" className="nav-link" onClick={handleLogout}>
+                  Log Out
+                </a>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
 
-      {/* Use your LeaveWarningModal component */}
       <LeaveWarningModal
         isOpen={isModalOpen}
         onLeave={handleLeaveBooking}
