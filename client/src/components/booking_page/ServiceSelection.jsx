@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ItemService from "../../services/itemService";
-import { formatPrice } from "../../common/utils";
+import { formatPrice } from "../../utils/helper";
 
 const ServiceSelection = ({ customerInfo, onSelectServices, onNext }) => {
   const [categories, setCategories] = useState([]);

@@ -35,8 +35,8 @@ class MiscellaneousService extends Service {
    *
    * @returns {Promise<import('axios').AxiosResponse<Object>>} A promise that resolves to the server response containing all miscellaneous items.
    */
-  getAll() {
-    return this.http.get(`/miscellaneouses/all`);
+  findAll() {
+    return this.http.get(`/miscellaneouses/`);
   }
 }
 

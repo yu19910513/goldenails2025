@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { calculateTotalTime } from "../../common/utils";
+import { calculateTotalTime } from "../../utils/helper";
 import "./AppointmentConfirmation.css"; // Import the CSS file
 import NotificationService from "../../services/notificationService";
 import MiscellaneousService from "../../services/miscellaneousService";

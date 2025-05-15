@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 import AppointmentService from "../../../services/appointmentService";
-import { calculateTotalTimePerAppointment } from "../../../common/utils";
+import { calculateTotalTimePerAppointment } from "../../../utils/helper";
 import AppointmentBookingLayout from "../create_appt_feature/AppointmentBookingLayout";
 import "./calendar.css";
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CustomerService from '../services/customerService';
 import AppointmentService from '../services/appointmentService';
-import { sendCancellationNotification } from '../common/utils'
+import { sendCancellationNotification } from '../utils/helper'
 import './appointmentHistory.css';
 
 const AppointmentHistory = () => {

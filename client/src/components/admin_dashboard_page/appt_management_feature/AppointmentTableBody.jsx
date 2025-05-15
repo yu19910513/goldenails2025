@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AppointmentTableBody.css';
 import AppointmentService from '../../../services/appointmentService';
-import { sendCancellationNotification } from '../../../common/utils';
+import { sendCancellationNotification } from '../../../utils/helper';
 import TechnicianSelectorModal from './TechnicianSelectorModal';
 
 

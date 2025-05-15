@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require('dotenv');
 const router = express.Router();
 const { Miscellaneous } = require("../../models");
+const { authorizeAdmin } = require("../../utils/authentication");
 dotenv.config();
 
 
@@ -65,7 +66,61 @@ router.get(`/key`, async (req, res) => {
   }
 });
 
+/**
+ * GET / - Retrieve all miscellaneous data entries.
+ *
+ * This endpoint returns a list of all available miscellaneous data entries.
+ * It requires admin authorization and responds with each entry's `title` and `context`.
+ *
+ * @route GET /
+ * @middleware authorizeAdmin - Ensures the user is authorized as an admin.
+ * @returns {Object[]} 200 - An array of miscellaneous data objects.
+ * @returns {string} 200[].title - The title of the miscellaneous data.
+ * @returns {string} 200[].context - The context of the miscellaneous data.
+ * @throws {404} - If no data is found.
+ * @throws {500} - If there is a server error while fetching the data.
+ *
+ * @example
+ * // Successful response
+ * [
+ *   {
+ *     "title": "Policy Update",
+ *     "context": "New policy changes effective next month."
+ *   },
+ *   {
+ *     "title": "Maintenance Notice",
+ *     "context": "System maintenance scheduled for Friday at 10 PM."
+ *   }
+ * ]
+ *
+ * @example
+ * // When no data is found
+ * {
+ *   "message": "No data found."
+ * }
+ *
+ * @example
+ * // On internal server error
+ * {
+ *   "error": "An internal server error occurred."
+ * }
+ */
+router.get('/', authorizeAdmin, async (req, res) => {
+  try {
+    const miscellaneous = await Miscellaneous.findAll({
+      attributes: ['title', 'context'],
+    });
 
+    if (miscellaneous.length === 0) {
+      return res.status(404).json({ message: "No data found." });
+    }
+
+    res.json(miscellaneous);
+  } catch (error) {
+    console.error("Error fetching miscellaneous data:", error.stack || error);
+    res.status(500).json({ error: "An internal server error occurred." });
+  }
+});
 
 
 
