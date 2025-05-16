@@ -11,7 +11,8 @@ import {
     replaceEmptyStringsWithNull,
     areCommonValuesEqual,
     getBusinessHours,
-    sanitizeObjectInput
+    sanitizeObjectInput,
+    isTokenValid
 } from "../utils/helper";
 
 describe("Helper Functions", () => {
@@ -417,6 +418,58 @@ describe("Helper Functions", () => {
             });
         });
     });
+
+
+    function createTokenWithExp(exp) {
+        const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+        const payload = btoa(JSON.stringify({ exp }));
+        const signature = "signature"; // dummy
+        return `${header}.${payload}.${signature}`;
+    }
+
+    describe('isTokenValid', () => {
+        it('returns false if token is null or undefined', () => {
+            expect(isTokenValid(null)).toBe(false);
+            expect(isTokenValid(undefined)).toBe(false);
+        });
+
+        it('returns false if token is not a string', () => {
+            expect(isTokenValid(123)).toBe(false);
+            expect(isTokenValid({})).toBe(false);
+        });
+
+        it('returns false if token does not have 3 parts separated by dots', () => {
+            expect(isTokenValid('abc.def')).toBe(false);
+            expect(isTokenValid('abc.def.ghi.jkl')).toBe(false);
+        });
+
+        it('returns false if payload is not valid base64 or JSON', () => {
+            const invalidPayloadToken = 'aaa.invalid-base64.signature';
+            expect(isTokenValid(invalidPayloadToken)).toBe(false);
+        });
+
+        it('returns false if payload does not contain exp or exp is not a number', () => {
+            const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+            const noExpPayload = btoa(JSON.stringify({ foo: "bar" }));
+            const invalidExpPayload = btoa(JSON.stringify({ exp: "not-a-number" }));
+
+            expect(isTokenValid(`${header}.${noExpPayload}.sig`)).toBe(false);
+            expect(isTokenValid(`${header}.${invalidExpPayload}.sig`)).toBe(false);
+        });
+
+        it('returns false if token is expired', () => {
+            const expiredTimestamp = Math.floor(Date.now() / 1000) - 1000;
+            const token = createTokenWithExp(expiredTimestamp);
+            expect(isTokenValid(token)).toBe(false);
+        });
+
+        it('returns true if token is valid and not expired', () => {
+            const futureTimestamp = Math.floor(Date.now() / 1000) + 1000;
+            const token = createTokenWithExp(futureTimestamp);
+            expect(isTokenValid(token)).toBe(true);
+        });
+    });
+
 
 });
 

@@ -536,6 +536,49 @@ const sanitizeObjectInput = (object) => {
   return sanitized;
 }
 
+/**
+ * Checks if a given JWT token is valid by verifying its structure and expiration.
+ * 
+ * This function:
+ * - Validates that the token exists and is a string.
+ * - Ensures the token has three parts separated by dots (standard JWT format).
+ * - Decodes the payload part of the token from base64 URL format.
+ * - Parses the JSON payload and checks for a valid numeric "exp" (expiration time) field.
+ * - Returns true if the token is not expired based on the current time.
+ * 
+ * @param {string | null | undefined} token - The JWT token to validate.
+ * @returns {boolean} True if the token is a valid JWT and not expired, false otherwise.
+ */
+const isTokenValid = (token) => {
+  if (!token || typeof token !== 'string') {
+    return false; // no token or wrong type
+  }
+
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    return false; // not a valid JWT structure
+  }
+
+  try {
+    const payloadBase64 = parts[1];
+    // Add padding for base64 if needed
+    const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
+    const payloadJson = atob(padded);
+    const payload = JSON.parse(payloadJson);
+
+    if (!payload.exp || typeof payload.exp !== 'number') {
+      return false; // no expiration or invalid format
+    }
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    return payload.exp > currentTime;
+  } catch {
+    return false; // invalid base64 or JSON parse error
+  }
+}
+
+
 
 
 
@@ -554,5 +597,6 @@ export {
   replaceEmptyStringsWithNull,
   areCommonValuesEqual,
   getBusinessHours,
-  sanitizeObjectInput
+  sanitizeObjectInput,
+  isTokenValid
 };
