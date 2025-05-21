@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-const localDb = require("../../local_db"); // Automatically uses index.js
+const localDb = require("../../local_db");
 
 /**
- * @route POST /api/config/:name
- * @summary Creates a new YAML configuration file
- * @param {string} name - The name of the YAML file (without extension)
- * @body {Object} initialData - Initial data to populate the YAML file
- * @returns {201|400} Success or error if file exists or input is invalid
+ * @route POST /local_db/:name
+ * @summary Create a new YAML configuration file
+ * @param {express.Request} req - Express request object
+ * @param {express.Response} res - Express response object
+ * @returns {201: { message: string }, 400: { error: string }}
  * 
  * @example
- * POST /api/config/app_config
+ * POST /local_db/app_config
  * Body:
  * {
  *   "app": { "name": "MyApp", "version": "1.0" }
@@ -30,13 +30,14 @@ router.post("/:name", (req, res) => {
 });
 
 /**
- * @route GET /api/config/:name
- * @summary Reads and returns the content of a YAML configuration file
- * @param {string} name - Name of the YAML file (without extension)
- * @returns {200|404} YAML file content or not found
+ * @route GET /local_db/:name
+ * @summary Get the entire content of a YAML configuration file
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {200: Object, 404: { error: string }}
  * 
  * @example
- * GET /api/config/app_config
+ * GET /local_db/app_config
  */
 router.get("/:name", (req, res) => {
     const { name } = req.params;
@@ -50,14 +51,14 @@ router.get("/:name", (req, res) => {
 });
 
 /**
- * @route PUT /api/config/:name
- * @summary Overwrites the entire content of a YAML file
- * @param {string} name - Name of the file to update
- * @body {Object} newData - Full new content to write into the file
- * @returns {200|400} Success or error
+ * @route PUT /local_db/:name
+ * @summary Overwrite an entire YAML file with new content
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {200: { message: string }, 400: { error: string }}
  * 
  * @example
- * PUT /api/config/app_config
+ * PUT /local_db/app_config
  * Body:
  * {
  *   "app": { "name": "NewApp", "version": "2.0" }
@@ -76,15 +77,44 @@ router.put("/:name", (req, res) => {
 });
 
 /**
- * @route PATCH /api/config/:name/field
- * @summary Updates a nested field in a YAML file using a path array
- * @param {string} name - Config file name
- * @body {string[]} path - Array representing the nested path
- * @body {*} value - Value to assign at the given path
- * @returns {200|400} Success or validation error
+ * @route GET /local_db/:name/field
+ * @summary Get a nested field value from a YAML file
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {200: { value: any }, 400: { error: string }, 404: { error: string }}
  * 
  * @example
- * PATCH /api/config/app_config/field
+ * GET /local_db/app_config/field?path=app&path=name
+ */
+router.get("/:name/field", (req, res) => {
+    const { name } = req.params;
+    let path = req.query.path;
+
+    if (!path) {
+        return res.status(400).json({ error: "`path` query param is required" });
+    }
+
+    if (!Array.isArray(path)) {
+        path = path.split(',');
+    }
+
+    try {
+        const value = localDb.getYamlField(name, path);
+        res.json({ value });
+    } catch (err) {
+        res.status(404).json({ error: err.message });
+    }
+});
+
+/**
+ * @route PATCH /local_db/:name/field
+ * @summary Update a nested field in a YAML file
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {200: { message: string }, 400: { error: string }}
+ * 
+ * @example
+ * PATCH /local_db/app_config/field
  * Body:
  * {
  *   "path": ["server", "port"],
@@ -108,14 +138,14 @@ router.patch("/:name/field", (req, res) => {
 });
 
 /**
- * @route DELETE /api/config/:name/field
- * @summary Deletes a nested field in a YAML file
- * @param {string} name - Config file name
- * @body {string[]} path - Path to the field to delete
- * @returns {200|400} Success or error if path doesn't exist
+ * @route DELETE /local_db/:name/field
+ * @summary Delete a nested field from a YAML file
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {200: { message: string }, 400: { error: string }}
  * 
  * @example
- * DELETE /api/config/app_config/field
+ * DELETE /local_db/app_config/field
  * Body:
  * {
  *   "path": ["features", "enableLogging"]
@@ -138,13 +168,14 @@ router.delete("/:name/field", (req, res) => {
 });
 
 /**
- * @route DELETE /api/config/:name
- * @summary Deletes an entire YAML configuration file
- * @param {string} name - Name of the YAML file to delete
- * @returns {200|404} Success or not found error
+ * @route DELETE /local_db/:name
+ * @summary Delete an entire YAML configuration file
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns {200: { message: string }, 404: { error: string }}
  * 
  * @example
- * DELETE /api/config/app_config
+ * DELETE /local_db/app_config
  */
 router.delete("/:name", (req, res) => {
     const { name } = req.params;

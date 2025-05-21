@@ -29,6 +29,26 @@ function readYaml(name) {
 }
 
 /**
+ * Reads a specific nested field from a YAML file.
+ * @param {string} name - The base name of the YAML file (without extension).
+ * @param {string[]} pathArray - An array representing the path to the field.
+ * @returns {*} The value at the specified path, or undefined if not found.
+ */
+function getYamlField(name, pathArray) {
+    const data = readYaml(name);
+
+    let current = data;
+    for (const key of pathArray) {
+        if (current === undefined || current === null || !Object.prototype.hasOwnProperty.call(current, key)) {
+            return undefined;
+        }
+        current = current[key];
+    }
+
+    return current;
+}
+
+/**
  * Serializes and writes an object to a YAML file.
  * @param {string} name - The base name of the YAML file (without extension).
  * @param {Object} data - The data to be written to the YAML file.
@@ -116,4 +136,5 @@ module.exports = {
     deleteYamlField,
     deleteYamlFile,
     createYamlFile,
+    getYamlField
 };

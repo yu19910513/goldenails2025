@@ -12,6 +12,7 @@ const {
     deleteYamlField,
     deleteYamlFile,
     createYamlFile,
+    getYamlField, // 👈 add this line
 } = require('../local_db');
 
 const testFileName = 'test_config';
@@ -117,5 +118,20 @@ describe('YAML utility functions', () => {
         createYamlFile(testFileName, {});
         expect(() => deleteYamlField(testFileName, ['nonexistent', 'path']))
             .toThrow(/Path not found/);
+    });
+
+    test('getYamlField should return correct value for a given path', () => {
+        const sampleData = {
+            announcementContext: "🎓 New Grads Special!",
+            business_hours: {
+                start: 9,
+                end: 19,
+            },
+        };
+        createYamlFile(testFileName, sampleData);
+
+        expect(getYamlField(testFileName, ['announcementContext'])).toBe("🎓 New Grads Special!");
+        expect(getYamlField(testFileName, ['business_hours', 'start'])).toBe(9);
+        expect(getYamlField(testFileName, ['nonexistent'])).toBeUndefined();
     });
 });
