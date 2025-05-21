@@ -11,7 +11,8 @@ const technicianRoutes = require("./TechnicianRoute");
 const customerRoutes = require("./CustomerRoute");
 const appointmentRoutes = require("./AppointmentRoute");
 const categoryRoutes = require("./CategoryRoute");
-const miscellaneousesRoutes = require("./MiscellaneousRoute");
+const miscellaneousesRoutes = require("./MiscellaneousRoute");//deprecated
+const configRoutes = require('./ConfigRoute');
 const authenticationRoutes = require("./AuthenticationRoute");
 const notificationRoutes = require("./NotificationRoute");
 
@@ -25,6 +26,7 @@ router.use("/customers", customerRoutes);
 router.use("/appointments", appointmentRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/miscellaneouses", miscellaneousesRoutes);
+router.use("/configs", configRoutes);
 router.use("/authentication", authenticationRoutes);
 router.use("/notification", notificationRoutes);
 
