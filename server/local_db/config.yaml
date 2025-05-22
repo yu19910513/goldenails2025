@@ -1,0 +1,13 @@
+adBoard: "Celebrate your achievement in style 🎓"
+subtext: "Show your student ID and get 10% off all services"
+offline_worker: "Lisa"
+smsFeature: "on"
+displayAnnouncementBar: "off"
+announcementContext: "🎓 New Grads Special! Show your student ID and get 10% off all services — because you earned it!"
+business_hours:
+  start: 9
+  end: 19
+sunday_hours:
+  start: 11
+  end: 17
+bufferTime: 2
