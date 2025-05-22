@@ -12,7 +12,7 @@ const {
     deleteYamlField,
     deleteYamlFile,
     createYamlFile,
-    getYamlField, // 👈 add this line
+    getYamlField,
 } = require('../local_db');
 
 const testFileName = 'test_config';
