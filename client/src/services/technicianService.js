@@ -5,9 +5,10 @@ import Service from "./service";
  */
 class TechnicianService extends Service {
   /**
-   * Retrieves a list of all technicians.
-   * 
-   * @returns {Promise<Array<Object>>} A promise resolving to an array of technician objects.
+   * Retrieves a list of all ACTIVE technicians from the API.
+   *
+   * @returns {Promise<Technician[]>} A promise that resolves to an array of active technician objects.
+   * @throws {Error} Throws an error if the network request fails.
    */
   getAll() {
     return this.http.get("/technicians/");
