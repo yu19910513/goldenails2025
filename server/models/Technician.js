@@ -33,7 +33,11 @@ Technician.init(
         is: /^[0-6](,[0-6])*$/, // Validates comma-separated integers from 0 to 6
       },
     },
-
+     status: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true, // Default status is 'active'
+    }
   },
 
   {

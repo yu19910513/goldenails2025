@@ -4,42 +4,47 @@ const { Technician, Service, Category } = require("../../models");
 const { Sequelize, Op } = require("sequelize");
 
 /**
+ * @summary Get all active technicians
  * @route GET /
- * @description Retrieves a list of all technicians with basic details (id, name, description).
+ * @description Retrieves a list of all technicians whose status is 'true'.
+ * It returns a simplified object for each technician, containing only their ID, name, and description.
  * @access Public
- * 
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @returns {Object} - A JSON response containing an array of technician data.
- * 
- * @throws {500} - If there is an internal server error (e.g., database failure). Example: { error: "Failed to retrieve technicians" }
- * 
+ *
+ * @param {import('express').Request} req - The Express request object.
+ * @param {import('express').Response} res - The Express response object.
+ *
+ * @returns {void} Sends a JSON response. On success, it sends a 200 status with an array
+ * of technician objects. On failure, it sends a 500 status with an error object.
+ *
  * @example
- * // Request:
- * GET /
- * 
- * // Success Response:
+ * // Request URL:
+ * // GET /api/technicians
+ *
+ * // Success Response (200):
  * [
- *   {
- *     "id": 1,
- *     "name": "John Doe",
- *     "description": "Plumbing Technician"
- *   },
- *   {
- *     "id": 2,
- *     "name": "Jane Smith",
- *     "description": "Electrical Technician"
- *   }
+ * {
+ * "id": 1,
+ * "name": "John Doe",
+ * "description": "Plumbing Technician"
+ * },
+ * {
+ * "id": 2,
+ * "name": "Jane Smith",
+ * "description": "Electrical Technician"
+ * }
  * ]
- * 
+ *
  * // Error Response (500):
  * {
- *   "error": "Failed to retrieve technicians"
+ * "error": "Failed to retrieve technicians"
  * }
  */
 router.get("/", async (req, res) => {
   try {
     const technicianRawData = await Technician.findAll({
+      where: {
+        status: true, // Only include records where status is true
+      },
       attributes: ["id", "name", "description"], // Service attributes
     });
     // Serialize the data
@@ -99,6 +104,9 @@ router.post("/available", async (req, res) => {
           attributes: [], // Avoid selecting category fields to keep query clean
         },
       ],
+       where: {
+        status: true, // Only include records where status is true
+      },
       attributes: [
         "id",
         "name",
