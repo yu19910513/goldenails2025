@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import TechnicianService from "../../services/technicianService";
 import MiscellaneousService from "../../services/miscellaneousService";
 
@@ -15,11 +15,9 @@ const TechnicianSelection = ({
   const [offlineWorker, setOfflineWorker] = useState(null);
 
   useEffect(() => {
-
     const fetchTechnicians = async () => {
       setLoading(true);
       try {
-        // Extract service IDs from selectedServices
         const selectedCategoryIds = Object.keys(selectedServices);
         if (selectedCategoryIds.length > 0) {
           const response = await TechnicianService.getAvailableTechnicians(selectedCategoryIds);
@@ -43,13 +41,20 @@ const TechnicianSelection = ({
     const fetchOfflineWorker = async () => {
       try {
         const response = await MiscellaneousService.find("offline_worker");
-        setOfflineWorker(response?.data || null); // Store the full object or just the name
+        setOfflineWorker(response?.data || null);
       } catch (error) {
         console.error("Failed to fetch offline worker:", error);
       }
     };
     fetchOfflineWorker();
   }, []);
+
+  const offlineWorkerNames = useMemo(() => {
+    if (!offlineWorker?.context) {
+      return []; // Return an empty array if data is null, undefined, or empty
+    }
+    return offlineWorker.context.split(',').map(name => name.trim());
+  }, [offlineWorker]);
 
   const handleSelectTechnician = (technician) => {
     setSelectedTechnician((prev) =>
@@ -77,9 +82,9 @@ const TechnicianSelection = ({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center">
           {technicians.map((technician) => {
-            // Skip rendering the technician if the name matches the offline worker
-            if (offlineWorker && technician.name === offlineWorker.context) {
-              return null;
+            // ✅ Check if the technician's name is in the offline list
+            if (offlineWorkerNames.includes(technician.name)) {
+              return null; // Skip rendering this technician
             }
 
             return (
@@ -88,8 +93,8 @@ const TechnicianSelection = ({
                 className={`p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg ${selectedTechnician?.id === technician.id ? "bg-yellow-200" : "bg-white"
                   }`}
                 onClick={() => {
-                  handleSelectTechnician(technician);  // Pass the full technician object
-                  onSelectTechnician({ id: technician.id, name: technician.name }); // Pass the selected technician object
+                  handleSelectTechnician(technician);
+                  onSelectTechnician({ id: technician.id, name: technician.name });
                 }}
               >
                 <h4 className="text-lg font-bold">{technician.name}</h4>
@@ -116,8 +121,8 @@ const TechnicianSelection = ({
           }}
           disabled={!selectedTechnician}
           className={`px-6 py-3 text-lg font-semibold rounded-full transition-colors ${selectedTechnician
-            ? "bg-yellow-500 text-black hover:bg-yellow-600"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              ? "bg-yellow-500 text-black hover:bg-yellow-600"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
         >
           Next
