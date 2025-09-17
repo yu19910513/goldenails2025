@@ -4,6 +4,7 @@ import Header from './components/global/Header';
 import Footer from './components/global/Footer';
 import Home from './pages/home';
 import Booking from './pages/booking';
+import GroupBooking from './pages/groupBooking';
 import AppointmentHistory from './pages/appointmentHistory';
 import Config from './pages/config';
 import ServicesMenu from './pages/servicemenu';
@@ -26,6 +27,7 @@ const App = () => (
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/booking" element={<Booking />} />
+      <Route path="/groupbooking" element={<GroupBooking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
