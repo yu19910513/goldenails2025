@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import './NailSalonMenu.css';
-import ItemService from '../../services/itemService';
-import { formatPrice } from '../../utils/helper';
+import React, { useEffect, useState } from "react";
+import "./NailSalonMenu.css";
+import ItemService from "../../services/itemService";
+import { formatPrice } from "../../utils/helper";
 
-const NailSalonMenu = ({ onServiceSelect, onRemoveService, selectedServices }) => {
+const NailSalonMenu = ({ selectedServices, onServiceQuantityChange, groupSize }) => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,27 +14,14 @@ const NailSalonMenu = ({ onServiceSelect, onRemoveService, selectedServices }) =
         const response = await ItemService.getAll();
         setServices(response.data);
       } catch (err) {
-        console.error('Error:', err);
-        setError('Failed to fetch services.');
+        console.error("Error:", err);
+        setError("Failed to fetch services.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchServices();
   }, []);
-
-  const isSelected = (serviceId) => {
-    return selectedServices.some((s) => s.id === serviceId);
-  };
-
-  const handleRowClick = (service) => {
-    if (isSelected(service.id)) {
-      onRemoveService(service.id);
-    } else {
-      onServiceSelect(service);
-    }
-  };
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -47,16 +34,33 @@ const NailSalonMenu = ({ onServiceSelect, onRemoveService, selectedServices }) =
             <h2 className="menu-category">{category.name}</h2>
             <table className="menu-table">
               <tbody>
-                {category.services.map((service) => (
-                  <tr
-                    key={service.id}
-                    className={`menu-item-row ${isSelected(service.id) ? 'selected' : ''}`}
-                    onClick={() => handleRowClick(service)}
-                  >
-                    <td className="item-name">{service.name}</td>
-                    <td className="item-price">{formatPrice(service.price)}</td>
-                  </tr>
-                ))}
+                {category.services.map((service) => {
+                  const selected = selectedServices.find((s) => s.id === service.id);
+                  const quantity = selected ? selected.quantity : 0;
+                  return (
+                    <tr
+                      key={service.id}
+                      className={`menu-item-row ${quantity > 0 ? "selected" : ""}`}
+                    >
+                      <td className="item-name">{service.name}</td>
+                      <td className="item-price">{formatPrice(service.price)}</td>
+                      <td>
+                        <select
+                          value={quantity}
+                          onChange={(e) =>
+                            onServiceQuantityChange(service, parseInt(e.target.value))
+                          }
+                        >
+                          {[...Array(groupSize + 1).keys()].map((num) => (
+                            <option key={num} value={num}>
+                              {num}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

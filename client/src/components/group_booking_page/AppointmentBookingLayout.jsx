@@ -3,20 +3,24 @@ import NailSalonMenu from "./NailSalonMenu";
 import NewApptForm from "./NewApptForm";
 import "./AppointmentBookingLayout.css";
 
-// Accept both customerInfo and groupSize as props
-const AppointmentBookingLayout = ({ customerInfo, groupSize }) => { 
+const AppointmentBookingLayout = ({ customerInfo, groupSize }) => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  const handleServiceSelect = (service) => {
+  // Update quantity of a service
+  const handleServiceQuantityChange = (service, quantity) => {
     setSelectedServices((prev) => {
-      if (prev.some((s) => s.id === service.id)) return prev;
-      return [...prev, service];
+      const exists = prev.find((s) => s.id === service.id);
+      if (quantity === 0) {
+        return prev.filter((s) => s.id !== service.id);
+      } else if (exists) {
+        return prev.map((s) =>
+          s.id === service.id ? { ...s, quantity } : s
+        );
+      } else {
+        return [...prev, { ...service, quantity }];
+      }
     });
-  };
-
-  const handleRemoveService = (serviceId) => {
-    setSelectedServices((prev) => prev.filter((s) => s.id !== serviceId));
   };
 
   return (
@@ -25,19 +29,17 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize }) => {
       <div className="menu-section">
         <NailSalonMenu
           selectedServices={selectedServices}
-          onServiceSelect={handleServiceSelect}
-          onRemoveService={handleRemoveService}
+          onServiceQuantityChange={handleServiceQuantityChange}
+          groupSize={groupSize}
         />
       </div>
 
       {/* Form Section */}
-      <div
-        className={`form-section ${showForm ? "show" : "hide"}`}
-      >
+      <div className={`form-section ${showForm ? "show" : "hide"}`}>
         <NewApptForm
           selectedServices={selectedServices}
           customerInfo={customerInfo}
-          groupSize={groupSize} // Pass the groupSize prop down
+          groupSize={groupSize}
         />
       </div>
 
