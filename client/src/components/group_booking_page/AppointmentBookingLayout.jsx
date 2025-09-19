@@ -3,9 +3,10 @@ import NailSalonMenu from "./NailSalonMenu";
 import NewApptForm from "./NewApptForm";
 import "./AppointmentBookingLayout.css";
 
-const AppointmentBookingLayout = ({ customerInfo, groupSize }) => {
+const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize }) => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [groupSize, setGroupSize] = useState(initialGroupSize || 1);
 
   // Update quantity of a service
   const handleServiceQuantityChange = (service, quantity) => {
@@ -21,6 +22,17 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize }) => {
         return [...prev, { ...service, quantity }];
       }
     });
+  };
+
+  // Handle group size change (from child)
+  const handleGroupSizeChange = (newSize) => {
+    setGroupSize(newSize);
+    setSelectedServices((prev) =>
+      prev.map((svc) => ({
+        ...svc,
+        quantity: Math.min(svc.quantity, newSize), // clamp qty to group size
+      }))
+    );
   };
 
   return (
@@ -40,6 +52,7 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize }) => {
           selectedServices={selectedServices}
           customerInfo={customerInfo}
           groupSize={groupSize}
+          onGroupSizeChange={handleGroupSizeChange}
         />
       </div>
 

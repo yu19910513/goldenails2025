@@ -9,7 +9,7 @@ import {
 } from "../../utils/helper";
 import "./NewApptForm.css";
 
-const NewApptForm = ({ selectedServices, customerInfo, groupSize }) => {
+const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeChange }) => {
   const [form, setForm] = useState({
     phone: "",
     name: "",
@@ -39,13 +39,11 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize }) => {
     }
   }, [customerInfo]);
 
-  // Fetch technician availability
+  // Fetch technician availability whenever date or selected services change
   useEffect(() => {
     const checkAvailability = async () => {
       if (!form.date || selectedServices.length === 0) return;
-      const categoryIds = [
-        ...new Set(selectedServices.map((svc) => svc.id)),
-      ];
+      const categoryIds = [...new Set(selectedServices.map((svc) => svc.id))];
       try {
         const res = await TechnicianService.getAvailableTechnicians(categoryIds);
         const allTechnicians = res.data;
@@ -156,24 +154,15 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize }) => {
           className="new-appt-input"
         />
 
+        {/* ✅ Group Size Selector (user can change it, not fixed anymore) */}
         <select
           value={groupSize}
-          disabled
+          onChange={(e) => onGroupSizeChange(parseInt(e.target.value))}
           className="new-appt-input"
         >
-          <option value={groupSize}>Group Size: {groupSize}</option>
-        </select>
-
-        <select
-          value={form.technician}
-          onChange={(e) => setForm({ ...form, technician: e.target.value })}
-          required
-          className="new-appt-input"
-        >
-          <option value="">Select Technician</option>
-          {technicianOptions.map((tech) => (
-            <option key={tech.id} value={tech.name}>
-              {tech.name}
+          {[...Array(4).keys()].map((i) => (
+            <option key={i + 1} value={i + 1}>
+              Group Size: {i + 1}
             </option>
           ))}
         </select>
@@ -217,11 +206,17 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize }) => {
         </ul>
       </div>
 
-      <button type="submit" className="new-appt-submit-btn" disabled={!isFormValid()}>
+      <button
+        type="submit"
+        className="new-appt-submit-btn"
+        disabled={!isFormValid()}
+      >
         Submit
       </button>
 
-      {isAppointmentLoading && <div className="loading-overlay">Creating appointment...</div>}
+      {isAppointmentLoading && (
+        <div className="loading-overlay">Creating appointment...</div>
+      )}
     </form>
   );
 };
