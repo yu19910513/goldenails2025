@@ -6,6 +6,7 @@ import {
   groupServicesByCategory,
   formatTime,
   getBusinessHours,
+  distributeItems
 } from "../../utils/helper";
 import "./NewApptForm.css";
 
@@ -42,11 +43,23 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
   // Fetch technician availability whenever date or selected services change
   useEffect(() => {
     const checkAvailability = async () => {
+      console.log("selected services: ");
+      console.log(selectedServices);
+      const servicePool = selectedServices.flatMap(svc => Array(svc.quantity).fill(svc));
+      var appointments = distributeItems(servicePool, groupSize)
+      console.log("appointments: ");
+      console.log(appointments);
+      
+      
+      
       if (!form.date || selectedServices.length === 0) return;
-      const categoryIds = [...new Set(selectedServices.map((svc) => svc.id))];
+      const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
       try {
         const res = await TechnicianService.getAvailableTechnicians(categoryIds);
         const allTechnicians = res.data;
+        console.log("available techs: ");
+        console.log(allTechnicians);
+        
         techNameToId.current = Object.fromEntries(
           allTechnicians.map((tech) => [tech.name, tech.id])
         );
@@ -73,6 +86,7 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
           }
         }
         setTechnicianOptions(availableTechs);
+
         if (availableTechs.length > 0) {
           const defaultTech = availableTechs[0].name;
           const timeToSet = formatTime(techSlotsMap[defaultTech][0]);

@@ -578,6 +578,136 @@ const isTokenValid = (token) => {
   }
 }
 
+/**
+ * Distribute items into subgroups while balancing their total `time` values
+ * as evenly as possible and ensuring no duplicate IDs exist in the same group.
+ *
+ * - Uses optimized backtracking for small inputs (<=20 items, <=4 groups).
+ * - Falls back to greedy heuristic for larger inputs to keep runtime safe.
+ *
+ * @typedef {Object} Item
+ * @property {string|number} id   - Unique identifier for the item type.
+ * @property {number} time        - Duration (in minutes).
+ *
+ * @param {Item[]} items - Array of items (may include duplicates by id).
+ * @param {number} size  - Number of subgroups to divide items into.
+ *
+ * @returns {Item[][]} An array of sub-arrays, each representing a group of items.
+ *
+ * @example
+ * const arr = [
+ *   { id: "A", time: 40 },
+ *   { id: "A", time: 40 },
+ *   { id: "B", time: 20 },
+ *   { id: "C", time: 10 },
+ *   { id: "E", time: 5 },
+ *   { id: "F", time: 1 },
+ *   { id: "F", time: 1 }
+ * ];
+ *
+ * // Distribute into 3 balanced groups
+ * const result = distributeItems(arr, 3);
+ * console.log(result);
+ * // Example output:
+ * // [
+ * //   [ { id:"A", time:40 } ],
+ * //   [ { id:"A", time:40 }, { id:"F", time:1 } ],
+ * //   [ { id:"B", time:20 }, { id:"C", time:10 }, { id:"E", time:5 }, { id:"F", time:1 } ]
+ * // ]
+ */
+const distributeItems = (items, size) => {
+  // ---- Greedy fallback ----
+  const greedyDistribute = (items, size) => {
+    const groups = Array.from({ length: size }, () => ({
+      items: [],
+      totalTime: 0,
+      ids: new Set()
+    }));
+
+    // Sort by descending time
+    const sorted = [...items].sort((a, b) => b.time - a.time);
+
+    for (const item of sorted) {
+      // Pick group with lowest totalTime that doesn’t have this id
+      let target = null;
+      let minTime = Infinity;
+
+      for (const group of groups) {
+        if (!group.ids.has(item.id) && group.totalTime < minTime) {
+          minTime = group.totalTime;
+          target = group;
+        }
+      }
+
+      if (target) {
+        target.items.push(item);
+        target.totalTime += item.time;
+        target.ids.add(item.id);
+      }
+    }
+
+    return groups.map(g => g.items);
+  }
+
+  // ---- Optimized Backtracking ----
+  const backtrackingDistribute = (items, size) => {
+    const groups = Array.from({ length: size }, () => ({
+      items: [],
+      totalTime: 0,
+      ids: new Set()
+    }));
+
+    const sorted = [...items].sort((a, b) => b.time - a.time);
+
+    let bestSolution = null;
+    let bestSpread = Infinity;
+
+    const backtrack = (index) => {
+      if (index === sorted.length) {
+        const times = groups.map(g => g.totalTime);
+        const spread = Math.max(...times) - Math.min(...times);
+        if (spread < bestSpread) {
+          bestSpread = spread;
+          bestSolution = groups.map(g => g.items.slice());
+        }
+        return;
+      }
+
+      const item = sorted[index];
+      for (const group of groups) {
+        if (group.ids.has(item.id)) continue;
+
+        // Place
+        group.items.push(item);
+        group.totalTime += item.time;
+        group.ids.add(item.id);
+
+        const times = groups.map(g => g.totalTime);
+        const spread = Math.max(...times) - Math.min(...times);
+
+        if (spread <= bestSpread) {
+          backtrack(index + 1);
+        }
+
+        // Undo
+        group.items.pop();
+        group.totalTime -= item.time;
+        group.ids.delete(item.id);
+      }
+    }
+
+    backtrack(0);
+    return bestSolution;
+  }
+
+  // ---- Choose strategy ----
+  if (items.length <= 20 && size <= 4) {
+    return backtrackingDistribute(items, size);
+  } else {
+    return greedyDistribute(items, size);
+  }
+}
+
 
 
 
@@ -598,5 +728,6 @@ export {
   areCommonValuesEqual,
   getBusinessHours,
   sanitizeObjectInput,
-  isTokenValid
+  isTokenValid,
+  distributeItems
 };
