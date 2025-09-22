@@ -12,7 +12,8 @@ import {
     areCommonValuesEqual,
     getBusinessHours,
     sanitizeObjectInput,
-    isTokenValid
+    isTokenValid,
+    distributeItems
 } from "../utils/helper";
 
 describe("Helper Functions", () => {
@@ -128,12 +129,12 @@ describe("Helper Functions", () => {
         test("returns empty array when technician is unavailable on a specific weekday", () => {
             const appointments = [];
             const selectedServices = { "1": [{ time: 30 }] };
-            
+
             // Get next Monday (weekday = 1 in Luxon; Sunday = 7)
             const today = DateTime.local();
             const daysUntilMonday = (8 - today.weekday) % 7 || 7;
             const selectedDate = today.plus({ days: daysUntilMonday }).toISODate(); // "YYYY-MM-DD"
-        
+
             const technician = { name: "Lisa", unavailability: "1" }; // Monday
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots).toEqual([]);
@@ -470,6 +471,117 @@ describe("Helper Functions", () => {
             const futureTimestamp = Math.floor(Date.now() / 1000) + 1000;
             const token = createTokenWithExp(futureTimestamp);
             expect(isTokenValid(token)).toBe(true);
+        });
+    });
+
+
+    describe("distributeItems", () => {
+        it("should distribute items into given number of groups", () => {
+            const items = [
+                { id: "A", time: 40 },
+                { id: "A", time: 40 },
+                { id: "B", time: 20 },
+                { id: "C", time: 10 },
+                { id: "E", time: 5 },
+                { id: "F", time: 1 },
+                { id: "F", time: 1 },
+            ];
+
+            const groups = distributeItems(items, 3);
+
+            expect(groups).toHaveLength(3);
+            expect(groups.flat()).toHaveLength(items.length);
+        });
+
+        it("should not put duplicate IDs in the same group", () => {
+            const items = [
+                { id: "A", time: 30 },
+                { id: "A", time: 30 },
+                { id: "B", time: 15 },
+                { id: "C", time: 10 },
+            ];
+
+            const groups = distributeItems(items, 2);
+
+            for (const group of groups) {
+                const ids = group.map(i => i.id);
+                const uniqueIds = new Set(ids);
+                expect(ids.length).toBe(uniqueIds.size);
+            }
+        });
+
+        it("should balance total times across groups", () => {
+            const items = [
+                { id: "X", time: 50 },
+                { id: "Y", time: 30 },
+                { id: "Z", time: 20 },
+                { id: "W", time: 10 },
+            ];
+
+            const groups = distributeItems(items, 2);
+
+            const totals = groups.map(g => g.reduce((sum, i) => sum + i.time, 0));
+            const spread = Math.max(...totals) - Math.min(...totals);
+
+            expect(spread).toBeLessThanOrEqual(30); // should be reasonably balanced
+        });
+
+        it("should handle case with group size = items.length (each item in its own group)", () => {
+            const items = [
+                { id: "A", time: 5 },
+                { id: "B", time: 10 },
+                { id: "C", time: 15 },
+            ];
+
+            const groups = distributeItems(items, 3);
+
+            expect(groups).toHaveLength(3);
+            groups.forEach(g => expect(g).toHaveLength(1));
+        });
+
+        it("should handle case with only one group", () => {
+            const items = [
+                { id: "A", time: 5 },
+                { id: "B", time: 10 },
+            ];
+
+            const groups = distributeItems(items, 1);
+
+            expect(groups).toHaveLength(1);
+
+            const receivedIds = groups[0].map(i => i.id).sort();
+            const expectedIds = items.map(i => i.id).sort();
+
+            expect(receivedIds).toEqual(expectedIds);
+        });
+
+        it("should auto-increase group size if duplicate count exceeds requested size", () => {
+            const items = [
+                { id: "A", time: 5 },
+                { id: "A", time: 5 },
+                { id: "A", time: 5 },
+            ];
+            const requestedSize = 2; // requested smaller than max duplicates
+            const groups = distributeItems(items, requestedSize);
+
+            // The function should auto-increase size to 3
+            expect(groups).toHaveLength(3);
+
+            // Each group should contain exactly one 'A'
+            groups.forEach(group => {
+                const aCount = group.filter(item => item.id === "A").length;
+                expect(aCount).toBeLessThanOrEqual(1);
+            });
+
+            // All items must be included
+            const flatItems = groups.flat();
+            expect(flatItems).toHaveLength(items.length);
+            expect(flatItems.filter(i => i.id === "A")).toHaveLength(3);
+        });
+
+        it("should handle empty input", () => {
+            const groups = distributeItems([], 3);
+            expect(groups).toEqual([[], [], []]);
         });
     });
 

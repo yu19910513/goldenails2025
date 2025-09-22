@@ -579,43 +579,56 @@ const isTokenValid = (token) => {
 }
 
 /**
- * Distribute items into subgroups while balancing their total `time` values
- * as evenly as possible and ensuring no duplicate IDs exist in the same group.
+ * Distribute items into groups such that:
+ *  - Each group cannot contain duplicate items with the same `id`.
+ *  - The total `time` values across groups are balanced as evenly as possible.
+ *  - If the number of duplicates of any single `id` is greater than the given `size`,
+ *    the `size` is automatically increased to fit all duplicates.
  *
- * - Uses optimized backtracking for small inputs (<=20 items, <=4 groups).
- * - Falls back to greedy heuristic for larger inputs to keep runtime safe.
+ * Strategy:
+ *  - For small inputs (≤ 20 items and ≤ 4 groups), an optimized backtracking
+ *    approach is used to minimize the spread (difference between max and min total time).
+ *  - For larger inputs, a greedy heuristic is used for efficiency.
  *
- * @typedef {Object} Item
- * @property {string|number} id   - Unique identifier for the item type.
- * @property {number} time        - Duration (in minutes).
- *
- * @param {Item[]} items - Array of items (may include duplicates by id).
- * @param {number} size  - Number of subgroups to divide items into.
- *
- * @returns {Item[][]} An array of sub-arrays, each representing a group of items.
+ * @param {Array<{id: string, time: number}>} items - Array of items to distribute.
+ *   Each item must have a unique `id` (identifier for type) and `time` (duration in minutes).
+ *   Duplicate objects with the same `id` represent repeated instances of that type.
+ * @param {number} size - Number of groups to distribute items into.
+ *   Will be auto-increased if fewer than the maximum number of duplicates of any id.
+ * @returns {Array<Array<{id: string, time: number}>>} 
+ *   Array of groups, each group being an array of items.
  *
  * @example
- * const arr = [
+ * const items = [
  *   { id: "A", time: 40 },
  *   { id: "A", time: 40 },
  *   { id: "B", time: 20 },
  *   { id: "C", time: 10 },
- *   { id: "E", time: 5 },
  *   { id: "F", time: 1 },
- *   { id: "F", time: 1 }
+ *   { id: "F", time: 1 },
  * ];
  *
- * // Distribute into 3 balanced groups
- * const result = distributeItems(arr, 3);
- * console.log(result);
- * // Example output:
+ * // With size = 2, auto-increases to 2 (since max duplicate count is 2 for A and F).
+ * const groups = distributeItems(items, 2);
+ *
+ * // Possible output (balanced by time):
  * // [
- * //   [ { id:"A", time:40 } ],
- * //   [ { id:"A", time:40 }, { id:"F", time:1 } ],
- * //   [ { id:"B", time:20 }, { id:"C", time:10 }, { id:"E", time:5 }, { id:"F", time:1 } ]
+ * //   [ { id: "A", time: 40 }, { id: "C", time: 10 }, { id: "F", time: 1 } ],
+ * //   [ { id: "A", time: 40 }, { id: "B", time: 20 }, { id: "F", time: 1 } ]
  * // ]
  */
 const distributeItems = (items, size) => {
+  // --- Adjust size automatically if duplicates exceed group size ---
+  const idCounts = items.reduce((acc, item) => {
+    acc[item.id] = (acc[item.id] || 0) + 1;
+    return acc;
+  }, {});
+  const maxDuplicates = Math.max(...Object.values(idCounts), 0);
+
+  if (size < maxDuplicates) {
+    size = maxDuplicates; // bump size up to fit all duplicates
+  }
+
   // ---- Greedy fallback ----
   const greedyDistribute = (items, size) => {
     const groups = Array.from({ length: size }, () => ({
@@ -647,7 +660,7 @@ const distributeItems = (items, size) => {
     }
 
     return groups.map(g => g.items);
-  }
+  };
 
   // ---- Optimized Backtracking ----
   const backtrackingDistribute = (items, size) => {
@@ -694,11 +707,11 @@ const distributeItems = (items, size) => {
         group.totalTime -= item.time;
         group.ids.delete(item.id);
       }
-    }
+    };
 
     backtrack(0);
     return bestSolution;
-  }
+  };
 
   // ---- Choose strategy ----
   if (items.length <= 20 && size <= 4) {
@@ -706,7 +719,7 @@ const distributeItems = (items, size) => {
   } else {
     return greedyDistribute(items, size);
   }
-}
+};
 
 
 
