@@ -20,7 +20,6 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
     time: "",
     technician: "",
   });
-  const [technicianOptions, setTechnicianOptions] = useState([]);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
   const techNameToId = useRef({});
@@ -43,69 +42,106 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
   // Fetch technician availability whenever date or selected services change
   useEffect(() => {
     const checkAvailability = async () => {
-      console.log("selected services: ");
-      console.log(selectedServices);
-      const servicePool = selectedServices.flatMap(svc => Array(svc.quantity).fill(svc));
-      var appointments = distributeItems(servicePool, groupSize)
-      console.log("appointments: ");
-      console.log(appointments);
-      
-      
-      
       if (!form.date || selectedServices.length === 0) return;
-      const categoryIds = [...new Set(selectedServices.map((svc) => svc.category_id))];
+
+      console.log("selected services:", selectedServices);
+
+      // Flatten service pool and distribute into appointment groups
+      const servicePool = selectedServices.flatMap(svc => Array(svc.quantity).fill(svc));
+      var appointments = distributeItems(servicePool, groupSize);
+      console.log("distributed appointments:", appointments);
+      // Remove any empty appointment arrays
+      appointments = appointments.filter(appt => appt.length > 0);
+
+      console.log("distributed appointments (non-empty):", appointments);
+
+      if (appointments.length === 0) {
+        setForm(prev => ({ ...prev, technician: "", time: "" }));
+        setAvailableTimes([]);
+        return;
+      }
+
       try {
-        const res = await TechnicianService.getAvailableTechnicians(categoryIds);
-        const allTechnicians = res.data;
-        console.log("available techs: ");
-        console.log(allTechnicians);
-        
-        techNameToId.current = Object.fromEntries(
-          allTechnicians.map((tech) => [tech.name, tech.id])
+        // Step 1: For each appointment, get available technicians
+        const appointmentTechMap = await Promise.all(
+          appointments.map(async (appt) => {
+            const categoryIds = [...new Set(appt.map(s => s.category_id))];
+            const res = await TechnicianService.getAvailableTechnicians(categoryIds);
+            return res.data; // array of techs who can perform all services in this appointment
+          })
         );
-        const availableTechs = [];
-        const techSlotsMap = {};
-        for (let tech of allTechnicians) {
-          const techId = techNameToId.current[tech.name];
-          try {
-            const res = await AppointmentService.findByTechId(techId);
-            const appointments = res.data;
-            const slots = calculateAvailableSlots(
-              appointments,
-              groupServicesByCategory(selectedServices),
-              form.date,
-              getBusinessHours(form.date),
-              tech
-            );
-            if (slots.length > 0) {
-              availableTechs.push(tech);
-              techSlotsMap[tech.name] = slots;
-            }
-          } catch (err) {
-            console.error(`Error checking availability for ${tech.name}`, err);
+
+        // Step 2: Assign technicians to appointments
+        const assignedTechs = [];
+        const usedTechs = new Set();
+
+        for (const techOptions of appointmentTechMap) {
+          // Prefer a tech not already used and not "No Preference"
+          let assigned = techOptions.find(t => t.name !== "No Preference" && !usedTechs.has(t.name));
+
+          // Only use "No Preference" if necessary
+          if (!assigned) {
+            assigned = techOptions.find(t => t.name === "No Preference");
+          }
+
+          if (assigned) {
+            assignedTechs.push(assigned);
+            if (assigned.name !== "No Preference") usedTechs.add(assigned.name);
+          } else {
+            assignedTechs.push(null); // fallback if no tech available
           }
         }
-        setTechnicianOptions(availableTechs);
 
-        if (availableTechs.length > 0) {
-          const defaultTech = availableTechs[0].name;
-          const timeToSet = formatTime(techSlotsMap[defaultTech][0]);
-          setForm((prev) => ({
+        console.log("assigned technicians:", assignedTechs.map(t => t?.name || "None"));
+
+        // Step 3: Find common available time slots across all assigned technicians
+        let commonSlots = null;
+
+        for (let i = 0; i < assignedTechs.length; i++) {
+          const tech = assignedTechs[i];
+          if (!tech) continue;
+
+          const appt = appointments[i];
+          const res = await AppointmentService.findByTechId(tech.id);
+          const techAppointments = res.data;
+          const slots = calculateAvailableSlots(
+            techAppointments,
+            groupServicesByCategory(appt),
+            form.date,
+            getBusinessHours(form.date),
+            tech
+          );
+
+          if (!commonSlots) {
+            commonSlots = slots;
+          } else {
+            const slotTimes = new Set(slots.map(s => s.getTime()));
+            commonSlots = commonSlots.filter(s => slotTimes.has(s.getTime()));
+          }
+
+        }
+
+        // Step 4: Update form and available times
+        if (commonSlots && commonSlots.length > 0) {
+          setForm(prev => ({
             ...prev,
-            technician: defaultTech,
-            time: timeToSet,
+            technician: assignedTechs[0]?.name || "",
+            time: formatTime(commonSlots[0]),
           }));
-          setAvailableTimes(techSlotsMap[defaultTech]);
+          setAvailableTimes(commonSlots);
         } else {
-          setForm((prev) => ({ ...prev, technician: "", time: "" }));
+          setForm(prev => ({ ...prev, technician: "", time: "" }));
           setAvailableTimes([]);
         }
+
       } catch (err) {
-        console.error("Error checking technician availability:", err);
+        console.error("Error checking availability:", err);
       }
     };
+
     checkAvailability();
   }, [form.date, selectedServices]);
+
 
   const isFormValid = () => {
     return (
