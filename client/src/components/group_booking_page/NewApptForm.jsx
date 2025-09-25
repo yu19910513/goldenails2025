@@ -11,104 +11,89 @@ import {
 import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeChange }) => {
-  const [form, setForm] = useState({
+  const [customer, setCustomer] = useState({
     phone: "",
     name: "",
     customer_id: "",
     email: "",
-    date: "",
-    time: "",
-    technician: "",
+    date: ""
   });
+
+  const [forms, setForms] = useState([]); // internal appt configs
   const [availableTimes, setAvailableTimes] = useState([]);
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
+
   const techNameToId = useRef({});
 
   // Populate customer info
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     if (customerInfo) {
-      setForm((prev) => ({
-        ...prev,
-        date: today,
+      setCustomer({
         phone: customerInfo.phone || "",
         name: customerInfo.name || "",
         email: customerInfo.email || "",
         customer_id: customerInfo.id || "",
-      }));
+        date: today
+      });
     }
   }, [customerInfo]);
 
-  // Fetch technician availability whenever date or selected services change
+  // Check availability whenever date/services/groupSize change
   useEffect(() => {
     const checkAvailability = async () => {
-      if (!form.date || selectedServices.length === 0) return;
+      if (!customer.date || selectedServices.length === 0) return;
 
-      console.log("selected services:", selectedServices);
-
-      // Flatten service pool and distribute into appointment groups
-      const servicePool = selectedServices.flatMap(svc => Array(svc.quantity).fill(svc));
-      var appointments = distributeItems(servicePool, groupSize);
-      console.log("distributed appointments:", appointments);
-      // Remove any empty appointment arrays
-      appointments = appointments.filter(appt => appt.length > 0);
-
-      console.log("distributed appointments (non-empty):", appointments);
-
+      const servicePool = selectedServices.flatMap(svc =>
+        Array(svc.quantity).fill(svc)
+      );
+      let appointments = distributeItems(servicePool, groupSize);
+      appointments = appointments.filter(appt => Array.isArray(appt) && appt.length > 0);
       if (appointments.length === 0) {
-        setForm(prev => ({ ...prev, technician: "", time: "" }));
+        setForms([]);
         setAvailableTimes([]);
         return;
       }
 
       try {
-        // Step 1: For each appointment, get available technicians
+        // Step 1: fetch techs per appt
         const appointmentTechMap = await Promise.all(
           appointments.map(async (appt) => {
             const categoryIds = [...new Set(appt.map(s => s.category_id))];
             const res = await TechnicianService.getAvailableTechnicians(categoryIds);
-            return res.data; // array of techs who can perform all services in this appointment
+            return Array.isArray(res.data) ? res.data : [];
           })
         );
 
-        // Step 2: Assign technicians to appointments
+        // Step 2: assign techs
         const assignedTechs = [];
         const usedTechs = new Set();
-
         for (const techOptions of appointmentTechMap) {
-          // Prefer a tech not already used and not "No Preference"
           let assigned = techOptions.find(t => t.name !== "No Preference" && !usedTechs.has(t.name));
-
-          // Only use "No Preference" if necessary
-          if (!assigned) {
-            assigned = techOptions.find(t => t.name === "No Preference");
-          }
-
+          if (!assigned) assigned = techOptions.find(t => t.name === "No Preference");
           if (assigned) {
             assignedTechs.push(assigned);
             if (assigned.name !== "No Preference") usedTechs.add(assigned.name);
           } else {
-            assignedTechs.push(null); // fallback if no tech available
+            assignedTechs.push(null);
           }
         }
 
-        console.log("assigned technicians:", assignedTechs.map(t => t?.name || "None"));
-
-        // Step 3: Find common available time slots across all assigned technicians
+        // Step 3: intersect available times across all assigned techs
         let commonSlots = null;
-
         for (let i = 0; i < assignedTechs.length; i++) {
           const tech = assignedTechs[i];
           if (!tech) continue;
 
           const appt = appointments[i];
           const res = await AppointmentService.findByTechId(tech.id);
-          const techAppointments = res.data;
+          const techAppointments = Array.isArray(res.data) ? res.data : [];
+
           const slots = calculateAvailableSlots(
             techAppointments,
             groupServicesByCategory(appt),
-            form.date,
-            getBusinessHours(form.date),
+            customer.date,
+            getBusinessHours(customer.date),
             tech
           );
 
@@ -118,119 +103,122 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
             const slotTimes = new Set(slots.map(s => s.getTime()));
             commonSlots = commonSlots.filter(s => slotTimes.has(s.getTime()));
           }
-
         }
 
-        // Step 4: Update form and available times
-        if (commonSlots && commonSlots.length > 0) {
-          setForm(prev => ({
-            ...prev,
-            technician: assignedTechs[0]?.name || "",
-            time: formatTime(commonSlots[0]),
-          }));
-          setAvailableTimes(commonSlots);
-        } else {
-          setForm(prev => ({ ...prev, technician: "", time: "" }));
-          setAvailableTimes([]);
-        }
+        const generatedForms = appointments.map((appt, idx) => ({
+          date: customer.date,
+          time: commonSlots && commonSlots.length > 0 ? formatTime(commonSlots[0]) : "",
+          technician: assignedTechs[idx]
+            ? { id: assignedTechs[idx].id, name: assignedTechs[idx].name }
+            : null,
+          services: appt
+        }));
 
+
+
+        // 📝 DEV LOGGING
+        console.group("📋 checkAvailability()");
+        console.log("Customer Info:", customer);
+        console.log("Appointments (services grouped):", appointments);
+        console.log("Assigned Technicians:", assignedTechs);
+        console.log("Generated Forms:", generatedForms);
+        console.groupEnd();
+
+        setForms(generatedForms);
+        setAvailableTimes(commonSlots || []);
       } catch (err) {
         console.error("Error checking availability:", err);
+        setForms([]);
+        setAvailableTimes([]);
       }
     };
 
     checkAvailability();
-  }, [form.date, selectedServices]);
-
+  }, [customer.date, selectedServices, groupSize]);
 
   const isFormValid = () => {
-    return (
-      form.customer_id &&
-      form.date.trim() !== "" &&
-      form.time.trim() !== "" &&
-      form.technician.trim() !== "" &&
-      selectedServices.length > 0
+    return forms.length > 0 && forms.every(f =>
+      f.date && f.time && f.technician && f.services.length > 0
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isFormValid()) {
+      alert("Please make sure all appointments have valid technician, time, and services.");
+      return;
+    }
+
+    setIsAppointmentLoading(true);
     try {
-      const technicianId = techNameToId.current[form.technician];
-      if (!technicianId) {
-        alert("Please select a valid technician.");
-        return;
+      for (const f of forms) {
+        if (!f.technician || !f.technician.id) {
+          console.warn("Skipping form without technician:", f);
+          continue;
+        }
+
+        const appointmentData = {
+          customer_id: customer.customer_id,
+          date: f.date,
+          start_service_time: f.time,
+          technician_id: f.technician.id,  
+          service_ids: f.services.flatMap(s => Array(s.quantity).fill(s.id))
+        };
+
+        const response = await AppointmentService.create(appointmentData);
+        console.log("Appointment successfully created:", response.data);
       }
 
-      const appointmentData = {
-        customer_id: form.customer_id,
-        date: form.date,
-        start_service_time: form.time,
-        technician_id: technicianId,
-        service_ids: selectedServices.flatMap((svc) =>
-          Array(svc.quantity).fill(svc.id)
-        ), // repeat service id by quantity
-      };
+      alert("Appointments successfully booked!");
 
-      setIsAppointmentLoading(true);
-      await AppointmentService.create(appointmentData);
-      alert("Appointment successfully booked!");
     } catch (err) {
-      console.error("Error creating appointment:", err);
-      alert("Failed to book the appointment. Please try again.");
+      console.error("Error creating appointments:", err);
+      alert("Failed to book appointments. Please try again.");
     } finally {
       setIsAppointmentLoading(false);
     }
   };
 
+
   return (
     <form onSubmit={handleSubmit} className="new-appt-form">
       <h2 className="new-appt-title">New Appointment</h2>
+
+      {/* Customer info */}
       <div className="new-appt-form-grid">
+        <input type="tel" value={customer.phone} readOnly disabled className="new-appt-input" />
+        <input type="text" value={customer.name} readOnly disabled className="new-appt-input" />
+
+        {/* Editable date */}
         <input
-          type="tel"
-          placeholder="Phone Number"
-          value={form.phone}
-          readOnly
-          disabled
-          className="new-appt-input"
-        />
-        <input
-          type="text"
-          placeholder="Name"
-          value={form.name}
-          readOnly
-          disabled
+          type="date"
+          value={customer.date}
+          onChange={(e) => setCustomer({ ...customer, date: e.target.value })}
+          min={new Date().toISOString().split("T")[0]}
           className="new-appt-input"
         />
 
-        {/* ✅ Group Size Selector (user can change it, not fixed anymore) */}
+        {/* Group size */}
         <select
           value={groupSize}
           onChange={(e) => onGroupSizeChange(parseInt(e.target.value))}
           className="new-appt-input"
         >
-          {[...Array(4).keys()].map((i) => (
-            <option key={i + 1} value={i + 1}>
-              Group Size: {i + 1}
-            </option>
+          {[...Array(4).keys()].map(i => (
+            <option key={i + 1} value={i + 1}>Group Size: {i + 1}</option>
           ))}
         </select>
 
-        <input
-          type="date"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
-          required
-          className="new-appt-input"
-          min={new Date().toISOString().split("T")[0]}
-        />
-
+        {/* Time slots (shared for all) */}
         <select
-          value={form.time}
-          onChange={(e) => setForm({ ...form, time: e.target.value })}
-          required
+          value={forms[0]?.time || ""}
+          onChange={(e) => {
+            const newTime = e.target.value;
+            setForms(forms.map(f => ({ ...f, time: newTime })));
+          }}
           className="new-appt-input"
+          required
         >
           <option value="">Select Time</option>
           {availableTimes.map((time, idx) => (
@@ -241,6 +229,7 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
         </select>
       </div>
 
+      {/* Services summary */}
       <div className="new-appt-services">
         <label className="new-appt-label">Selected Services</label>
         <ul className="new-appt-services-list">
@@ -248,24 +237,18 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
             <li>No services selected.</li>
           ) : (
             selectedServices.map((svc) => (
-              <li key={svc.id}>
-                {svc.name} x {svc.quantity}
-              </li>
+              <li key={svc.id}>{svc.name} x {svc.quantity}</li>
             ))
           )}
         </ul>
       </div>
 
-      <button
-        type="submit"
-        className="new-appt-submit-btn"
-        disabled={!isFormValid()}
-      >
+      <button type="submit" className="new-appt-submit-btn" disabled={!isFormValid()}>
         Submit
       </button>
 
       {isAppointmentLoading && (
-        <div className="loading-overlay">Creating appointment...</div>
+        <div className="loading-overlay">Creating appointments...</div>
       )}
     </form>
   );
