@@ -338,7 +338,8 @@ router.put("/update_note", async (req, res) => {
  */
 router.post("/", async (req, res) => {
   const { customer_id, date, start_service_time, technician_id, service_ids } = req.body;
-
+  console.log(req.body);
+  
   try {
     // Validate date and start_service_time
     if (!date || !start_service_time) {

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import PhoneNumberVerification from '../components/booking_page/PhoneNumberVerification';
 import GroupSizeSelection from '../components/group_booking_page/GroupSizeSelection'; // Import the new component
 import AppointmentBookingLayout from '../components/group_booking_page/AppointmentBookingLayout';
+import GroupAppointmentConfirmation from '../components/group_booking_page/GroupAppointmentConfirmation';
 
 const GroupBooking = () => {
     const [step, setStep] = useState(1);
     const [customerInfo, setCustomerInfo] = useState(null);
     const [groupSize, setGroupSize] = useState(null); // Add state for group size
+    const [createdAppointments, setCreatedAppointments] = useState([]);
 
     // Restore customer info from localStorage on the initial load
     useEffect(() => {
@@ -63,10 +65,16 @@ const GroupBooking = () => {
             {step === 3 && (
                 <AppointmentBookingLayout
                     customerInfo={customerInfo}
-                    groupSize={groupSize} // Pass groupSize as a prop
-                    onNext={handleNextStep}
-                    onBack={handlePrevStep}
+                    groupSize={groupSize}
+                    onSubmitSuccess={(appointments) => {
+                        setCreatedAppointments(appointments);
+                        handleNextStep(); // go to step 4
+                    }}
                 />
+            )}
+
+            {step === 4 && (
+                <GroupAppointmentConfirmation appointments={createdAppointments} />
             )}
 
             <div className="p-5"></div>

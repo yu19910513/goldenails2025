@@ -14,7 +14,7 @@ import {
 } from "../../utils/helper_api"
 import "./NewApptForm.css";
 
-const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeChange }) => {
+const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeChange, onSubmitSuccess }) => {
   const [customer, setCustomer] = useState({
     phone: "",
     name: "",
@@ -122,6 +122,7 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
 
     setIsAppointmentLoading(true);
     try {
+      const createdAppointments = [];
       for (const f of forms) {
         if (!f.technician || !f.technician.id) {
           console.warn("Skipping form without technician:", f);
@@ -133,15 +134,17 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
           date: f.date,
           start_service_time: f.time,
           technician_id: f.technician.id,
-          service_ids: f.services.flatMap(s => Array(s.quantity).fill(s.id))
+          service_ids: f.services.map(s => s.id) 
         };
-
+        console.log(appointmentData);
+        
         const response = await AppointmentService.create(appointmentData);
         console.log("Appointment successfully created:", response.data);
+        createdAppointments.push({ ...f, customer: customer, id: response.data.id });
       }
 
       alert("Appointments successfully booked!");
-
+      onSubmitSuccess(createdAppointments);
     } catch (err) {
       console.error("Error creating appointments:", err);
       alert("Failed to book appointments. Please try again.");

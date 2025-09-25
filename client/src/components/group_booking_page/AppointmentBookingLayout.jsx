@@ -3,7 +3,7 @@ import NailSalonMenu from "./NailSalonMenu";
 import NewApptForm from "./NewApptForm";
 import "./AppointmentBookingLayout.css";
 
-const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize }) => {
+const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, onSubmitSuccess }) => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [groupSize, setGroupSize] = useState(initialGroupSize || 1);
@@ -53,6 +53,7 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize })
           customerInfo={customerInfo}
           groupSize={groupSize}
           onGroupSizeChange={handleGroupSizeChange}
+          onSubmitSuccess={onSubmitSuccess}
         />
       </div>
 
