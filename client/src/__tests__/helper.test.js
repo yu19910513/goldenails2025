@@ -13,7 +13,8 @@ import {
     getBusinessHours,
     sanitizeObjectInput,
     isTokenValid,
-    distributeItems
+    distributeItems,
+    assignTechnicians
 } from "../utils/helper";
 
 describe("Helper Functions", () => {
@@ -582,6 +583,64 @@ describe("Helper Functions", () => {
         it("should handle empty input", () => {
             const groups = distributeItems([], 3);
             expect(groups).toEqual([[], [], []]);
+        });
+    });
+
+    describe("assignTechnicians", () => {
+        it("should assign available techs without conflicts", () => {
+            const appointmentTechMap = [
+                [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }],
+                [{ id: 3, name: "Tech B" }, { id: 4, name: "No Preference" }]
+            ];
+
+            const assigned = assignTechnicians(appointmentTechMap);
+
+            expect(assigned).toEqual([
+                { id: 1, name: "Tech A" },
+                { id: 3, name: "Tech B" }
+            ]);
+        });
+
+        it("should fallback to 'No Preference' if all other techs used", () => {
+            const appointmentTechMap = [
+                [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }],
+                [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }]
+            ];
+
+            const assigned = assignTechnicians(appointmentTechMap);
+
+            expect(assigned).toEqual([
+                { id: 1, name: "Tech A" },     // first assignment takes Tech A
+                { id: 2, name: "No Preference" } // second assignment falls back
+            ]);
+        });
+
+        it("should assign null if no techs available", () => {
+            const appointmentTechMap = [
+                [],
+                [{ id: 2, name: "No Preference" }]
+            ];
+
+            const assigned = assignTechnicians(appointmentTechMap);
+
+            expect(assigned).toEqual([
+                null,
+                { id: 2, name: "No Preference" }
+            ]);
+        });
+
+        it("should not assign the same non-'No Preference' tech twice", () => {
+            const appointmentTechMap = [
+                [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }],
+                [{ id: 1, name: "Tech A" }, { id: 3, name: "Tech B" }]
+            ];
+
+            const assigned = assignTechnicians(appointmentTechMap);
+
+            expect(assigned).toEqual([
+                { id: 1, name: "Tech A" },
+                { id: 3, name: "Tech B" } // avoids assigning Tech A again
+            ]);
         });
     });
 

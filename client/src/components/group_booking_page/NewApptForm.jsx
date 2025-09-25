@@ -6,8 +6,12 @@ import {
   groupServicesByCategory,
   formatTime,
   getBusinessHours,
-  distributeItems
+  distributeItems,
+  assignTechnicians
 } from "../../utils/helper";
+import {
+  getCommonAvailableSlots
+} from "../../utils/helper_api"
 import "./NewApptForm.css";
 
 const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeChange }) => {
@@ -66,44 +70,10 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
         );
 
         // Step 2: assign techs
-        const assignedTechs = [];
-        const usedTechs = new Set();
-        for (const techOptions of appointmentTechMap) {
-          let assigned = techOptions.find(t => t.name !== "No Preference" && !usedTechs.has(t.name));
-          if (!assigned) assigned = techOptions.find(t => t.name === "No Preference");
-          if (assigned) {
-            assignedTechs.push(assigned);
-            if (assigned.name !== "No Preference") usedTechs.add(assigned.name);
-          } else {
-            assignedTechs.push(null);
-          }
-        }
+        const assignedTechs = assignTechnicians(appointmentTechMap);
 
         // Step 3: intersect available times across all assigned techs
-        let commonSlots = null;
-        for (let i = 0; i < assignedTechs.length; i++) {
-          const tech = assignedTechs[i];
-          if (!tech) continue;
-
-          const appt = appointments[i];
-          const res = await AppointmentService.findByTechId(tech.id);
-          const techAppointments = Array.isArray(res.data) ? res.data : [];
-
-          const slots = calculateAvailableSlots(
-            techAppointments,
-            groupServicesByCategory(appt),
-            customer.date,
-            getBusinessHours(customer.date),
-            tech
-          );
-
-          if (!commonSlots) {
-            commonSlots = slots;
-          } else {
-            const slotTimes = new Set(slots.map(s => s.getTime()));
-            commonSlots = commonSlots.filter(s => slotTimes.has(s.getTime()));
-          }
-        }
+        const commonSlots = await getCommonAvailableSlots(assignedTechs, appointments, customer.date);
 
         const generatedForms = appointments.map((appt, idx) => ({
           date: customer.date,
@@ -162,7 +132,7 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
           customer_id: customer.customer_id,
           date: f.date,
           start_service_time: f.time,
-          technician_id: f.technician.id,  
+          technician_id: f.technician.id,
           service_ids: f.services.flatMap(s => Array(s.quantity).fill(s.id))
         };
 

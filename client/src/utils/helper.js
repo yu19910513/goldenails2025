@@ -721,6 +721,32 @@ const distributeItems = (items, size) => {
   }
 };
 
+/**
+ * Assign technicians to appointments
+ * @param {Array[]} appointmentTechMap - Array of arrays of available techs per appointment
+ * @returns {Array} assignedTechs - Array of assigned technician objects or null
+ */
+const assignTechnicians = (appointmentTechMap) => {
+  const assignedTechs = [];
+  const usedTechs = new Set();
+
+  for (const techOptions of appointmentTechMap) {
+    // Prefer a tech that is not "No Preference" and hasn't been used
+    let assigned = techOptions.find(t => t.name !== "No Preference" && !usedTechs.has(t.name));
+
+    // If none, fallback to "No Preference"
+    if (!assigned) assigned = techOptions.find(t => t.name === "No Preference");
+
+    if (assigned) {
+      assignedTechs.push(assigned);
+      if (assigned.name !== "No Preference") usedTechs.add(assigned.name);
+    } else {
+      assignedTechs.push(null); // no tech available
+    }
+  }
+
+  return assignedTechs;
+};
 
 
 
@@ -742,5 +768,6 @@ export {
   getBusinessHours,
   sanitizeObjectInput,
   isTokenValid,
-  distributeItems
+  distributeItems,
+  assignTechnicians
 };
