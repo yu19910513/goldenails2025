@@ -21,7 +21,6 @@ const Header = () => {
       setIsModalOpen(true); // Ask for confirmation before canceling
     } else {
       setIsBookingActive(true);
-      navigate("/booking");
     }
   };
 
@@ -31,7 +30,7 @@ const Header = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (location.pathname === "/booking") {
+    if (location.pathname === "/booking" || location.pathname === "/groupbooking") {
       setIsBookingActive(true);
     } else {
       setIsBookingActive(false);
@@ -97,10 +96,20 @@ const Header = () => {
             </a>
           </li>
           <li>
-            <a href="#" className={`nav-link ${isBookingActive ? "active-link" : ""}`} onClick={handleBookingToggle}>
+            <a
+              href={isBookingActive ? "/" : "/bookingchoice"} // prevent wrong redirect
+              className={`nav-link ${isBookingActive ? "active-link" : ""}`}
+              onClick={(e) => {
+                if (isBookingActive) {
+                  e.preventDefault(); // stop the browser from going to /bookingchoice
+                  handleBookingToggle(); // open modal
+                }
+              }}
+            >
               {isBookingActive ? "Cancel Booking" : "Book Now"}
             </a>
           </li>
+
 
           {isLoggedIn && (
             <>

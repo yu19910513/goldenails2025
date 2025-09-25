@@ -15,6 +15,7 @@ import PasswordlessLogin from './pages/passwordlessLogin';
 import PrivateRoute from './components/utils/PrivateRoute';
 import ProtectedRoute from './components/utils/ProtectedRoute'
 import Dashboard from './pages/dashboard';
+import BookingChoice from './components/booking_page/BookingChoice';
 
 // Main App Component
 const App = () => (
@@ -26,6 +27,7 @@ const App = () => (
       <Route path="/config" element={<PrivateRoute><Config /></PrivateRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
+      <Route path="/bookingchoice" element={<BookingChoice />} />
       <Route path="/booking" element={<Booking />} />
       <Route path="/groupbooking" element={<GroupBooking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
