@@ -5,14 +5,17 @@ import "./GroupAppointmentConfirmation.css"; // The new, specific CSS file
 
 const GroupAppointmentConfirmation = ({ appointments }) => {
   const navigate = useNavigate();
+  const groupSize = appointments.length;
+  const address = "3610 Grandview St, Gig Harbor, WA 98335";
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
   // Guard clause for empty or invalid appointments prop
   if (!appointments || appointments.length === 0) {
     return (
-        <div className="group-appointment-confirmation">
-            <h2 className="group-appointment-confirmation__title">Booking Confirmation Error</h2>
-            <p>There was an issue retrieving your appointment details. Please return home and try again.</p>
-        </div>
+      <div className="group-appointment-confirmation">
+        <h2 className="group-appointment-confirmation__title">Booking Confirmation Error</h2>
+        <p>There was an issue retrieving your appointment details. Please return home and try again.</p>
+      </div>
     );
   }
 
@@ -33,10 +36,9 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
   const assignedTechnicians = [
     ...new Set(appointments.map((appt) => appt.technician.name)),
   ];
-
   /**
-   * This effect sends a single, consolidated notification for the entire group booking.
-   */
+ * This effect sends a single, consolidated notification for the entire group booking.
+ */
   useEffect(() => {
     const sendGroupNotification = async () => {
       try {
@@ -66,17 +68,31 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
   }, [appointments, customer, date, time, totalServices, assignedTechnicians]);
 
   return (
-    <div className="group-appointment-confirmation">
+    <div
+      className="group-appointment-confirmation"
+      style={{ '--group-size-watermark': `'${groupSize}'` }} // <-- Pass as CSS variable
+    >
       <h2 className="group-appointment-confirmation__title">Group Appointment Confirmed! 🥳</h2>
+
       <p className="group-appointment-confirmation__thank-you">
-        Thank you, {customer.name}. Your booking for a group of {assignedTechnicians.length} is confirmed. We look forward to seeing you all!
+        Thank you, {customer.name}. Your booking for a group of {groupSize} is confirmed. We look forward to seeing you all!
       </p>
-      <address className="group-appointment-confirmation__address">3610 Grandview St, Gig Harbor, WA 98335</address>
-      
+
+      <p className="group-appointment-confirmation__details-intro">
+        Please find your appointment details below. We kindly ask that you arrive 5 minutes early and check in at the following address:
+      </p>
+
+      <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
+        <address className="group-appointment-confirmation__address">
+          {address}
+        </address>
+      </a>
+
       <div className="group-appointment-confirmation__details-section">
         <p><strong>Date:</strong> {date}</p>
         <p><strong>Arrival Time:</strong> {time}</p>
-        
+        <p><strong>Group Size:</strong> {groupSize}</p>
+        <hr className="group-appointment-confirmation__divider" />
         <p><strong>Total Services:</strong></p>
         <ul className="group-appointment-confirmation__service-list">
           {Object.entries(totalServices).map(([name, count]) => (
@@ -91,6 +107,12 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
           ))}
         </ul>
       </div>
+
+      <p className="group-appointment-confirmation__instructions">
+        To review or manage your appointment details, please use the 'Appointment History' section in the top navigation bar. Simply enter your phone number and name to access your records.
+        Should there be any changes to your appointment, we will notify you via phone or text and update your online appointment record accordingly.
+        If you need to cancel or modify your appointment, you may use the 'Appointment History' to do so or contact us at <strong>253-851-7563</strong>.
+      </p>
 
       <button
         className="group-appointment-confirmation__home-button"
