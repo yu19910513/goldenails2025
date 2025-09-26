@@ -134,10 +134,10 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
           date: f.date,
           start_service_time: f.time,
           technician_id: f.technician.id,
-          service_ids: f.services.map(s => s.id) 
+          service_ids: f.services.map(s => s.id)
         };
         console.log(appointmentData);
-        
+
         const response = await AppointmentService.create(appointmentData);
         console.log("Appointment successfully created:", response.data);
         createdAppointments.push({ ...f, customer: customer, id: response.data.id });
@@ -160,46 +160,75 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
 
       {/* Customer info */}
       <div className="new-appt-form-grid">
-        <input type="tel" value={customer.phone} readOnly disabled className="new-appt-input" />
-        <input type="text" value={customer.name} readOnly disabled className="new-appt-input" />
+        <div className="new-appt-field">
+          <label className="new-appt-label">Phone</label>
+          <input
+            type="tel"
+            value={customer.phone}
+            readOnly
+            disabled
+            className="new-appt-input"
+          />
+        </div>
 
-        {/* Editable date */}
-        <input
-          type="date"
-          value={customer.date}
-          onChange={(e) => setCustomer({ ...customer, date: e.target.value })}
-          min={new Date().toISOString().split("T")[0]}
-          className="new-appt-input"
-        />
+        <div className="new-appt-field">
+          <label className="new-appt-label">Name</label>
+          <input
+            type="text"
+            value={customer.name}
+            readOnly
+            disabled
+            className="new-appt-input"
+          />
+        </div>
 
-        {/* Group size */}
-        <select
-          value={groupSize}
-          onChange={(e) => onGroupSizeChange(parseInt(e.target.value))}
-          className="new-appt-input"
-        >
-          {[...Array(4).keys()].map(i => (
-            <option key={i + 1} value={i + 1}>Group Size: {i + 1}</option>
-          ))}
-        </select>
+        <div className="new-appt-field">
+          <label className="new-appt-label">Date</label>
+          <input
+            type="date"
+            value={customer.date}
+            onChange={(e) =>
+              setCustomer({ ...customer, date: e.target.value })
+            }
+            min={new Date().toISOString().split("T")[0]}
+            className="new-appt-input"
+          />
+        </div>
 
-        {/* Time slots (shared for all) */}
-        <select
-          value={forms[0]?.time || ""}
-          onChange={(e) => {
-            const newTime = e.target.value;
-            setForms(forms.map(f => ({ ...f, time: newTime })));
-          }}
-          className="new-appt-input"
-          required
-        >
-          <option value="">Select Time</option>
-          {availableTimes.map((time, idx) => (
-            <option key={idx} value={formatTime(time)}>
-              {formatTime(time)}
-            </option>
-          ))}
-        </select>
+        <div className="new-appt-field">
+          <label className="new-appt-label">Group Size</label>
+          <select
+            value={groupSize}
+            onChange={(e) => onGroupSizeChange(parseInt(e.target.value))}
+            className="new-appt-input"
+          >
+            {[...Array(4).keys()].map((i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="new-appt-field">
+          <label className="new-appt-label">Time</label>
+          <select
+            value={forms[0]?.time || ""}
+            onChange={(e) => {
+              const newTime = e.target.value;
+              setForms(forms.map((f) => ({ ...f, time: newTime })));
+            }}
+            className="new-appt-input"
+            required
+          >
+            <option value="">Select Time</option>
+            {availableTimes.map((time, idx) => (
+              <option key={idx} value={formatTime(time)}>
+                {formatTime(time)}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Services summary */}
@@ -210,13 +239,19 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
             <li>No services selected.</li>
           ) : (
             selectedServices.map((svc) => (
-              <li key={svc.id}>{svc.name} x {svc.quantity}</li>
+              <li key={svc.id}>
+                {svc.name} x {svc.quantity}
+              </li>
             ))
           )}
         </ul>
       </div>
 
-      <button type="submit" className="new-appt-submit-btn" disabled={!isFormValid()}>
+      <button
+        type="submit"
+        className="new-appt-submit-btn"
+        disabled={!isFormValid()}
+      >
         Submit
       </button>
 
@@ -225,6 +260,7 @@ const NewApptForm = ({ selectedServices, customerInfo, groupSize, onGroupSizeCha
       )}
     </form>
   );
+
 };
 
 export default NewApptForm;

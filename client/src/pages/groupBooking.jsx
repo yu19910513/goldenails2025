@@ -57,7 +57,6 @@ const GroupBooking = () => {
 
             {step === 2 && (
                 <GroupSizeSelection
-                    onBack={handlePrevStep}
                     onNext={handleGroupSizeSubmit}
                 />
             )}

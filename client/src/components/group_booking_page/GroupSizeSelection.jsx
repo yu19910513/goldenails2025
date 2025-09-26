@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const GroupSizeSelection = ({ onBack, onNext }) => {
+const GroupSizeSelection = ({ onNext }) => {
   // Default to 2
   const [groupSize, setGroupSize] = useState(2);
   const options = [1, 2, 3, 4];
@@ -35,12 +35,6 @@ const GroupSizeSelection = ({ onBack, onNext }) => {
         </select>
 
         <div className="mt-8 flex justify-between">
-          <button
-            onClick={onBack}
-            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
-          >
-            Back
-          </button>
           <button
             onClick={handleNext}
             // The button is always enabled since a valid option is always selected
