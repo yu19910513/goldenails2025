@@ -170,8 +170,8 @@ const calculateAvailableSlots = (
   const occupiedSlots = [];
 
   const unavailabilityRanges = {
-    Lisa: { start: "2025-02-21", end: "2025-03-15" },
-    Jenny: { start: "2025-02-03", end: "2025-03-17" }
+    // Lisa: { start: "2025-02-21", end: "2025-03-15" },
+    Tracy: { start: "2025-09-29", end: "2025-10-16" }
   };
 
   const unavailableRange = unavailabilityRanges[technician.name];
