@@ -8,7 +8,6 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
   const [showForm, setShowForm] = useState(false);
   const [groupSize, setGroupSize] = useState(initialGroupSize || 1);
 
-  // Update quantity of a service
   const handleServiceQuantityChange = (service, quantity) => {
     setSelectedServices((prev) => {
       const exists = prev.find((s) => s.id === service.id);
@@ -24,21 +23,29 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
     });
   };
 
-  // Handle group size change (from child)
   const handleGroupSizeChange = (newSize) => {
     setGroupSize(newSize);
     setSelectedServices((prev) =>
       prev.map((svc) => ({
         ...svc,
-        quantity: Math.min(svc.quantity, newSize), // clamp qty to group size
+        quantity: Math.min(svc.quantity, newSize),
       }))
     );
   };
 
   return (
-    <div className="booking-layout">
+    <div className="appointment-booking-layout">
+
+      {/* Bottom Handle for small screens */}
+      <div
+        className="appointment-booking-handle"
+        onClick={() => setShowForm(!showForm)}
+      >
+        <span>{showForm ? "Close Form" : "Open Form"}</span>
+      </div>
+
       {/* Menu Section */}
-      <div className="menu-section">
+      <div className="appointment-booking-menu">
         <NailSalonMenu
           selectedServices={selectedServices}
           onServiceQuantityChange={handleServiceQuantityChange}
@@ -47,7 +54,7 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
       </div>
 
       {/* Form Section */}
-      <div className={`form-section ${showForm ? "show" : "hide"}`}>
+      <div className={`appointment-booking-form ${showForm ? "show" : "hide"}`}>
         <NewApptForm
           selectedServices={selectedServices}
           customerInfo={customerInfo}
@@ -57,13 +64,6 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
         />
       </div>
 
-      {/* Toggle Button */}
-      <button
-        className="toggle-form-btn"
-        onClick={() => setShowForm(!showForm)}
-      >
-        {showForm ? "📋" : "✏️"}
-      </button>
     </div>
   );
 };
