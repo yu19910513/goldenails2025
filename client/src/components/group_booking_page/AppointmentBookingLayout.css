@@ -19,7 +19,7 @@
   transition: transform 0.3s ease;
 }
 
-/* Small screens: slide form from bottom */
+/* Small screens: form slides from bottom */
 @media screen and (max-width: 768px) {
   .appointment-booking-layout {
     flex-direction: column;
@@ -32,17 +32,16 @@
     right: 0;
     height: 100%;
     z-index: 1000;
-    background-color: transparent;
+    background-color: #fff;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
     overflow-y: auto;
     padding: 1rem;
     padding-bottom: 80px;
-    /* space for handle */
+    /* space for floating button */
     transform: translateY(100%);
     transition: transform 0.3s ease;
   }
-
 
   .appointment-booking-form.show {
     transform: translateY(0);
@@ -54,43 +53,34 @@
     /* slide down */
   }
 
-  /* Bottom handle with grab bar */
+  /* Floating circular button (Next/Back) */
   .appointment-booking-handle {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    /* thicker handle */
-    background-color: #ffffff;
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
+    bottom: 10%;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 50%;
+    /* circle */
+    cursor: pointer;
+    z-index: 1100;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    z-index: 1010;
-    cursor: pointer;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
 
-  .appointment-booking-handle::before {
-    content: "";
-    width: 50px;
-    height: 5px;
-    background-color: #ccc;
-    border-radius: 3px;
-    margin-bottom: 6px;
+  .appointment-booking-handle:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
   }
 
-  .appointment-booking-handle span {
-    font-size: 14px;
-    color: #555;
-  }
-
-  .appointment-booking-handle:hover::before {
-    background-color: #999;
-  }
 }
 
 /* Large screens: form always visible, handle hidden */

@@ -37,12 +37,12 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
     <div className="appointment-booking-layout">
 
       {/* Bottom Handle for small screens */}
-      <div
+      <button
         className="appointment-booking-handle"
         onClick={() => setShowForm(!showForm)}
       >
-        <span>{showForm ? "Close Form" : "Open Form"}</span>
-      </div>
+        {showForm ? "Back" : "Next"}
+      </button>
 
       {/* Menu Section */}
       <div className="appointment-booking-menu">
