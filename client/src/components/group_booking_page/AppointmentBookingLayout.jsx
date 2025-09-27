@@ -63,7 +63,7 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
           className="appointment-booking-handle right"
           onClick={() => setShowForm(true)}
         >
-          →
+          Next
         </button>
       )}
 
@@ -72,7 +72,7 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
           className="appointment-booking-handle left"
           onClick={() => setShowForm(false)}
         >
-          ←
+          Back
         </button>
       )}
 
