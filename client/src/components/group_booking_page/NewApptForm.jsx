@@ -176,8 +176,7 @@ const NewApptForm = ({
               type="tel"
               value={customer.phone}
               readOnly
-              disabled
-              className="group-appt-input"
+              className="group-appt-input read-only-input"
             />
           </div>
 
@@ -187,8 +186,7 @@ const NewApptForm = ({
               type="text"
               value={customer.name}
               readOnly
-              disabled
-              className="group-appt-input"
+              className="group-appt-input read-only-input"
             />
           </div>
 
@@ -220,25 +218,28 @@ const NewApptForm = ({
             </select>
           </div>
 
-          <div className="group-appt-field">
-            <label className="group-appt-label">Time</label>
-            <select
-              value={forms[0]?.time || ""}
-              onChange={(e) => {
-                const newTime = e.target.value;
-                setForms(forms.map((f) => ({ ...f, time: newTime })));
-              }}
-              className="group-appt-input"
-              required
-            >
-              <option value="">Select Time</option>
-              {availableTimes.map((time, idx) => (
-                <option key={idx} value={formatTime(time)}>
-                  {formatTime(time)}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Only show time if at least one service is selected */}
+          {selectedServices.length > 0 && (
+            <div className="group-appt-field">
+              <label className="group-appt-label">Time</label>
+              <select
+                value={forms[0]?.time || ""}
+                onChange={(e) => {
+                  const newTime = e.target.value;
+                  setForms(forms.map((f) => ({ ...f, time: newTime })));
+                }}
+                className="group-appt-input"
+                required
+              >
+                <option value="">Select Time</option>
+                {availableTimes.map((time, idx) => (
+                  <option key={idx} value={formatTime(time)}>
+                    {formatTime(time)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="group-appt-services">
@@ -264,23 +265,20 @@ const NewApptForm = ({
           Submit
         </button>
 
-
-
         {isAppointmentLoading && (
           <div className="group-appt-loading-overlay">Creating appointments...</div>
         )}
       </form>
-      {
-        showForm && (
-          <button
-            type="submit"
-            className="group-appt-submit-circle"
-            disabled={!isFormValid()}
-          >
-            Submit
-          </button>
-        )
-      }
+
+      {showForm && (
+        <button
+          type="submit"
+          className="group-appt-submit-circle"
+          disabled={!isFormValid()}
+        >
+          Submit
+        </button>
+      )}
     </>
   );
 };
