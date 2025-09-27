@@ -1,116 +1,135 @@
-.new-appt-form {
+/* NewApptForm.css */
+
+/* Form container */
+.group-appt-form {
     max-width: 36rem;
-    /* max-w-xl */
     margin-left: auto;
     margin-right: auto;
     padding: 1.5rem;
+    /* padding-bottom: 180px; */
+    /* space for floating buttons */
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     border-radius: 0.75rem;
-    /* rounded-xl */
     background-color: #faf3e0;
     position: relative;
 }
 
-.new-appt-form h2 {
+/* Form title */
+.group-appt-form h2 {
     font-size: 1.5rem;
-    /* text-2xl */
     font-weight: 700;
     margin-bottom: 1rem;
 }
 
-.new-appt-form-grid {
+/* Form grid */
+.group-appt-form-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
 }
 
 @media screen and (min-width: 768px) {
-    .new-appt-form-grid {
+    .group-appt-form-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-.new-appt-form input,
-.new-appt-form select {
+/* Inputs and selects */
+.group-appt-input {
     border: 1px solid #ccc;
     border-radius: 0.375rem;
     padding: 0.5rem;
     width: 100%;
 }
 
-.new-appt-form-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: white;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 0.25rem;
-    z-index: 50;
-    max-height: 12rem;
-    overflow-y: auto;
-}
-
-.new-appt-form-suggestion-item {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-}
-
-.new-appt-form-suggestion-item:hover {
-    background-color: #f3f4f6;
-}
-
-.new-appt-form-services {
+/* Services summary */
+.group-appt-services {
     margin-top: 1.5rem;
 }
 
-.new-appt-form-services label {
+.group-appt-services label {
     font-weight: 600;
     display: block;
     margin-bottom: 0.5rem;
 }
 
-.new-appt-form-services ul {
+.group-appt-services-list {
     list-style-type: disc;
     padding-left: 1.25rem;
     color: #374151;
 }
 
-.new-appt-form button[type="submit"] {
+/* Inline submit button (shown on larger screens) */
+.group-appt-submit-btn {
     background-color: #059669;
     color: white;
     padding: 0.5rem 1.5rem;
     border-radius: 0.375rem;
     transition: background-color 0.3s ease;
+    border: none;
 }
 
-.new-appt-form button[type="submit"]:hover {
+.group-appt-submit-btn:hover {
     background-color: #047857;
 }
 
-.new-appt-submit-btn:disabled {
+.group-appt-submit-btn:disabled {
     background-color: #ccc;
     cursor: not-allowed;
     opacity: 0.6;
 }
 
-
-.new-appt-suggestion-wrapper {
-    position: relative;
+/* Floating submit button for mobile (circle) */
+.group-appt-submit-circle {
+    position: fixed; /* fixed to viewport */
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: none; /* will show on mobile */
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    z-index: 1200;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border: none;
 }
 
-.new-appt-form-suggestion-name {
-    font-weight: bold;
+
+.group-appt-submit-circle:hover {
+    background-color: #0056b3;
 }
 
-.new-appt-form-suggestion-phone {
-    font-size: 0.875rem;
-    color: #555;
+.group-appt-submit-circle:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
-.loading-overlay {
+/* Show floating button only on small screens */
+@media screen and (max-width: 768px) {
+    .group-appt-submit-circle {
+        display: flex;
+    }
+
+    /* Hide inline submit on mobile */
+    .group-appt-submit-btn {
+        display: none;
+    }
+}
+
+/* Ensure floating button hidden on larger screens */
+@media screen and (min-width: 769px) {
+    .group-appt-submit-circle {
+        display: none;
+    }
+}
+
+/* Loading overlay */
+.group-appt-loading-overlay {
     position: fixed;
     top: 0;
     left: 0;

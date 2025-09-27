@@ -36,14 +36,6 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
   return (
     <div className="appointment-booking-layout">
 
-      {/* Bottom Handle for small screens */}
-      <button
-        className="appointment-booking-handle"
-        onClick={() => setShowForm(!showForm)}
-      >
-        {showForm ? "Back" : "Next"}
-      </button>
-
       {/* Menu Section */}
       <div className="appointment-booking-menu">
         <NailSalonMenu
@@ -61,8 +53,28 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
           groupSize={groupSize}
           onGroupSizeChange={handleGroupSizeChange}
           onSubmitSuccess={onSubmitSuccess}
+          showForm={showForm}
         />
       </div>
+
+      {/* Floating Buttons */}
+      {!showForm && (
+        <button
+          className="appointment-booking-handle right"
+          onClick={() => setShowForm(true)}
+        >
+          →
+        </button>
+      )}
+
+      {showForm && (
+        <button
+          className="appointment-booking-handle left"
+          onClick={() => setShowForm(false)}
+        >
+          ←
+        </button>
+      )}
 
     </div>
   );
