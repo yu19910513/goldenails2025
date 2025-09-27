@@ -49,7 +49,11 @@ const NewApptForm = ({
 
   useEffect(() => {
     const checkAvailability = async () => {
-      if (!customer.date || selectedServices.length === 0) return;
+      if (!customer.date || selectedServices.length === 0) {
+        setForms([]);
+        setAvailableTimes([]);
+        return;
+      }
 
       const servicePool = selectedServices.flatMap((svc) =>
         Array(svc.quantity).fill(svc)
@@ -117,7 +121,9 @@ const NewApptForm = ({
   const isFormValid = () => {
     return (
       forms.length > 0 &&
-      forms.every((f) => f.date && f.time && f.technician && f.services.length > 0)
+      forms.every(
+        (f) => f.date && f.time && f.technician && f.services.length > 0
+      )
     );
   };
 
@@ -151,7 +157,11 @@ const NewApptForm = ({
 
         const response = await AppointmentService.create(appointmentData);
         console.log("Appointment successfully created:", response.data);
-        createdAppointments.push({ ...f, customer: customer, id: response.data.id });
+        createdAppointments.push({
+          ...f,
+          customer: customer,
+          id: response.data.id
+        });
       }
 
       alert("Appointments successfully booked!");
@@ -181,7 +191,7 @@ const NewApptForm = ({
           </div>
 
           <div className="group-appt-field">
-            <label className="group-appt-label">Name</label>
+            <label className="group-appt-label">Customer</label>
             <input
               type="text"
               value={customer.name}
@@ -230,13 +240,20 @@ const NewApptForm = ({
                 }}
                 className="group-appt-input"
                 required
+                disabled={availableTimes.length === 0}
               >
-                <option value="">Select Time</option>
-                {availableTimes.map((time, idx) => (
-                  <option key={idx} value={formatTime(time)}>
-                    {formatTime(time)}
-                  </option>
-                ))}
+                {availableTimes.length === 0 ? (
+                  <option value="">No available time slots</option>
+                ) : (
+                  <>
+                    <option value="">Select Time</option>
+                    {availableTimes.map((time, idx) => (
+                      <option key={idx} value={formatTime(time)}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
             </div>
           )}
@@ -266,7 +283,9 @@ const NewApptForm = ({
         </button>
 
         {isAppointmentLoading && (
-          <div className="group-appt-loading-overlay">Creating appointments...</div>
+          <div className="group-appt-loading-overlay">
+            Creating appointments...
+          </div>
         )}
       </form>
 
