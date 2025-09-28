@@ -92,9 +92,9 @@
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
+    width: 90px;
+    height: 50px;
+    /* border-radius: 70%; */
     display: none;
     /* will show on mobile */
     align-items: center;
@@ -106,6 +106,7 @@
     z-index: 1200;
     border: none;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Glow animation only when enabled */

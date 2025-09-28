@@ -114,8 +114,8 @@ const NewApptForm = ({
   return (
     <>
       <form onSubmit={handleSubmit} className="group-appt-form">
-        <h2 className="group-appt-title">New Appointment</h2>
-
+        <h2 className="group-appt-title">Book a New Appointment</h2>
+        <small>Submitting this form will finalize your request. Please review your entries before proceeding.</small>
         <div className="group-appt-form-grid">
           <div className="group-appt-field">
             <label className="group-appt-label">Phone</label>
