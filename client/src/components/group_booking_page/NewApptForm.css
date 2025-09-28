@@ -30,6 +30,10 @@
     .group-appt-form-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .hide-on-desktop {
+        display: none;
+    }
 }
 
 /* Inputs and selects */
@@ -87,78 +91,12 @@
     opacity: 0.6;
 }
 
-/* Floating submit button (mobile) */
-.group-appt-submit-circle {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: 90px;
-    height: 50px;
-    /* border-radius: 70%; */
-    display: none;
-    /* will show on mobile */
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    background-color: #059669;
-    color: #fff;
-    cursor: pointer;
-    z-index: 1200;
-    border: none;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Glow animation only when enabled */
-.group-appt-submit-circle:not(:disabled) {
-    animation: glowOnce 2s ease-in-out;
-}
-
-.group-appt-submit-circle:hover:not(:disabled) {
-    background-color: #047857;
-}
-
-/* Keyframes for glow */
-@keyframes glowOnce {
-    0% {
-        box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e;
-    }
-
-    50% {
-        box-shadow: 0 0 20px #4ade80, 0 0 30px #4ade80;
-    }
-
-    100% {
-        box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e;
-    }
-}
-
-
-
-.group-appt-submit-circle:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
 /* Show floating button only on small screens */
 @media screen and (max-width: 768px) {
-    .group-appt-form {
-        padding-bottom: 150px;
-    }
-
-    .group-appt-submit-circle {
-        display: flex;
-    }
-
     .group-appt-submit-btn {
-        display: none;
-    }
-}
-
-/* Ensure floating button hidden on larger screens */
-@media screen and (min-width: 769px) {
-    .group-appt-submit-circle {
-        display: none;
+        width: 65%;
+        display: block;
+        margin: 1rem auto 0;
     }
 }
 

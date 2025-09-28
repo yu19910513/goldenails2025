@@ -10,8 +10,7 @@ const NewApptForm = ({
   customerInfo,
   groupSize,
   onGroupSizeChange,
-  onSubmitSuccess,
-  showForm
+  onSubmitSuccess
 }) => {
   const [customer, setCustomer] = useState({
     phone: "",
@@ -24,11 +23,6 @@ const NewApptForm = ({
   const [forms, setForms] = useState([]);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
-
-  const resetFormsAndTimes = () => {
-    setForms([]);
-    setAvailableTimes([]);
-  };
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -112,129 +106,122 @@ const NewApptForm = ({
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="group-appt-form">
-        <h2 className="group-appt-title">Book a New Appointment</h2>
-        <small>Submitting this form will finalize your request. Please review your entries before proceeding.</small>
-        <div className="group-appt-form-grid">
-          <div className="group-appt-field">
-            <label className="group-appt-label">Phone</label>
-            <input
-              type="tel"
-              value={customer.phone}
-              readOnly
-              className="group-appt-input read-only-input"
-            />
-          </div>
+    <form onSubmit={handleSubmit} className="group-appt-form">
+      <h2 className="group-appt-title">Book a New Appointment</h2>
+      <small>Almost there! Submitting this form will confirm your request. Double-check your details and don’t forget to <b>select a time slot</b>.
+        <span className="hide-on-desktop">
+          <br></br>
+          If you need to make changes, just tap the <b>Back</b> button to update your services.
+        </span>
+      </small>
+      <div className="group-appt-form-grid">
+        <div className="group-appt-field">
+          <label className="group-appt-label">Phone</label>
+          <input
+            type="tel"
+            value={customer.phone}
+            readOnly
+            className="group-appt-input read-only-input"
+          />
+        </div>
 
-          <div className="group-appt-field">
-            <label className="group-appt-label">Customer</label>
-            <input
-              type="text"
-              value={customer.name}
-              readOnly
-              className="group-appt-input read-only-input"
-            />
-          </div>
+        <div className="group-appt-field">
+          <label className="group-appt-label">Customer</label>
+          <input
+            type="text"
+            value={customer.name}
+            readOnly
+            className="group-appt-input read-only-input"
+          />
+        </div>
 
-          <div className="group-appt-field">
-            <label className="group-appt-label">Date</label>
-            <input
-              type="date"
-              value={customer.date}
-              onChange={(e) =>
-                setCustomer({ ...customer, date: e.target.value })
-              }
-              min={new Date().toISOString().split("T")[0]}
-              className="group-appt-input"
-            />
-          </div>
+        <div className="group-appt-field">
+          <label className="group-appt-label">Date</label>
+          <input
+            type="date"
+            value={customer.date}
+            onChange={(e) =>
+              setCustomer({ ...customer, date: e.target.value })
+            }
+            min={new Date().toISOString().split("T")[0]}
+            className="group-appt-input"
+          />
+        </div>
 
+        <div className="group-appt-field">
+          <label className="group-appt-label">Group Size</label>
+          <select
+            value={groupSize}
+            onChange={(e) => onGroupSizeChange(parseInt(e.target.value))}
+            className="group-appt-input"
+          >
+            {[...Array(4).keys()].map((i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedServices.length > 0 && (
           <div className="group-appt-field">
-            <label className="group-appt-label">Group Size</label>
+            <label className="group-appt-label">Time</label>
             <select
-              value={groupSize}
-              onChange={(e) => onGroupSizeChange(parseInt(e.target.value))}
+              value={forms[0]?.time || ""}
+              onChange={(e) => {
+                const newTime = e.target.value;
+                setForms(forms.map((f) => ({ ...f, time: newTime })));
+              }}
               className="group-appt-input"
+              required
+              disabled={availableTimes.length === 0}
             >
-              {[...Array(4).keys()].map((i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
+              {availableTimes.length === 0 ? (
+                <option value="">No available time slots</option>
+              ) : (
+                <>
+                  <option value="">Select Time</option>
+                  {availableTimes.map((time, idx) => (
+                    <option key={idx} value={formatTime(time)}>
+                      {formatTime(time)}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
           </div>
+        )}
+      </div>
 
-          {selectedServices.length > 0 && (
-            <div className="group-appt-field">
-              <label className="group-appt-label">Time</label>
-              <select
-                value={forms[0]?.time || ""}
-                onChange={(e) => {
-                  const newTime = e.target.value;
-                  setForms(forms.map((f) => ({ ...f, time: newTime })));
-                }}
-                className="group-appt-input"
-                required
-                disabled={availableTimes.length === 0}
-              >
-                {availableTimes.length === 0 ? (
-                  <option value="">No available time slots</option>
-                ) : (
-                  <>
-                    <option value="">Select Time</option>
-                    {availableTimes.map((time, idx) => (
-                      <option key={idx} value={formatTime(time)}>
-                        {formatTime(time)}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
+      <div className="group-appt-services">
+        <label className="group-appt-label">Selected Services </label>
+        <ul className="group-appt-services-list">
+          {selectedServices.length === 0 ? (
+            <li>No services selected.</li>
+          ) : (
+            selectedServices.map((svc) => (
+              <li key={svc.id}>
+                {svc.name} x {svc.quantity}
+              </li>
+            ))
           )}
+        </ul>
+      </div>
+
+      <button
+        type="submit"
+        className="group-appt-submit-btn"
+        disabled={!isFormValid()}
+      >
+        Submit
+      </button>
+
+      {isAppointmentLoading && (
+        <div className="group-appt-loading-overlay">
+          Creating appointments...
         </div>
-
-        <div className="group-appt-services">
-          <label className="group-appt-label">Selected Services</label>
-          <ul className="group-appt-services-list">
-            {selectedServices.length === 0 ? (
-              <li>No services selected.</li>
-            ) : (
-              selectedServices.map((svc) => (
-                <li key={svc.id}>
-                  {svc.name} x {svc.quantity}
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-
-        <button
-          type="submit"
-          className="group-appt-submit-btn"
-          disabled={!isFormValid()}
-        >
-          Submit
-        </button>
-
-        {isAppointmentLoading && (
-          <div className="group-appt-loading-overlay">
-            Creating appointments...
-          </div>
-        )}
-
-        {showForm && (
-          <button
-            type="submit"
-            className="group-appt-submit-circle"
-            disabled={!isFormValid()}
-          >
-            Submit
-          </button>
-        )}
-      </form>
-    </>
+      )}
+    </form>
   );
 };
 

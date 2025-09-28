@@ -35,7 +35,12 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
 
   return (
     <div className="appointment-booking-layout">
-
+      <h2 className="text-3xl font-bold mt-2 text-center p-2 hide-on-desktop">Select Services</h2>
+      {customerInfo?.name && (
+        <p className="text-lg font-medium text-center mb-2 hide-on-desktop">
+          Welcome, {customerInfo.name}!
+        </p>
+      )}
       {/* Menu Section */}
       <div className="appointment-booking-menu">
         <NailSalonMenu
@@ -53,7 +58,6 @@ const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, o
           groupSize={groupSize}
           onGroupSizeChange={handleGroupSizeChange}
           onSubmitSuccess={onSubmitSuccess}
-          showForm={showForm}
         />
       </div>
 
