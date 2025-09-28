@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./NailSalonMenu.css";
+import "./GroupBooking.css";
 import ItemService from "../../services/itemService";
 import { formatPrice } from "../../utils/helper";
 
