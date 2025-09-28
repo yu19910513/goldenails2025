@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "./GroupBooking.css";
 import ItemService from "../../services/itemService";
 import { formatPrice } from "../../utils/helper";
+import "./GroupBooking.css";
 
 const NailSalonMenu = ({ selectedServices, onServiceQuantityChange, groupSize }) => {
   const [services, setServices] = useState([]);
