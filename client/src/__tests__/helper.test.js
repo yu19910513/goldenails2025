@@ -94,7 +94,7 @@ describe("Helper Functions", () => {
             const appointments = [];
             const selectedServices = { "1": [{ time: 30 }] };
             const selectedDate = futureDayOnly;
-            const technician = { name: "Tracy", unavailability: "" };
+            const technician = { name: "No Preference", unavailability: "" };
 
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots.length).toBeGreaterThan(0);
@@ -103,8 +103,8 @@ describe("Helper Functions", () => {
         test("returns empty array if technician is unavailable on selected date", () => {
             const appointments = [];
             const selectedServices = { "1": [{ time: 30 }] };
-            const selectedDate = "2025-03-01";
-            const technician = { name: "Lisa", unavailability: "" };
+            const selectedDate = "2025-03-01"; //need to revisit this test
+            const technician = { name: "No Preference", unavailability: "" };
 
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots).toEqual([]);
@@ -117,7 +117,7 @@ describe("Helper Functions", () => {
             ];
             const selectedServices = { "1": [{ time: 30 }] };;
             const selectedDate = futureDayOnly;
-            const technician = { name: "Tracy", unavailability: "" };
+            const technician = { name: "No Preference", unavailability: "" };
 
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots.some(slot => slot.getHours() === 10)).toBe(false); // 10 AM is occupied
@@ -134,7 +134,7 @@ describe("Helper Functions", () => {
             const daysUntilMonday = (8 - today.weekday) % 7 || 7;
             const selectedDate = today.plus({ days: daysUntilMonday }).toISODate(); // "YYYY-MM-DD"
         
-            const technician = { name: "Lisa", unavailability: "1" }; // Monday
+            const technician = { name: "No Preference", unavailability: "1" }; // Monday
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots).toEqual([]);
         });
@@ -143,7 +143,7 @@ describe("Helper Functions", () => {
             const appointments = [];
             const selectedServices = { "1": [{ time: 30 }] };
             const selectedDate = futureDayOnly;
-            const technician = { name: "Tracy", unavailability: "" };
+            const technician = { name: "No Preference", unavailability: "" };
 
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician);
             expect(slots[0].getHours()).toBeGreaterThanOrEqual(9); // Earliest slot should not be before business hours
@@ -157,7 +157,7 @@ describe("Helper Functions", () => {
             const now = new Date();
             const selectedDate = now.toISOString().split("T")[0]; // Today
             const businessHours = { start: now.getHours() - 1, end: now.getHours() + 3 }; // Surround current time for valid range
-            const technician = { name: "Tracy", unavailability: "" };
+            const technician = { name: "No Preference", unavailability: "" };
             const bufferTime = 2; // 2 hours buffer
 
             const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, technician, bufferTime);
