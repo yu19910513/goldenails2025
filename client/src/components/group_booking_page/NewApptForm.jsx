@@ -183,7 +183,10 @@ const NewApptForm = ({
                   <option value="">Select Time</option>
                   {availableTimes.map((time, idx) => (
                     <option key={idx} value={formatTime(time)}>
-                      {formatTime(time)}
+                      {time.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </option>
                   ))}
                 </>
