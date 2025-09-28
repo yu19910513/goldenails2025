@@ -23,16 +23,16 @@ const NailSalonMenu = ({ selectedServices, onServiceQuantityChange, groupSize })
     fetchServices();
   }, []);
 
-  if (loading) return <div className="loading">Loading...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) return <div className="gb-menu-loading">Loading...</div>;
+  if (error) return <div className="gb-menu-error">{error}</div>;
 
   return (
-    <div className="page-container">
-      <div className="menu-container">
+    <div className="gb-menu-page-container">
+      <div className="gb-menu-container">
         {services.map((category) => (
-          <div className="menu-section" key={category.id}>
-            <h2 className="menu-category">{category.name}</h2>
-            <table className="menu-table">
+          <div className="gb-menu-section" key={category.id}>
+            <h2 className="gb-menu-category">{category.name}</h2>
+            <table className="gb-menu-table">
               <tbody>
                 {category.services.map((service) => {
                   const selected = selectedServices.find((s) => s.id === service.id);
@@ -40,10 +40,11 @@ const NailSalonMenu = ({ selectedServices, onServiceQuantityChange, groupSize })
                   return (
                     <tr
                       key={service.id}
-                      className={`menu-item-row ${quantity > 0 ? "selected" : ""}`}
+                      className={`gb-menu-item-row ${quantity > 0 ? "selected" : ""
+                        }`}
                     >
-                      <td className="item-name">{service.name}</td>
-                      <td className="item-price">{formatPrice(service.price)}</td>
+                      <td className="gb-menu-item-name">{service.name}</td>
+                      <td className="gb-menu-item-price">{formatPrice(service.price)}</td>
                       <td>
                         <select
                           value={quantity}

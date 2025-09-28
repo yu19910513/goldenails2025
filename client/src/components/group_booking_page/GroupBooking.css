@@ -1,6 +1,6 @@
 /* ===============================
-   Appointment Booking Layout
-   =============================== */
+  Appointment Booking Layout
+  =============================== */
 .appointment-booking-layout {
     display: flex;
     flex-direction: row;
@@ -64,8 +64,8 @@
 }
 
 /* ===============================
-   New Appointment Form
-   =============================== */
+  New Appointment Form
+  =============================== */
 .group-appt-form {
     max-width: 36rem;
     margin-left: auto;
@@ -155,15 +155,15 @@
 }
 
 /* ===============================
-   Nail Salon Menu
-   =============================== */
-.page-container {
+  Nail Salon Menu (Component-Specific)
+  =============================== */
+.gb-menu-page-container {
     display: flex;
     justify-content: center;
     width: 100%;
 }
 
-.menu-container {
+.gb-menu-container {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -176,13 +176,13 @@
     box-sizing: border-box;
 }
 
-.menu-section {
+.gb-menu-section {
     width: 100%;
     margin-bottom: 2rem;
     text-align: left;
 }
 
-.menu-category {
+.gb-menu-category {
     font-family: "Didot", Georgia, serif;
     font-weight: bold;
     font-size: 1.5rem;
@@ -192,53 +192,53 @@
     padding-bottom: 0.2rem;
 }
 
-.menu-table {
+.gb-menu-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 0.5rem;
     font-family: "Optima", Arial;
 }
 
-.menu-table tbody tr {
+.gb-menu-table tbody tr {
     border-bottom: 1px solid #e9ecef;
 }
 
-.menu-table tbody tr:last-child {
+.gb-menu-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.menu-item-row {
+.gb-menu-item-row {
     cursor: pointer;
     background-color: transparent;
 }
 
-.menu-item-row.selected {
+.gb-menu-item-row.selected {
     background-color: #d0f0d8 !important;
 }
 
-.menu-item-row:hover .item-name,
-.menu-item-row:hover .item-price {
+.gb-menu-item-row:hover .gb-menu-item-name,
+.gb-menu-item-row:hover .gb-menu-item-price {
     color: #d6336c;
     font-weight: 600;
 }
 
-.item-name,
-.item-price {
+.gb-menu-item-name,
+.gb-menu-item-price {
     padding: 0.5rem 1rem;
 }
 
-.item-name {
+.gb-menu-item-name {
     text-align: left;
 }
 
-.item-price {
+.gb-menu-item-price {
     text-align: right;
     color: #d6336c;
     font-weight: 500;
 }
 
-.loading,
-.error {
+.gb-menu-loading,
+.gb-menu-error {
     font-size: 1.2rem;
     color: #6c757d;
     text-align: center;
@@ -246,8 +246,8 @@
 }
 
 /* ===============================
-   Shared Responsive Styles
-   =============================== */
+  Shared Responsive Styles
+  =============================== */
 @media screen and (max-width: 768px) {
 
     /* Layout: stack menu + form */
@@ -285,7 +285,7 @@
         margin: 1rem auto 0;
     }
 
-    .menu-container {
+    .gb-menu-container {
         padding: 1rem;
         display: block;
     }
@@ -310,5 +310,34 @@
 
     .appointment-booking-handle {
         display: none;
+    }
+}
+
+/* ===============================
+  Desktop-Specific Menu Layout
+  =============================== */
+/* @media screen and (min-width: 901px) {
+    .gb-menu-container {
+        gap: 2rem;
+    }
+
+    .gb-menu-section {
+        width: calc(50% - 1rem);
+        margin-bottom: 0;
+    }
+} */
+/* ===============================
+  Desktop-Specific Menu Layout
+  =============================== */
+@media screen and (min-width: 1001px) {
+    .gb-menu-container {
+        /* This stays the same */
+        gap: 2rem;
+    }
+
+    .gb-menu-section {
+        /* This is the only line that changes */
+        width: calc((100% - 4rem) / 3);
+        margin-bottom: 0;
     }
 }
