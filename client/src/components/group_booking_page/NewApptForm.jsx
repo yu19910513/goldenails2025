@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import AppointmentService from "../../services/appointmentService";
 import { fetchAvailability } from "../../utils/helper_api";
 import { formatTime } from "../../utils/helper";
-import "./NewApptForm.css";
+import "./GroupBooking.css";
 
 
 const NewApptForm = ({

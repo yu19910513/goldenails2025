@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import NailSalonMenu from "./NailSalonMenu";
 import NewApptForm from "./NewApptForm";
-import "./AppointmentBookingLayout.css";
+import "./GroupBooking.css";
 
 const AppointmentBookingLayout = ({ customerInfo, groupSize: initialGroupSize, onSubmitSuccess }) => {
   const [selectedServices, setSelectedServices] = useState([]);
