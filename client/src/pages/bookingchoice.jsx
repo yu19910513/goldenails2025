@@ -17,7 +17,7 @@ const BookingChoice = () => {
                 {/* Single Booking Card */}
                 <div className="flex-1 p-6 bg-white rounded-xl shadow-md text-center flex flex-col">
                     <h2 className="text-xl font-semibold text-slate-900">Single Booking</h2>
-                    <p className="mt-2 text-sm text-slate-600 flex-grow"> {/* ✨ Correction is here */}
+                    <p className="mt-2 text-sm text-slate-600 flex-grow">
                         The classic, step-by-step process. Perfect for when you want to select a specific technician.
                     </p>
                     <button
