@@ -15,7 +15,7 @@ import PasswordlessLogin from './pages/passwordlessLogin';
 import PrivateRoute from './components/utils/PrivateRoute';
 import ProtectedRoute from './components/utils/ProtectedRoute'
 import Dashboard from './pages/dashboard';
-import BookingChoice from './components/booking_page/bookingChoice';
+import BookingChoice from './pages/bookingChoice';
 
 // Main App Component
 const App = () => (
