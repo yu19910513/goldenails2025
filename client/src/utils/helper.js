@@ -749,7 +749,115 @@ const assignTechnicians = (appointmentTechMap) => {
 };
 
 
+/**
+ * Extracts all service names from an appointment's services object.
+ *
+ * @param {Object.<string, {name: string}[]>} services - The services object where keys are categories
+ * and values are arrays of service objects with a `name` property.
+ * @returns {string[]} An array of service names.
+ */
+const extractServiceNames = (services) => {
+  return Object.values(services).flatMap((category) =>
+    category.map((service) => service.name)
+  );
+};
 
+/**
+ * Formats the appointment start time.
+ *
+ * @param {string|number|Date|null} slot - The appointment start time (timestamp, Date, or ISO string).
+ * @returns {string} A formatted start time string (e.g., "02:30 PM") or "N/A" if invalid.
+ */
+const formatStartTime = (slot) => {
+  return slot
+    ? new Date(slot).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    : "N/A";
+};
+
+/**
+ * Calculates and formats the appointment end time.
+ *
+ * @param {string|number|Date|null} slot - The appointment start time (timestamp, Date, or ISO string).
+ * @param {number} duration - The duration of the appointment in minutes.
+ * @returns {string} A formatted end time string (e.g., "03:15 PM") or "N/A" if invalid.
+ */
+const formatEndTime = (slot, duration) => {
+  return slot
+    ? new Date(new Date(slot).getTime() + duration * 60000).toLocaleTimeString(
+      [],
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }
+    )
+    : "N/A";
+};
+
+/**
+ * Formats the appointment date into a readable string.
+ *
+ * @param {string|number|Date|null} slot - The appointment date (timestamp, Date, or ISO string).
+ * @returns {string} A formatted date string (e.g., "Monday, September 29, 2025") or "N/A" if invalid.
+ */
+const formatDate = (slot) => {
+  return slot
+    ? new Date(slot).toLocaleDateString([], {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+    : "N/A";
+};
+
+/**
+ * Builds the notification payload object for sending appointment confirmations.
+ *
+ * @param {Object} appointmentDetails - The appointment details object.
+ * @param {Object} appointmentDetails.customerInfo - Customer information.
+ * @param {string} appointmentDetails.customerInfo.name - Customer's name.
+ * @param {string} appointmentDetails.customerInfo.phone - Customer's phone number.
+ * @param {string} appointmentDetails.customerInfo.email - Customer's email address.
+ * @param {Object} appointmentDetails.technician - Technician information.
+ * @param {string} appointmentDetails.technician.name - Technician's name.
+ * @param {string} optInSMS - Whether the customer opted in for SMS notifications.
+ * @param {string} formattedDate - The formatted appointment date.
+ * @param {string} formattedSlot - The formatted start time.
+ * @param {string} endTime - The formatted end time.
+ * @param {string[]} serviceNames - The list of service names.
+ * @returns {Object} The payload for the notification service.
+ */
+const buildNotificationData = (
+  appointmentDetails,
+  optInSMS,
+  formattedDate,
+  formattedSlot,
+  endTime,
+  serviceNames
+) => {
+  const { name, phone, email } = appointmentDetails.customerInfo;
+  const { name: technicianName } = appointmentDetails.technician;
+
+  return {
+    recipient_name: name,
+    recipient_phone: phone,
+    recipient_email_address: email,
+    recipient_email_subject: "Appointment Confirmation",
+    recipient_optInSMS: optInSMS,
+    action: "confirm",
+    appointment_date: formattedDate,
+    appointment_start_time: formattedSlot,
+    appointment_end_time: endTime,
+    appointment_services: serviceNames.join(", "),
+    appointment_technician: technicianName,
+    owner_email_subject: "New Appointment",
+  };
+};
 
 
 export {
@@ -769,5 +877,10 @@ export {
   sanitizeObjectInput,
   isTokenValid,
   distributeItems,
-  assignTechnicians
+  assignTechnicians,
+  extractServiceNames,
+  formatStartTime,
+  formatEndTime,
+  formatDate,
+  buildNotificationData,
 };
