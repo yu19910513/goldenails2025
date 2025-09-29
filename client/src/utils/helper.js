@@ -769,13 +769,54 @@ const extractServiceNames = (services) => {
  * @returns {string} A formatted start time string (e.g., "02:30 PM") or "N/A" if invalid.
  */
 const formatStartTime = (slot) => {
-  return slot
-    ? new Date(slot).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
-    : "N/A";
+  return formatTimeSlot(slot)
+};
+
+/**
+ * Formats a time slot string into a localized 12-hour time for display.
+ *
+ * This function accepts both:
+ * 1. Time-only strings:
+ *    - "H"        -> "09:00 AM"
+ *    - "H:M"      -> "09:30 AM"
+ *    - "HH:MM"    -> "09:30 AM"
+ *    Missing minutes default to "00".
+ * 2. Full ISO datetime strings:
+ *    - "2025-09-29T15:30" -> "03:30 PM"
+ *
+ * If the input is falsy, it returns "N/A".
+ *
+ * @param {string} slot - The time slot to format, either time-only or full ISO datetime.
+ * @returns {string} The formatted time string in 12-hour format (e.g., "09:00 AM").
+ *
+ * @example
+ * formatTimeSlot("9");             // "09:00 AM"
+ * formatTimeSlot("9:5");           // "09:05 AM"
+ * formatTimeSlot("15:30");         // "03:30 PM"
+ * formatTimeSlot("2025-09-29T15:30"); // "03:30 PM"
+ * formatTimeSlot("");              // "N/A"
+ */
+const formatTimeSlot = (slot) => {
+  if (!slot) return "N/A";
+
+  let dateStr;
+
+  // Handle time-only inputs: "H", "H:M", "HH:MM"
+  const timeOnlyMatch = /^(\d{1,2})(?::(\d{1,2}))?$/.exec(slot);
+  if (timeOnlyMatch) {
+    const hour = timeOnlyMatch[1].padStart(2, "0");
+    const minute = (timeOnlyMatch[2] || "00").padStart(2, "0");
+    dateStr = `${new Date().toISOString().split("T")[0]}T${hour}:${minute}`;
+  } else {
+    // Full ISO or other valid date string
+    dateStr = slot;
+  }
+
+  return new Date(dateStr).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 };
 
 /**
@@ -883,4 +924,5 @@ export {
   formatEndTime,
   formatDate,
   buildNotificationData,
+  formatTimeSlot
 };

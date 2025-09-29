@@ -20,6 +20,7 @@ import {
     formatEndTime,
     formatDate,
     buildNotificationData,
+    formatTimeSlot
 } from "../utils/helper";
 
 
@@ -642,9 +643,6 @@ describe("assignTechnicians", () => {
     });
 });
 
-
-
-
 describe("extractServiceNames", () => {
     it("should extract all service names from nested services", () => {
         const services = {
@@ -675,6 +673,36 @@ describe("formatStartTime", () => {
     });
 });
 
+describe("formatTimeSlot", () => {
+    test("returns 'N/A' for empty or falsy input", () => {
+        expect(formatTimeSlot("")).toBe("N/A");
+        expect(formatTimeSlot(null)).toBe("N/A");
+        expect(formatTimeSlot(undefined)).toBe("N/A");
+    });
+
+    test("formats single-hour strings correctly", () => {
+        expect(formatTimeSlot("9")).toMatch(/09:00 AM|9:00 AM/);
+        expect(formatTimeSlot("0")).toMatch(/12:00 AM|0:00 AM/);
+    });
+
+    test("formats hour:minute strings correctly", () => {
+        expect(formatTimeSlot("9:0")).toMatch(/09:00 AM|9:00 AM/);
+        expect(formatTimeSlot("9:5")).toMatch(/09:05 AM|9:05 AM/);
+        expect(formatTimeSlot("15:30")).toMatch(/03:30 PM|15:30 PM/);
+    });
+
+    test("formats full ISO datetime strings correctly", () => {
+        expect(formatTimeSlot("2025-09-29T15:30")).toBe("03:30 PM");
+        expect(formatTimeSlot("2025-12-01T09:15")).toBe("09:15 AM");
+    });
+
+    test("handles invalid time formats by returning 'Invalid Date'", () => {
+        const result = formatTimeSlot("abc");
+        expect(result).toBe("Invalid Date");
+    });
+});
+
+
 describe("formatEndTime", () => {
     it("should add duration and return formatted end time", () => {
         const slot = new Date("2025-09-29T14:30:00").toISOString();
@@ -688,16 +716,56 @@ describe("formatEndTime", () => {
 });
 
 describe("formatDate", () => {
-    it("should format a valid slot into a full date string", () => {
-        const slot = new Date("2025-09-29T14:30:00").toISOString();
-        const result = formatDate(slot);
-        expect(result).toMatch(/Monday|September|2025/);
+    // Helper to normalize output for testing regardless of locale differences
+    const normalizeDate = (str) => str.replace(/\u200E/g, ""); // remove LTR marks
+
+    beforeAll(() => {
+        // Freeze Date to a fixed point to avoid timezone-related shifts
+        jest.useFakeTimers("modern");
+        jest.setSystemTime(new Date("2025-09-29T12:00:00Z")); // UTC noon
     });
 
-    it("should return 'N/A' if slot is null", () => {
+    afterAll(() => {
+        jest.useRealTimers();
+    });
+
+    test("returns 'N/A' for falsy input", () => {
+        expect(formatDate("")).toBe("N/A");
         expect(formatDate(null)).toBe("N/A");
+        expect(formatDate(undefined)).toBe("N/A");
+    });
+
+    test("formats ISO date strings correctly", () => {
+        const result = normalizeDate(formatDate("2025-09-29T15:30:00"));
+        expect(result).toContain("Monday"); // 2025-09-29 is Monday
+        expect(result).toContain("September");
+        expect(result).toContain("2025");
+    });
+
+    test("formats plain date strings YYYY-MM-DD correctly", () => {
+        const result = normalizeDate(formatDate("2025-09-29"));
+        expect(result).toContain("Monday");
+        expect(result).toContain("September");
+        expect(result).toContain("2025");
+    });
+
+    test("formats local midnight times correctly", () => {
+        const result = normalizeDate(formatDate("2025-09-29T00:00:00"));
+        expect(result).toContain("Monday");
+    });
+
+    test("formats times late in day correctly", () => {
+        const result = normalizeDate(formatDate("2025-09-29T23:59:59"));
+        expect(result).toContain("Monday");
+    });
+
+    test("returns 'Invalid Date' for invalid input", () => {
+        expect(formatDate("abc")).toBe("Invalid Date");
+        expect(formatDate("2025-13-01")).toBe("Invalid Date"); // invalid month
+        expect(formatDate("2025-12-32")).toBe("Invalid Date"); // invalid day
     });
 });
+
 
 describe("buildNotificationData", () => {
     const appointmentDetails = {
