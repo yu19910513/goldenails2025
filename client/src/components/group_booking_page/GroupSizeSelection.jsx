@@ -1,12 +1,41 @@
 import React, { useState } from 'react';
 
+/**
+ * GroupSizeSelection component
+ *
+ * Renders a simple UI for selecting the number of people in a group
+ * (between 1 and 4). The selection is passed to the parent via the
+ * `onNext` callback when the "Next" button is clicked.
+ *
+ * @component
+ *
+ * @param {Object} props - Component props.
+ * @param {Function} props.onNext - Callback fired with the selected group size when the user proceeds.
+ *
+ * @example
+ * <GroupSizeSelection onNext={(size) => console.log("Selected size:", size)} />
+ *
+ * @returns {JSX.Element} The rendered GroupSizeSelection component.
+ */
 const GroupSizeSelection = ({ onNext }) => {
-  // Default to 2
+  /**
+   * State for the current group size selection.
+   * Defaults to 2.
+   *
+   * @type {[number, Function]}
+   */
   const [groupSize, setGroupSize] = useState(2);
+
+  /** @type {number[]} The selectable group size options (1–4). */
   const options = [1, 2, 3, 4];
 
+  /**
+   * Handles the "Next" button click.
+   * Passes the currently selected group size to the parent via `onNext`.
+   *
+   * @returns {void}
+   */
   const handleNext = () => {
-    // Pass the selected group size to the parent component
     onNext(groupSize);
   };
 
@@ -19,8 +48,8 @@ const GroupSizeSelection = ({ onNext }) => {
         <p className="text-gray-600 mb-6">
           Please select the total number of guests (1-4).
         </p>
-        
-        {/* Replace input with a select dropdown */}
+
+        {/* Group size dropdown */}
         <select
           value={groupSize}
           onChange={(e) => setGroupSize(parseInt(e.target.value, 10))}
@@ -37,7 +66,6 @@ const GroupSizeSelection = ({ onNext }) => {
         <div className="mt-8 flex justify-between">
           <button
             onClick={handleNext}
-            // The button is always enabled since a valid option is always selected
             className="px-6 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition"
           >
             Next

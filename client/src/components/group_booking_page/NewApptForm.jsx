@@ -4,7 +4,39 @@ import { fetchAvailability } from "../../utils/helper_api";
 import { formatTime } from "../../utils/helper";
 import "./GroupBooking.css";
 
-
+/**
+ * NewApptForm component
+ *
+ * Renders a form to create one or more new group appointments.
+ * Handles:
+ * - Displaying customer info (phone, name, email).
+ * - Selecting group size.
+ * - Fetching available times from backend.
+ * - Submitting valid appointment requests to the AppointmentService.
+ *
+ * @component
+ *
+ * @param {Object} props - Component props.
+ * @param {Array<{ id: number|string, name: string, quantity: number }>} props.selectedServices
+ *   The list of services selected by the user, each with quantity.
+ * @param {Object} props.customerInfo
+ *   Customer data, containing phone, name, email, and id.
+ * @param {number} props.groupSize - The number of people in the group (1–4).
+ * @param {Function} props.onGroupSizeChange - Callback fired when group size changes. Receives `(newSize: number)`.
+ * @param {Function} props.onSubmitSuccess - Callback fired after successful appointment creation.
+ *   Receives `(createdAppointments: Array<Object>)`.
+ *
+ * @example
+ * <NewApptForm
+ *   selectedServices={[{ id: 1, name: "Manicure", quantity: 2 }]}
+ *   customerInfo={{ id: 123, phone: "555-1234", name: "Jane Doe", email: "jane@example.com" }}
+ *   groupSize={2}
+ *   onGroupSizeChange={(size) => console.log("Group size changed:", size)}
+ *   onSubmitSuccess={(appointments) => console.log("Created:", appointments)}
+ * />
+ *
+ * @returns {JSX.Element} The rendered NewApptForm component.
+ */
 const NewApptForm = ({
   selectedServices,
   customerInfo,
@@ -12,6 +44,10 @@ const NewApptForm = ({
   onGroupSizeChange,
   onSubmitSuccess
 }) => {
+  /**
+   * Customer state, pre-filled if `customerInfo` is provided.
+   * @type {[Object, Function]}
+   */
   const [customer, setCustomer] = useState({
     phone: "",
     name: "",
@@ -20,10 +56,18 @@ const NewApptForm = ({
     date: ""
   });
 
+  /** @type {[Array<Object>, Function]} Forms representing appointments to create */
   const [forms, setForms] = useState([]);
+
+  /** @type {[Array<Date>, Function]} List of available times for the selected date/services */
   const [availableTimes, setAvailableTimes] = useState([]);
+
+  /** @type {[boolean, Function]} Whether appointment submission is in progress */
   const [isAppointmentLoading, setIsAppointmentLoading] = useState(false);
 
+  /**
+   * Initialize customer info when `customerInfo` changes.
+   */
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     if (customerInfo) {
@@ -37,6 +81,13 @@ const NewApptForm = ({
     }
   }, [customerInfo]);
 
+  /**
+   * Fetch technician/service availability whenever the date,
+   * selected services, or group size changes.
+   *
+   * @async
+   * @returns {Promise<void>}
+   */
   useEffect(() => {
     const checkAvailability = async () => {
       console.group("📋 checkAvailability()");
@@ -51,6 +102,11 @@ const NewApptForm = ({
     checkAvailability();
   }, [customer.date, selectedServices, groupSize]);
 
+  /**
+   * Validates the form data.
+   *
+   * @returns {boolean} True if all forms are valid (technician, time, and services selected).
+   */
   const isFormValid = () => {
     return (
       forms.length > 0 &&
@@ -60,6 +116,14 @@ const NewApptForm = ({
     );
   };
 
+  /**
+   * Handles form submission.
+   * Creates one appointment for each entry in `forms` by calling AppointmentService.
+   *
+   * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - Form submit event.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -108,13 +172,15 @@ const NewApptForm = ({
   return (
     <form onSubmit={handleSubmit} className="group-appt-form">
       <h2 className="group-appt-title">Book a New Appointment</h2>
-      <small>Almost there! Submitting this form will confirm your request. Double-check your details and don’t forget to <b>select a time slot</b>.
+      <small>
+        Almost there! Submitting this form will confirm your request. Double-check your details and don’t forget to <b>select a time slot</b>.
         <span className="hide-on-desktop">
-          <br></br>
+          <br />
           If you need to make changes, just tap the <b>Back</b> button to update your services.
         </span>
       </small>
       <div className="group-appt-form-grid">
+        {/* Phone */}
         <div className="group-appt-field">
           <label className="group-appt-label">Phone</label>
           <input
@@ -125,6 +191,7 @@ const NewApptForm = ({
           />
         </div>
 
+        {/* Customer Name */}
         <div className="group-appt-field">
           <label className="group-appt-label">Customer</label>
           <input
@@ -135,6 +202,7 @@ const NewApptForm = ({
           />
         </div>
 
+        {/* Date */}
         <div className="group-appt-field">
           <label className="group-appt-label">Date</label>
           <input
@@ -148,6 +216,7 @@ const NewApptForm = ({
           />
         </div>
 
+        {/* Group Size */}
         <div className="group-appt-field">
           <label className="group-appt-label">Group Size</label>
           <select
@@ -163,6 +232,7 @@ const NewApptForm = ({
           </select>
         </div>
 
+        {/* Time */}
         {selectedServices.length > 0 && (
           <div className="group-appt-field">
             <label className="group-appt-label">Time</label>
@@ -196,6 +266,7 @@ const NewApptForm = ({
         )}
       </div>
 
+      {/* Selected Services */}
       <div className="group-appt-services">
         <label className="group-appt-label">Selected Services </label>
         <ul className="group-appt-services-list">
@@ -211,6 +282,7 @@ const NewApptForm = ({
         </ul>
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         className="group-appt-submit-btn"
@@ -219,6 +291,7 @@ const NewApptForm = ({
         Submit
       </button>
 
+      {/* Loading Overlay */}
       {isAppointmentLoading && (
         <div className="group-appt-loading-overlay">
           Creating appointments...
