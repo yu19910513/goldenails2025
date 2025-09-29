@@ -749,7 +749,179 @@ const assignTechnicians = (appointmentTechMap) => {
 };
 
 
+/**
+ * Extracts all service names from an appointment's services object.
+ *
+ * @param {Object.<string, {name: string}[]>} services - The services object where keys are categories
+ * and values are arrays of service objects with a `name` property.
+ * @returns {string[]} An array of service names.
+ */
+const extractServiceNames = (services) => {
+  return Object.values(services).flatMap((category) =>
+    category.map((service) => service.name)
+  );
+};
 
+/**
+ * Formats the appointment start time.
+ *
+ * @param {string|number|Date|null} slot - The appointment start time (timestamp, Date, or ISO string).
+ * @returns {string} A formatted start time string (e.g., "02:30 PM") or "N/A" if invalid.
+ */
+const formatStartTime = (slot) => {
+  return formatTimeSlot(slot)
+};
+
+/**
+ * Formats a time slot string into a localized 12-hour time for display.
+ *
+ * This function accepts both:
+ * 1. Time-only strings:
+ *    - "H"        -> "09:00 AM"
+ *    - "H:M"      -> "09:30 AM"
+ *    - "HH:MM"    -> "09:30 AM"
+ *    Missing minutes default to "00".
+ * 2. Full ISO datetime strings:
+ *    - "2025-09-29T15:30" -> "03:30 PM"
+ *
+ * If the input is falsy, it returns "N/A".
+ *
+ * @param {string} slot - The time slot to format, either time-only or full ISO datetime.
+ * @returns {string} The formatted time string in 12-hour format (e.g., "09:00 AM").
+ *
+ * @example
+ * formatTimeSlot("9");             // "09:00 AM"
+ * formatTimeSlot("9:5");           // "09:05 AM"
+ * formatTimeSlot("15:30");         // "03:30 PM"
+ * formatTimeSlot("2025-09-29T15:30"); // "03:30 PM"
+ * formatTimeSlot("");              // "N/A"
+ */
+const formatTimeSlot = (slot) => {
+  if (!slot) return "N/A";
+
+  let dateStr;
+
+  // Handle time-only inputs: "H", "H:M", "HH:MM"
+  const timeOnlyMatch = /^(\d{1,2})(?::(\d{1,2}))?$/.exec(slot);
+  if (timeOnlyMatch) {
+    const hour = timeOnlyMatch[1].padStart(2, "0");
+    const minute = (timeOnlyMatch[2] || "00").padStart(2, "0");
+    dateStr = `${new Date().toISOString().split("T")[0]}T${hour}:${minute}`;
+  } else {
+    // Full ISO or other valid date string
+    dateStr = slot;
+  }
+
+  return new Date(dateStr).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+/**
+ * Calculates and formats the appointment end time.
+ *
+ * @param {string|number|Date|null} slot - The appointment start time (timestamp, Date, or ISO string).
+ * @param {number} duration - The duration of the appointment in minutes.
+ * @returns {string} A formatted end time string (e.g., "03:15 PM") or "N/A" if invalid.
+ */
+const formatEndTime = (slot, duration) => {
+  return slot
+    ? new Date(new Date(slot).getTime() + duration * 60000).toLocaleTimeString(
+      [],
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }
+    )
+    : "N/A";
+};
+
+/**
+ * Formats a date value into a long-form, human-readable string.
+ * This function robustly handles various input types including ISO strings,
+ * native Date objects, and Unix timestamps.
+ * @param {string | Date | number | null | undefined} slot - The date value to format.
+ * @returns {string} The formatted date string (e.g., "Monday, October 20, 2025"),
+ * or a fallback string like "N/A" or "Invalid Date".
+ * @example
+ * formatDate("2025-10-20"); // "Monday, October 20, 2025"
+ * formatDate(new Date());    // Formats the current date
+ */
+const formatDate = (slot) => {
+  if (slot === null || slot === undefined || slot === "") {
+    return "N/A";
+  }
+
+  let dt;
+
+  if (slot instanceof Date) {
+    dt = DateTime.fromJSDate(slot);
+  } else if (typeof slot === 'string' && slot.trim() !== '') {
+    dt = DateTime.fromISO(slot);
+  } else if (typeof slot === 'number') {
+    dt = DateTime.fromMillis(slot);
+  } else {
+    dt = DateTime.invalid('unrecognized-format');
+  }
+
+  if (!dt.isValid) {
+    console.error("Could not parse invalid date input:", slot);
+    return "Invalid Date";
+  }
+
+  return dt.toLocaleString({
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+/**
+ * Builds the notification payload object for sending appointment confirmations.
+ *
+ * @param {Object} appointmentDetails - The appointment details object.
+ * @param {Object} appointmentDetails.customerInfo - Customer information.
+ * @param {string} appointmentDetails.customerInfo.name - Customer's name.
+ * @param {string} appointmentDetails.customerInfo.phone - Customer's phone number.
+ * @param {string} appointmentDetails.customerInfo.email - Customer's email address.
+ * @param {Object} appointmentDetails.technician - Technician information.
+ * @param {string} appointmentDetails.technician.name - Technician's name.
+ * @param {string} optInSMS - Whether the customer opted in for SMS notifications.
+ * @param {string} formattedDate - The formatted appointment date.
+ * @param {string} formattedSlot - The formatted start time.
+ * @param {string} endTime - The formatted end time.
+ * @param {string[]} serviceNames - The list of service names.
+ * @returns {Object} The payload for the notification service.
+ */
+const buildNotificationData = (
+  appointmentDetails,
+  optInSMS,
+  formattedDate,
+  formattedSlot,
+  endTime,
+  serviceNames
+) => {
+  const { name, phone, email } = appointmentDetails.customerInfo;
+  const { name: technicianName } = appointmentDetails.technician;
+
+  return {
+    recipient_name: name,
+    recipient_phone: phone,
+    recipient_email_address: email,
+    recipient_email_subject: "Appointment Confirmation",
+    recipient_optInSMS: optInSMS,
+    action: "confirm",
+    appointment_date: formattedDate,
+    appointment_start_time: formattedSlot,
+    appointment_end_time: endTime,
+    appointment_services: serviceNames.join(", "),
+    appointment_technician: technicianName,
+    owner_email_subject: "New Appointment",
+  };
+};
 
 
 export {
@@ -769,5 +941,11 @@ export {
   sanitizeObjectInput,
   isTokenValid,
   distributeItems,
-  assignTechnicians
+  assignTechnicians,
+  extractServiceNames,
+  formatStartTime,
+  formatEndTime,
+  formatDate,
+  buildNotificationData,
+  formatTimeSlot
 };

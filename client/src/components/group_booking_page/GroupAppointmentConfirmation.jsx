@@ -1,6 +1,10 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import NotificationService from "../../services/notificationService"; // Assuming service exists
+import NotificationService from "../../services/notificationService";
+import {
+  formatStartTime,
+  formatDate
+} from "../../utils/helper";
 import "./GroupAppointmentConfirmation.css"; // The new, specific CSS file
 
 const GroupAppointmentConfirmation = ({ appointments }) => {
@@ -8,6 +12,8 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
   const groupSize = appointments.length;
   const address = "3610 Grandview St, Gig Harbor, WA 98335";
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+
 
   // Guard clause for empty or invalid appointments prop
   if (!appointments || appointments.length === 0) {
@@ -22,6 +28,10 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
   // --- Data Aggregation ---
   // Since date, time, and customer are the same for the whole group, we can take them from the first appointment.
   const { customer, date, time } = appointments[0];
+  console.log(time);
+  
+  const start_time = formatStartTime(time);
+  const appt_date = formatDate(date);
 
   // 1. Aggregate all services into a single list with total counts.
   const totalServices = appointments
@@ -46,17 +56,15 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
           recipient_name: customer.name,
           recipient_phone: customer.phone,
           recipient_email_address: customer.email,
-          recipient_email_subject: "Your Group Appointment is Confirmed!",
-          action: "confirm", // Or a new "group_confirm" action
-          appointment_date: new Date(date).toLocaleDateString([], {
-            weekday: 'long', month: 'long', day: 'numeric'
-          }),
-          appointment_start_time: time,
+          recipient_email_subject: "Group Appointment Confirmation",
+          action: "group_confirm", // Or a new "group_confirm" action
+          appointment_date: appt_date,
+          appointment_start_time: start_time,
           appointment_services: Object.entries(totalServices)
             .map(([name, count]) => `${name} (x${count})`)
             .join(", "),
           appointment_technician: assignedTechnicians.join(", "),
-          owner_email_subject: `New Group Appointment for ${customer.name}`,
+          owner_email_subject: `New Group Appointment`,
         };
         // await NotificationService.notify(messageData);
         console.log("Sending consolidated group notification:", messageData);
@@ -89,8 +97,8 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
       </a>
 
       <div className="group-appointment-confirmation__details-section">
-        <p><strong>Date:</strong> {date}</p>
-        <p><strong>Arrival Time:</strong> {time}</p>
+        <p><strong>Date:</strong> {appt_date}</p>
+        <p><strong>Arrival Time:</strong> {start_time}</p>
         <p><strong>Group Size:</strong> {groupSize}</p>
         <hr className="group-appointment-confirmation__divider" />
         <p><strong>Total Services:</strong></p>
