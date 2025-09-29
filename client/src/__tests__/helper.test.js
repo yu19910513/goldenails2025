@@ -716,11 +716,9 @@ describe("formatEndTime", () => {
 });
 
 describe("formatDate", () => {
-    // Helper to normalize output for testing regardless of locale differences
     const normalizeDate = (str) => str.replace(/\u200E/g, ""); // remove LTR marks
 
     beforeAll(() => {
-        // Freeze Date to a fixed point to avoid timezone-related shifts
         jest.useFakeTimers("modern");
         jest.setSystemTime(new Date("2025-09-29T12:00:00Z")); // UTC noon
     });

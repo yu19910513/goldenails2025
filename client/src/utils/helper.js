@@ -840,22 +840,45 @@ const formatEndTime = (slot, duration) => {
 };
 
 /**
- * Formats the appointment date into a readable string.
- *
- * @param {string|number|Date|null} slot - The appointment date (timestamp, Date, or ISO string).
- * @returns {string} A formatted date string (e.g., "Monday, September 29, 2025") or "N/A" if invalid.
+ * Formats a date value into a long-form, human-readable string.
+ * This function robustly handles various input types including ISO strings,
+ * native Date objects, and Unix timestamps.
+ * @param {string | Date | number | null | undefined} slot - The date value to format.
+ * @returns {string} The formatted date string (e.g., "Monday, October 20, 2025"),
+ * or a fallback string like "N/A" or "Invalid Date".
+ * @example
+ * formatDate("2025-10-20"); // "Monday, October 20, 2025"
+ * formatDate(new Date());    // Formats the current date
  */
 const formatDate = (slot) => {
-  return slot
-    ? new Date(slot).toLocaleDateString([], {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-    : "N/A";
-};
+  if (slot === null || slot === undefined || slot === "") {
+    return "N/A";
+  }
 
+  let dt;
+
+  if (slot instanceof Date) {
+    dt = DateTime.fromJSDate(slot);
+  } else if (typeof slot === 'string' && slot.trim() !== '') {
+    dt = DateTime.fromISO(slot);
+  } else if (typeof slot === 'number') {
+    dt = DateTime.fromMillis(slot);
+  } else {
+    dt = DateTime.invalid('unrecognized-format');
+  }
+
+  if (!dt.isValid) {
+    console.error("Could not parse invalid date input:", slot);
+    return "Invalid Date";
+  }
+
+  return dt.toLocaleString({
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 /**
  * Builds the notification payload object for sending appointment confirmations.
  *
