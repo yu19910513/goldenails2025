@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Technician, Service, Category } = require("../../models");
+const { Technician, Category, Appointment, Service, Customer } = require("../../models");
 const { Sequelize, Op } = require("sequelize");
 
 /**
@@ -90,7 +90,7 @@ router.get("/", async (req, res) => {
 router.post("/available", async (req, res) => {
   try {
     const { categoryIds } = req.body;
-    
+
     if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) {
       return res.status(400).json({ message: "Category IDs are required." });
     }
@@ -104,7 +104,7 @@ router.post("/available", async (req, res) => {
           attributes: [], // Avoid selecting category fields to keep query clean
         },
       ],
-       where: {
+      where: {
         status: true, // Only include records where status is true
       },
       attributes: [
@@ -129,6 +129,100 @@ router.post("/available", async (req, res) => {
   } catch (error) {
     console.error("Error fetching available technicians:", error);
     return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+/**
+ * @route GET /schedule
+ * @description Fetches the daily schedule by returning all technicians and their associated appointments for a given date. Technicians with no appointments are included with an empty appointments array, ensuring a complete roster is always returned. Customer information is excluded for privacy.
+ *
+ * @param {object} req - The Express request object.
+ * @param {object} req.query - The query parameters of the request.
+ * @param {string} req.query.date - The date for which the schedule is fetched (format: YYYY-MM-DD). This parameter is required.
+ *
+ * @param {object} res - The Express response object.
+ *
+ * @returns {object[]} res.body - An array of technician objects, each populated with their appointments for the day.
+ * @returns {number} res.body[].id - The technician's unique ID.
+ * @returns {string} res.body[].name - The technician's name.
+ * @returns {object[]} res.body[].Appointments - A list of appointments for the technician. Note: The name is capitalized by Sequelize default. This array will be empty if the technician has no appointments on the given date.
+ * @returns {number} res.body[].Appointments[].id - The appointment's unique ID.
+ * @returns {string} res.body[].Appointments[].date - The date of the appointment.
+ * @returns {object[]} res.body[].Appointments[].Services - A list of services included in the appointment.
+ * @returns {number} res.body[].Appointments[].Services[].id - The service's unique ID.
+ * @returns {string} res.body[].Appointments[].Services[].name - The name of the service.
+ * @returns {number} res.body[].Appointments[].Services[].time - The duration of the service in minutes.
+ *
+ * @throws {400} If the 'date' query parameter is missing.
+ * @throws {500} If there is a server-side error during the database query.
+ *
+ * @example
+ * // Request:
+ * fetch('/schedule?date=2025-10-22')
+ * .then(response => response.json())
+ * .then(data => console.log(data))
+ * .catch(error => console.error(error));
+ *
+ * // Example Response Body (without customer info):
+ * [
+ * {
+ * "id": 1,
+ * "name": "Jane Doe",
+ * "Appointments": [
+ * {
+ * "id": 101,
+ * "date": "2025-10-22",
+ * "Services": [
+ * { "id": 5, "name": "Haircut", "time": 30 },
+ * { "id": 8, "name": "Coloring", "time": 90 }
+ * ]
+ * }
+ * ]
+ * },
+ * {
+ * "id": 2,
+ * "name": "John Smith",
+ * "Appointments": []
+ * }
+ * ]
+ */
+router.get("/schedule", async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) {
+      return res.status(400).json({ error: "Date parameter is required." });
+    }
+
+    const techniciansWithSchedule = await Technician.findAll({
+      attributes: ["id", "name"],
+      include: [
+        {
+          model: Appointment,
+          required: false,
+          where: {
+            date: date,
+            [Op.or]: [{ note: null }, { note: { [Op.not]: "deleted" } }],
+          },
+          include: [
+            {
+              model: Service,
+              attributes: ["id", "name", "time"],
+              through: { attributes: [] },
+            },
+            // The 'Customer' include block has been removed from here
+          ],
+        },
+      ],
+      order: [
+        ['name', 'ASC'],
+        [Appointment, 'id', 'ASC'],
+      ],
+    });
+
+    res.status(200).json(techniciansWithSchedule);
+  } catch (error) {
+    console.error("Error fetching schedule:", error);
+    res.status(500).json({ error: "Failed to fetch schedule." });
   }
 });
 
