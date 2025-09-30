@@ -3,91 +3,111 @@ import { useNavigate } from "react-router-dom";
 import NotificationService from "../../services/notificationService";
 import {
   formatStartTime,
-  formatDate
+  formatDate,
+  buildNotificationData
 } from "../../utils/helper";
-import "./GroupAppointmentConfirmation.css"; // The new, specific CSS file
+import "./GroupAppointmentConfirmation.css";
 
+/**
+ * Renders a confirmation page for a group booking.
+ * It aggregates details from multiple individual appointments into a single summary view,
+ * displays the consolidated information, and triggers a confirmation notification.
+ *
+ * @param {object} props - The component props.
+ * @param {Array<object>} props.appointments - An array of appointment objects for the group.
+ * @param {object} props.appointments[].customer - Customer details (assumed to be the same for the group).
+ * @param {string} props.appointments[].customer.name - The customer's full name.
+ * @param {string} props.appointments[].date - The appointment date (e.g., "YYYY-MM-DD").
+ * @param {string} props.appointments[].time - The appointment start time (e.g., "HH:MM:SS").
+ * @param {Array<object>} props.appointments[].services - A list of services for this specific appointment.
+ * @param {string} props.appointments[].services[].name - The name of the service.
+ * @param {object} props.appointments[].technician - The technician assigned to this appointment.
+ * @param {string} props.appointments[].technician.name - The technician's name.
+ * @returns {JSX.Element} The group appointment confirmation component.
+ */
 const GroupAppointmentConfirmation = ({ appointments }) => {
   const navigate = useNavigate();
-  const groupSize = appointments.length;
   const address = "3610 Grandview St, Gig Harbor, WA 98335";
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    address
+  )}`;
 
-
-
-  // Guard clause for empty or invalid appointments prop
   if (!appointments || appointments.length === 0) {
     return (
       <div className="group-appointment-confirmation">
-        <h2 className="group-appointment-confirmation__title">Booking Confirmation Error</h2>
-        <p>There was an issue retrieving your appointment details. Please return home and try again.</p>
+        <h2 className="group-appointment-confirmation__title">
+          Booking Confirmation Error
+        </h2>
+        <p>
+          There was an issue retrieving your appointment details. Please return
+          home and try again.
+        </p>
       </div>
     );
   }
 
-  // --- Data Aggregation ---
-  // Since date, time, and customer are the same for the whole group, we can take them from the first appointment.
+  const groupSize = appointments.length;
   const { customer, date, time } = appointments[0];
-  const optInSMS = localStorage.getItem("smsOptIn") !== 'false';
-  const start_time = formatStartTime(time);
   const appt_date = formatDate(date);
+  const start_time = formatStartTime(time);
 
-  // 1. Aggregate all services into a single list with total counts.
   const totalServices = appointments
-    .flatMap((appt) => appt.services) // Get a single array of all service objects
+    .flatMap((appt) => appt.services)
     .reduce((acc, service) => {
-      // Group by service name and sum the quantities
       acc[service.name] = (acc[service.name] || 0) + 1;
       return acc;
-    }, {}); // Result: { "Manicure": 2, "Pedicure": 1 }
+    }, {});
 
-  // 2. Get a unique list of all assigned technicians.
   const assignedTechnicians = [
     ...new Set(appointments.map((appt) => appt.technician.name)),
   ];
-  /**
- * This effect sends a single, consolidated notification for the entire group booking.
- */
+
   useEffect(() => {
     const sendGroupNotification = async () => {
       try {
-        const messageData = {
-          recipient_name: customer.name,
-          recipient_phone: customer.phone,
-          recipient_email_address: customer.email,
-          recipient_email_subject: "Group Appointment Confirmation",
-          recipient_optInSMS: optInSMS,
-          action: "group_confirm", // Or a new "group_confirm" action
-          appointment_date: appt_date,
-          appointment_start_time: start_time,
-          appointment_services: Object.entries(totalServices)
-            .map(([name, count]) => `${name} (x${count})`)
-            .join(", "),
-          appointment_technician: assignedTechnicians.join(", "),
-          owner_email_subject: `New Group Appointment`,
-        };
-        // await NotificationService.notify(messageData);
+        const optInSMS = localStorage.getItem("smsOptIn") !== "false";
+        const servicesSummary = Object.entries(totalServices)
+          .map(([name, count]) => `${name} (x${count})`)
+          .join(", ");
+
+        const messageData = buildNotificationData(
+          {
+            customerInfo: customer,
+            technician: { name: assignedTechnicians.join(", ") },
+          },
+          optInSMS,
+          appt_date,
+          start_time,
+          null,
+          [servicesSummary]
+        );
+
+        await NotificationService.notify(messageData);
         console.log("Sending consolidated group notification:", messageData);
       } catch (error) {
         console.error("Failed to send group notification:", error);
       }
     };
     sendGroupNotification();
-  }, [appointments, customer, date, time, totalServices, assignedTechnicians]);
+  }, [appointments]); // Effect runs only when the core appointments data changes.
 
   return (
     <div
       className="group-appointment-confirmation"
-      style={{ '--group-size-watermark': `'${groupSize}'` }} // <-- Pass as CSS variable
+      style={{ "--group-size-watermark": `'${groupSize}'` }}
     >
-      <h2 className="group-appointment-confirmation__title">Group Appointment Confirmed! 🥳</h2>
+      <h2 className="group-appointment-confirmation__title">
+        Group Appointment Confirmed! 🥳
+      </h2>
 
       <p className="group-appointment-confirmation__thank-you">
-        Thank you, {customer.name}. Your booking for a group of {groupSize} is confirmed. We look forward to seeing you all!
+        Thank you, {customer.name}. Your booking for a group of {groupSize} is
+        confirmed. We look forward to seeing you all!
       </p>
 
       <p className="group-appointment-confirmation__details-intro">
-        Please find your appointment details below. We kindly ask that you arrive 5 minutes early and check in at the following address:
+        Please find your appointment details below. We kindly ask that you
+        arrive 5 minutes early and check in at the following address:
       </p>
 
       <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
@@ -97,18 +117,30 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
       </a>
 
       <div className="group-appointment-confirmation__details-section">
-        <p><strong>Date:</strong> {appt_date}</p>
-        <p><strong>Arrival Time:</strong> {start_time}</p>
-        <p><strong>Group Size:</strong> {groupSize}</p>
+        <p>
+          <strong>Date:</strong> {appt_date}
+        </p>
+        <p>
+          <strong>Arrival Time:</strong> {start_time}
+        </p>
+        <p>
+          <strong>Group Size:</strong> {groupSize}
+        </p>
         <hr className="group-appointment-confirmation__divider" />
-        <p><strong>Total Services:</strong></p>
+        <p>
+          <strong>Total Services:</strong>
+        </p>
         <ul className="group-appointment-confirmation__service-list">
           {Object.entries(totalServices).map(([name, count]) => (
-            <li key={name}>{name} x {count}</li>
+            <li key={name}>
+              {name} x {count}
+            </li>
           ))}
         </ul>
 
-        <p><strong>Your Technicians:</strong></p>
+        <p>
+          <strong>Your Technicians:</strong>
+        </p>
         <ul className="group-appointment-confirmation__service-list">
           {assignedTechnicians.map((name) => (
             <li key={name}>{name}</li>
@@ -117,9 +149,13 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
       </div>
 
       <p className="group-appointment-confirmation__instructions">
-        To review or manage your appointment details, please use the 'Appointment History' section in the top navigation bar. Simply enter your phone number and name to access your records.
-        Should there be any changes to your appointment, we will notify you via phone or text and update your online appointment record accordingly.
-        If you need to cancel or modify your appointment, you may use the 'Appointment History' to do so or contact us at <strong>253-851-7563</strong>.
+        To review or manage your appointment details, please use the 'Appointment
+        History' section in the top navigation bar. Simply enter your phone
+        number and name to access your records. Should there be any changes to
+        your appointment, we will notify you via phone or text and update your
+        online appointment record accordingly. If you need to cancel or modify
+        your appointment, you may use the 'Appointment History' to do so or
+        contact us at <strong>253-851-7563</strong>.
       </p>
 
       <button
@@ -128,7 +164,8 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
           localStorage.clear();
           navigate("/");
         }}
-      ></button>
+      >
+      </button>
     </div>
   );
 };
