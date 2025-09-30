@@ -71,7 +71,7 @@ const Hero = () => {
 
         <div className="button-group">
           <a href="tel:+12538517563">Call Us Now</a>
-          <a href="/booking">Book Now</a>
+          <a href="/bookingchoice">Book Now</a>
         </div>
       </div>
     </section>

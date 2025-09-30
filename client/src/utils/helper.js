@@ -578,9 +578,350 @@ const isTokenValid = (token) => {
   }
 }
 
+/**
+ * Distribute items into groups such that:
+ *  - Each group cannot contain duplicate items with the same `id`.
+ *  - The total `time` values across groups are balanced as evenly as possible.
+ *  - If the number of duplicates of any single `id` is greater than the given `size`,
+ *    the `size` is automatically increased to fit all duplicates.
+ *
+ * Strategy:
+ *  - For small inputs (≤ 20 items and ≤ 4 groups), an optimized backtracking
+ *    approach is used to minimize the spread (difference between max and min total time).
+ *  - For larger inputs, a greedy heuristic is used for efficiency.
+ *
+ * @param {Array<{id: string, time: number}>} items - Array of items to distribute.
+ *   Each item must have a unique `id` (identifier for type) and `time` (duration in minutes).
+ *   Duplicate objects with the same `id` represent repeated instances of that type.
+ * @param {number} size - Number of groups to distribute items into.
+ *   Will be auto-increased if fewer than the maximum number of duplicates of any id.
+ * @returns {Array<Array<{id: string, time: number}>>} 
+ *   Array of groups, each group being an array of items.
+ *
+ * @example
+ * const items = [
+ *   { id: "A", time: 40 },
+ *   { id: "A", time: 40 },
+ *   { id: "B", time: 20 },
+ *   { id: "C", time: 10 },
+ *   { id: "F", time: 1 },
+ *   { id: "F", time: 1 },
+ * ];
+ *
+ * // With size = 2, auto-increases to 2 (since max duplicate count is 2 for A and F).
+ * const groups = distributeItems(items, 2);
+ *
+ * // Possible output (balanced by time):
+ * // [
+ * //   [ { id: "A", time: 40 }, { id: "C", time: 10 }, { id: "F", time: 1 } ],
+ * //   [ { id: "A", time: 40 }, { id: "B", time: 20 }, { id: "F", time: 1 } ]
+ * // ]
+ */
+const distributeItems = (items, size) => {
+  // --- Adjust size automatically if duplicates exceed group size ---
+  const idCounts = items.reduce((acc, item) => {
+    acc[item.id] = (acc[item.id] || 0) + 1;
+    return acc;
+  }, {});
+  const maxDuplicates = Math.max(...Object.values(idCounts), 0);
+
+  if (size < maxDuplicates) {
+    size = maxDuplicates; // bump size up to fit all duplicates
+  }
+
+  // ---- Greedy fallback ----
+  const greedyDistribute = (items, size) => {
+    const groups = Array.from({ length: size }, () => ({
+      items: [],
+      totalTime: 0,
+      ids: new Set()
+    }));
+
+    // Sort by descending time
+    const sorted = [...items].sort((a, b) => b.time - a.time);
+
+    for (const item of sorted) {
+      // Pick group with lowest totalTime that doesn’t have this id
+      let target = null;
+      let minTime = Infinity;
+
+      for (const group of groups) {
+        if (!group.ids.has(item.id) && group.totalTime < minTime) {
+          minTime = group.totalTime;
+          target = group;
+        }
+      }
+
+      if (target) {
+        target.items.push(item);
+        target.totalTime += item.time;
+        target.ids.add(item.id);
+      }
+    }
+
+    return groups.map(g => g.items);
+  };
+
+  // ---- Optimized Backtracking ----
+  const backtrackingDistribute = (items, size) => {
+    const groups = Array.from({ length: size }, () => ({
+      items: [],
+      totalTime: 0,
+      ids: new Set()
+    }));
+
+    const sorted = [...items].sort((a, b) => b.time - a.time);
+
+    let bestSolution = null;
+    let bestSpread = Infinity;
+
+    const backtrack = (index) => {
+      if (index === sorted.length) {
+        const times = groups.map(g => g.totalTime);
+        const spread = Math.max(...times) - Math.min(...times);
+        if (spread < bestSpread) {
+          bestSpread = spread;
+          bestSolution = groups.map(g => g.items.slice());
+        }
+        return;
+      }
+
+      const item = sorted[index];
+      for (const group of groups) {
+        if (group.ids.has(item.id)) continue;
+
+        // Place
+        group.items.push(item);
+        group.totalTime += item.time;
+        group.ids.add(item.id);
+
+        const times = groups.map(g => g.totalTime);
+        const spread = Math.max(...times) - Math.min(...times);
+
+        if (spread <= bestSpread) {
+          backtrack(index + 1);
+        }
+
+        // Undo
+        group.items.pop();
+        group.totalTime -= item.time;
+        group.ids.delete(item.id);
+      }
+    };
+
+    backtrack(0);
+    return bestSolution;
+  };
+
+  // ---- Choose strategy ----
+  if (items.length <= 20 && size <= 4) {
+    return backtrackingDistribute(items, size);
+  } else {
+    return greedyDistribute(items, size);
+  }
+};
+
+/**
+ * Assign technicians to appointments
+ * @param {Array[]} appointmentTechMap - Array of arrays of available techs per appointment
+ * @returns {Array} assignedTechs - Array of assigned technician objects or null
+ */
+const assignTechnicians = (appointmentTechMap) => {
+  const assignedTechs = [];
+  const usedTechs = new Set();
+
+  for (const techOptions of appointmentTechMap) {
+    // Prefer a tech that is not "No Preference" and hasn't been used
+    let assigned = techOptions.find(t => t.name !== "No Preference" && !usedTechs.has(t.name));
+
+    // If none, fallback to "No Preference"
+    if (!assigned) assigned = techOptions.find(t => t.name === "No Preference");
+
+    if (assigned) {
+      assignedTechs.push(assigned);
+      if (assigned.name !== "No Preference") usedTechs.add(assigned.name);
+    } else {
+      assignedTechs.push(null); // no tech available
+    }
+  }
+
+  return assignedTechs;
+};
 
 
+/**
+ * Extracts all service names from an appointment's services object.
+ *
+ * @param {Object.<string, {name: string}[]>} services - The services object where keys are categories
+ * and values are arrays of service objects with a `name` property.
+ * @returns {string[]} An array of service names.
+ */
+const extractServiceNames = (services) => {
+  return Object.values(services).flatMap((category) =>
+    category.map((service) => service.name)
+  );
+};
 
+/**
+ * Formats the appointment start time.
+ *
+ * @param {string|number|Date|null} slot - The appointment start time (timestamp, Date, or ISO string).
+ * @returns {string} A formatted start time string (e.g., "02:30 PM") or "N/A" if invalid.
+ */
+const formatStartTime = (slot) => {
+  return formatTimeSlot(slot)
+};
+
+/**
+ * Formats a time slot string into a localized 12-hour time for display.
+ *
+ * This function accepts both:
+ * 1. Time-only strings:
+ *    - "H"        -> "09:00 AM"
+ *    - "H:M"      -> "09:30 AM"
+ *    - "HH:MM"    -> "09:30 AM"
+ *    Missing minutes default to "00".
+ * 2. Full ISO datetime strings:
+ *    - "2025-09-29T15:30" -> "03:30 PM"
+ *
+ * If the input is falsy, it returns "N/A".
+ *
+ * @param {string} slot - The time slot to format, either time-only or full ISO datetime.
+ * @returns {string} The formatted time string in 12-hour format (e.g., "09:00 AM").
+ *
+ * @example
+ * formatTimeSlot("9");             // "09:00 AM"
+ * formatTimeSlot("9:5");           // "09:05 AM"
+ * formatTimeSlot("15:30");         // "03:30 PM"
+ * formatTimeSlot("2025-09-29T15:30"); // "03:30 PM"
+ * formatTimeSlot("");              // "N/A"
+ */
+const formatTimeSlot = (slot) => {
+  if (!slot) return "N/A";
+
+  let dateStr;
+
+  // Handle time-only inputs: "H", "H:M", "HH:MM"
+  const timeOnlyMatch = /^(\d{1,2})(?::(\d{1,2}))?$/.exec(slot);
+  if (timeOnlyMatch) {
+    const hour = timeOnlyMatch[1].padStart(2, "0");
+    const minute = (timeOnlyMatch[2] || "00").padStart(2, "0");
+    dateStr = `${new Date().toISOString().split("T")[0]}T${hour}:${minute}`;
+  } else {
+    // Full ISO or other valid date string
+    dateStr = slot;
+  }
+
+  return new Date(dateStr).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+/**
+ * Calculates and formats the appointment end time.
+ *
+ * @param {string|number|Date|null} slot - The appointment start time (timestamp, Date, or ISO string).
+ * @param {number} duration - The duration of the appointment in minutes.
+ * @returns {string} A formatted end time string (e.g., "03:15 PM") or "N/A" if invalid.
+ */
+const formatEndTime = (slot, duration) => {
+  return slot
+    ? new Date(new Date(slot).getTime() + duration * 60000).toLocaleTimeString(
+      [],
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }
+    )
+    : "N/A";
+};
+
+/**
+ * Formats a date value into a long-form, human-readable string.
+ * This function robustly handles various input types including ISO strings,
+ * native Date objects, and Unix timestamps.
+ * @param {string | Date | number | null | undefined} slot - The date value to format.
+ * @returns {string} The formatted date string (e.g., "Monday, October 20, 2025"),
+ * or a fallback string like "N/A" or "Invalid Date".
+ * @example
+ * formatDate("2025-10-20"); // "Monday, October 20, 2025"
+ * formatDate(new Date());    // Formats the current date
+ */
+const formatDate = (slot) => {
+  if (slot === null || slot === undefined || slot === "") {
+    return "N/A";
+  }
+
+  let dt;
+
+  if (slot instanceof Date) {
+    dt = DateTime.fromJSDate(slot);
+  } else if (typeof slot === 'string' && slot.trim() !== '') {
+    dt = DateTime.fromISO(slot);
+  } else if (typeof slot === 'number') {
+    dt = DateTime.fromMillis(slot);
+  } else {
+    dt = DateTime.invalid('unrecognized-format');
+  }
+
+  if (!dt.isValid) {
+    console.error("Could not parse invalid date input:", slot);
+    return "Invalid Date";
+  }
+
+  return dt.toLocaleString({
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+/**
+ * Builds the notification payload object for sending appointment confirmations.
+ *
+ * @param {Object} appointmentDetails - The appointment details object.
+ * @param {Object} appointmentDetails.customerInfo - Customer information.
+ * @param {string} appointmentDetails.customerInfo.name - Customer's name.
+ * @param {string} appointmentDetails.customerInfo.phone - Customer's phone number.
+ * @param {string} appointmentDetails.customerInfo.email - Customer's email address.
+ * @param {Object} appointmentDetails.technician - Technician information.
+ * @param {string} appointmentDetails.technician.name - Technician's name.
+ * @param {string} optInSMS - Whether the customer opted in for SMS notifications.
+ * @param {string} formattedDate - The formatted appointment date.
+ * @param {string} formattedSlot - The formatted start time.
+ * @param {string} endTime - The formatted end time.
+ * @param {string[]} serviceNames - The list of service names.
+ * @returns {Object} The payload for the notification service.
+ */
+const buildNotificationData = (
+  appointmentDetails,
+  optInSMS,
+  formattedDate,
+  formattedSlot,
+  endTime,
+  serviceNames
+) => {
+  const { name, phone, email } = appointmentDetails.customerInfo;
+  const { name: technicianName } = appointmentDetails.technician;
+
+  return {
+    recipient_name: name,
+    recipient_phone: phone,
+    recipient_email_address: email,
+    recipient_email_subject: "Appointment Confirmation",
+    recipient_optInSMS: optInSMS,
+    action: "confirm",
+    appointment_date: formattedDate,
+    appointment_start_time: formattedSlot,
+    appointment_end_time: endTime,
+    appointment_services: serviceNames.join(", "),
+    appointment_technician: technicianName,
+    owner_email_subject: "New Appointment",
+  };
+};
 
 
 export {
@@ -598,5 +939,13 @@ export {
   areCommonValuesEqual,
   getBusinessHours,
   sanitizeObjectInput,
-  isTokenValid
+  isTokenValid,
+  distributeItems,
+  assignTechnicians,
+  extractServiceNames,
+  formatStartTime,
+  formatEndTime,
+  formatDate,
+  buildNotificationData,
+  formatTimeSlot
 };

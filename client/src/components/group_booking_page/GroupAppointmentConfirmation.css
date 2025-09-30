@@ -1,0 +1,127 @@
+/* Styles for the GroupAppointmentConfirmation component */
+
+.group-appointment-confirmation {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #faf3e0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    position: relative;
+    /* This is essential for positioning the watermark */
+    overflow: hidden;
+}
+
+/* --- CORRECTED WATERMARK --- */
+.group-appointment-confirmation::before {
+    content: var(--group-size-watermark);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    font-size: 25vw;
+    /* Increased size for more impact */
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.04);
+    /* Changed to a very faint black for better visibility on light backgrounds */
+    pointer-events: none;
+    user-select: none;
+    /* NO z-index needed here. It will automatically be behind the content below. */
+}
+
+/* All child elements no longer need positioning or z-index */
+.group-appointment-confirmation__title,
+.group-appointment-confirmation__thank-you,
+.group-appointment-confirmation__details-intro,
+.group-appointment-confirmation__instructions,
+.group-appointment-confirmation__address,
+.group-appointment-confirmation__details-section,
+.group-appointment-confirmation__home-button {
+    position: relative;
+    /* This ensures they are rendered on top of the pseudo-element */
+}
+
+
+/* --- The rest of the styles remain the same --- */
+
+.group-appointment-confirmation__title {
+    font-family: "Didot", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.group-appointment-confirmation__thank-you,
+.group-appointment-confirmation__details-intro,
+.group-appointment-confirmation__instructions {
+    font-family: 'Optima', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.group-appointment-confirmation__address {
+    font-style: italic;
+    font-size: 1rem;
+    margin-bottom: 16px;
+}
+
+.group-appointment-confirmation__details-section p {
+    font-family: 'Optima', sans-serif;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.group-appointment-confirmation__service-list {
+    font-family: 'Optima', sans-serif;
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-bottom: 16px;
+}
+
+.group-appointment-confirmation__home-button {
+    display: block;
+    width: 120px;
+    height: 40px;
+    margin: 20px auto 0;
+    padding: 10px;
+    background-color: transparent;
+    color: #333333;
+    text-align: center;
+    border: 2px solid #333333;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: 'Optima', sans-serif;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+    clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 20% 50%);
+}
+
+.group-appointment-confirmation__home-button:hover {
+    background-color: #555555;
+    border: 0px;
+    color: white;
+    transform: scale(1.1);
+}
+
+.group-appointment-confirmation__home-button:before {
+    content: "Home";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.group-appointment-confirmation__home-button:active {
+    transform: scale(0.95);
+}
+
+.group-appointment-confirmation__divider {
+    border: none;
+    /* Removes the default 3D border */
+    border-top: 2px dashed rgba(0, 0, 0, 0.2);
+    /* Creates a 2px dashed line with a soft color */
+    margin: 24px 0;
+    /* Adds vertical space above and below the line */
+}

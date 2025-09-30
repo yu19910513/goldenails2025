@@ -4,6 +4,7 @@ import Header from './components/global/Header';
 import Footer from './components/global/Footer';
 import Home from './pages/home';
 import Booking from './pages/booking';
+import GroupBooking from './pages/groupBooking';
 import AppointmentHistory from './pages/appointmentHistory';
 import Config from './pages/config';
 import ServicesMenu from './pages/servicemenu';
@@ -14,6 +15,7 @@ import PasswordlessLogin from './pages/passwordlessLogin';
 import PrivateRoute from './components/utils/PrivateRoute';
 import ProtectedRoute from './components/utils/ProtectedRoute'
 import Dashboard from './pages/dashboard';
+import BookingChoice from './pages/bookingChoice';
 
 // Main App Component
 const App = () => (
@@ -25,7 +27,9 @@ const App = () => (
       <Route path="/config" element={<PrivateRoute><Config /></PrivateRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
+      <Route path="/bookingchoice" element={<BookingChoice />} />
       <Route path="/booking" element={<Booking />} />
+      <Route path="/groupbooking" element={<GroupBooking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
