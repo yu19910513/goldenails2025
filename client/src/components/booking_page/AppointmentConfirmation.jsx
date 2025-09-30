@@ -14,7 +14,7 @@ import "./AppointmentConfirmation.css";
 
 const AppointmentConfirmation = ({ appointmentDetails }) => {
     const navigate = useNavigate();
-    const optInSMS = localStorage.getItem("smsOptIn");
+    const optInSMS = localStorage.getItem("smsOptIn") !== 'false';
 
     const serviceNames = extractServiceNames(appointmentDetails.services);
     const duration = calculateTotalTime(appointmentDetails.services);

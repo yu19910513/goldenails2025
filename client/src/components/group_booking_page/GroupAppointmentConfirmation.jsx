@@ -28,8 +28,7 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
   // --- Data Aggregation ---
   // Since date, time, and customer are the same for the whole group, we can take them from the first appointment.
   const { customer, date, time } = appointments[0];
-  console.log(time);
-  
+  const optInSMS = localStorage.getItem("smsOptIn") !== 'false';
   const start_time = formatStartTime(time);
   const appt_date = formatDate(date);
 
@@ -57,6 +56,7 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
           recipient_phone: customer.phone,
           recipient_email_address: customer.email,
           recipient_email_subject: "Group Appointment Confirmation",
+          recipient_optInSMS: optInSMS,
           action: "group_confirm", // Or a new "group_confirm" action
           appointment_date: appt_date,
           appointment_start_time: start_time,
