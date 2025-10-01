@@ -90,14 +90,17 @@ describe("fetchAvailability", () => {
 
         const techMock = [{ id: 101, name: "Alice" }];
         TechnicianService.getAvailableTechnicians.mockResolvedValue({ data: techMock });
-        Helper.assignTechnicians.mockReturnValue(techMock);
 
+        // Mock assignTechnicians to return { assignedTechs, commonSlots }
         const commonSlotsMock = [new Date("2025-09-28T10:00:00")];
-
-        // Inject mock getCommonAvailableSlots
-        const getSlotsMock = jest.fn().mockResolvedValue(commonSlotsMock);
+        Helper.assignTechnicians.mockResolvedValue({
+            assignedTechs: techMock,
+            commonSlots: commonSlotsMock
+        });
 
         Helper.formatTime.mockImplementation((d) => d.toISOString());
+
+        const getSlotsMock = jest.fn(); // still passed to fetchAvailability but ignored by our assignTechs mock
 
         const result = await fetchAvailability(date, selectedServices, groupSize, getSlotsMock);
 
@@ -106,8 +109,12 @@ describe("fetchAvailability", () => {
             groupSize
         );
         expect(TechnicianService.getAvailableTechnicians).toHaveBeenCalledWith([10]);
-        expect(Helper.assignTechnicians).toHaveBeenCalledWith([techMock]);
-        expect(getSlotsMock).toHaveBeenCalledWith(techMock, appointmentsMock, date);
+        expect(Helper.assignTechnicians).toHaveBeenCalledWith(
+            expect.any(Array),
+            getSlotsMock,
+            appointmentsMock,
+            date
+        );
 
         expect(result.forms[0]).toEqual({
             date,

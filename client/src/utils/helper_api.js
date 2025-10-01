@@ -116,17 +116,21 @@ const fetchAvailability = async (date, selectedServices, groupSize, getSlots = g
     })
   );
 
-  const assignedTechs = assignTechnicians(appointmentTechMap);
-  const commonSlots = await getSlots(assignedTechs, appointments, date);
+  const { assignedTechs, commonSlots } = await assignTechnicians(
+    appointmentTechMap,
+    getSlots,
+    appointments,
+    date
+  );
 
-  const forms = appointments.map((appt, idx) => ({
-    date,
-    time: commonSlots?.[0] ? formatTime(commonSlots[0]) : "",
-    technician: assignedTechs[idx]
-      ? { id: assignedTechs[idx].id, name: assignedTechs[idx].name }
-      : null,
-    services: appt
-  }));
+  const forms = assignedTechs.length === appointments.length
+    ? appointments.map((appt, idx) => ({
+      date,
+      time: commonSlots?.[0] ? formatTime(commonSlots[0]) : "",
+      technician: { id: assignedTechs[idx].id, name: assignedTechs[idx].name },
+      services: appt
+    }))
+    : [];
 
   console.log("Appointments (services grouped):", appointments);
   console.log("Assigned Technicians:", assignedTechs);

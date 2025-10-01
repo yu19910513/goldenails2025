@@ -585,61 +585,167 @@ describe("distributeItems", () => {
     });
 });
 
+const mockGetSlots = async (assignedTechs, appointments, date) => {
+    if (assignedTechs.includes(null)) return [];
+    // return dummy slots with length equal to number of assigned techs
+    return assignedTechs.map((t, idx) => new Date(Date.now() + idx * 1000));
+};
+
 describe("assignTechnicians", () => {
-    it("should assign available techs without conflicts", () => {
+    test("assigns one tech per appointment and maximizes common slots", async () => {
         const appointmentTechMap = [
-            [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }],
-            [{ id: 3, name: "Tech B" }, { id: 4, name: "No Preference" }]
+            [{ id: 1, name: "Alice" }, { id: 2, name: "No Preference" }],
+            [{ id: 3, name: "Bob" }, { id: 4, name: "No Preference" }]
         ];
 
-        const assigned = assignTechnicians(appointmentTechMap);
-
-        expect(assigned).toEqual([
-            { id: 1, name: "Tech A" },
-            { id: 3, name: "Tech B" }
-        ]);
-    });
-
-    it("should fallback to 'No Preference' if all other techs used", () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }],
-            [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }]
+        const appointments = [
+            [{ id: 101, category_id: 10 }],
+            [{ id: 102, category_id: 20 }]
         ];
 
-        const assigned = assignTechnicians(appointmentTechMap);
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
 
-        expect(assigned).toEqual([
-            { id: 1, name: "Tech A" },     // first assignment takes Tech A
-            { id: 2, name: "No Preference" } // second assignment falls back
-        ]);
+        expect(result.assignedTechs).toHaveLength(2);
+        expect(result.assignedTechs.map(t => t.name)).toEqual(["Alice", "Bob"]);
+        expect(result.commonSlots.length).toBe(2);
     });
 
-    it("should assign null if no techs available", () => {
+    test("prefers real techs over 'No Preference'", async () => {
         const appointmentTechMap = [
-            [],
+            [{ id: 1, name: "No Preference" }],
+            [{ id: 2, name: "Charlie" }, { id: 3, name: "No Preference" }]
+        ];
+
+        const appointments = [
+            [{ id: 101, category_id: 10 }],
+            [{ id: 102, category_id: 20 }]
+        ];
+
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
+
+        expect(result.assignedTechs.map(t => t.name)).toEqual(["No Preference", "Charlie"]);
+    });
+
+    test("returns empty if any appointment cannot be staffed", async () => {
+        const appointmentTechMap = [
+            [], // no tech available for first appointment
+            [{ id: 2, name: "Charlie" }]
+        ];
+
+        const appointments = [
+            [{ id: 101, category_id: 10 }],
+            [{ id: 102, category_id: 20 }]
+        ];
+
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
+
+        expect(result.assignedTechs).toEqual([]);
+        expect(result.commonSlots).toEqual([]);
+    });
+
+    test("does not assign the same tech to multiple appointments", async () => {
+        const appointmentTechMap = [
+            [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }],
+            [{ id: 1, name: "Alice" }, { id: 3, name: "Charlie" }]
+        ];
+
+        const appointments = [
+            [{ id: 101, category_id: 10 }],
+            [{ id: 102, category_id: 20 }]
+        ];
+
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
+
+        const techNames = result.assignedTechs.map(t => t.name);
+        expect(techNames).toHaveLength(2);
+        expect(new Set(techNames).size).toBe(2); // ensure no duplicate techs
+    });
+
+    test("picks combination that maximizes common slots among multiple valid options", async () => {
+        const appointmentTechMap = [
+            [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }],
+            [{ id: 2, name: "Bob" }, { id: 3, name: "Charlie" }]
+        ];
+
+        const appointments = [
+            [{ id: 101, category_id: 10 }],
+            [{ id: 102, category_id: 20 }]
+        ];
+
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
+
+        const techNames = result.assignedTechs.map(t => t.name);
+        expect(techNames).toEqual(["Alice", "Bob"]);
+        expect(result.commonSlots.length).toBe(2);
+    });
+
+    test("works when all techs are 'No Preference'", async () => {
+        const appointmentTechMap = [
+            [{ id: 1, name: "No Preference" }],
             [{ id: 2, name: "No Preference" }]
         ];
 
-        const assigned = assignTechnicians(appointmentTechMap);
-
-        expect(assigned).toEqual([
-            null,
-            { id: 2, name: "No Preference" }
-        ]);
-    });
-
-    it("should not assign the same non-'No Preference' tech twice", () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "Tech A" }, { id: 2, name: "No Preference" }],
-            [{ id: 1, name: "Tech A" }, { id: 3, name: "Tech B" }]
+        const appointments = [
+            [{ id: 101, category_id: 10 }],
+            [{ id: 102, category_id: 20 }]
         ];
 
-        const assigned = assignTechnicians(appointmentTechMap);
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
 
-        expect(assigned).toEqual([
-            { id: 1, name: "Tech A" },
-            { id: 3, name: "Tech B" } // avoids assigning Tech A again
-        ]);
+        const techNames = result.assignedTechs.map(t => t.name);
+        expect(techNames).toEqual(["No Preference", "No Preference"]);
+        expect(result.commonSlots.length).toBe(2);
+    });
+
+    test("returns empty arrays if appointmentTechMap is empty", async () => {
+        const result = await assignTechnicians([], mockGetSlots, [], "2025-09-30");
+        expect(result.assignedTechs).toEqual([]);
+        expect(result.commonSlots).toEqual([]);
+    });
+
+    test("single appointment works correctly", async () => {
+        const appointmentTechMap = [[{ id: 1, name: "Alice" }, { id: 2, name: "No Preference" }]];
+        const appointments = [[{ id: 101, category_id: 10 }]];
+
+        const result = await assignTechnicians(
+            appointmentTechMap,
+            mockGetSlots,
+            appointments,
+            "2025-09-30"
+        );
+
+        expect(result.assignedTechs.map(t => t.name)).toEqual(["Alice"]);
+        expect(result.commonSlots.length).toBe(1);
     });
 });
 
