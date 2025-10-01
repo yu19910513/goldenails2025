@@ -1,8 +1,6 @@
 import AppointmentService from "../services/appointmentService";
 import TechnicianService from "../services/technicianService";
 import {
-  calculateAvailableSlots,
-  groupServicesByCategory,
   formatTime,
   getBusinessHours,
   distributeItems,
@@ -10,22 +8,29 @@ import {
 } from "./helper";
 
 /**
- * Finds the optimal assignment of technicians to appointments using a backtracking algorithm.
+ * Finds the optimal technician assignment for a group of appointments to maximize common availability.
+ * It uses a backtracking algorithm to exhaustively search all valid combinations.
  *
- * This function is optimized to perform a single upfront network request to fetch all
- * technician schedules for a given day, preventing multiple API calls during the recursive search.
- * It explores all valid technician combinations and returns the assignment that results in the
- * maximum number of common available time slots.
+ * @remarks
+ * The function follows a strict set of rules for determining the "best" assignment:
+ * 1.  **Core Goal:** Maximize the number of common time slots for the assigned group.
+ * 2.  **Uniqueness:** A technician can only be assigned to ONE appointment within the group.
+ * 3.  **Strict Preference:** It ALWAYS prioritizes a solution using only real technicians. It will
+ * return the best all-real-technician assignment found, even if a different combination
+ * (e.g., one with "No Preference") would yield more time slots.
+ * 4.  **Fallback:** If no solution using only real technicians is possible, it falls back to the
+ * best result found overall, which may include "No Preference".
  *
  * @async
- * @param {Array<Array<object>>} appointmentTechMap - An array where each inner array contains the potential technician objects available for the corresponding appointment.
- * @param {Function} getSlots - A callback function to calculate common available slots for a given assignment. It receives the assigned technicians, appointments, date, and the pre-fetched schedules map.
- * @param {Array<Array<object>>} appointments - An array of appointment objects (service groups), corresponding to each entry in `appointmentTechMap`.
- * @param {string} date - The target date for the appointments in 'YYYY-MM-DD' format.
- * @returns {Promise<{assignedTechs: Array<object>, commonSlots: Array<Date>}>} A promise that resolves to an object containing the best assignment. If no valid assignment is found, the arrays will be empty.
+ * @param {Array<Array<Object>>} appointmentTechMap - A 2D array where each inner array contains potential technicians for the appointment at that index.
+ * @param {Function} getSlots - An async function to calculate common time slots for a given set of technicians.
+ * @param {Array<Object>} appointments - The list of appointment objects to be assigned.
+ * @param {string} date - The date for which to find the assignments (e.g., 'YYYY-MM-DD').
+ * @returns {Promise<Object>} A promise resolving to the best assignment object { assignedTechs, commonSlots }, or an empty result if no solution is found.
  */
 const assignTechnicians = async (appointmentTechMap, getSlots, appointments, date) => {
-  let best = { assignedTechs: [], commonSlots: [] };
+  let bestAllReal = null;
+  let bestAny = { assignedTechs: [], commonSlots: [] };
 
   const allSchedulesResponse = await TechnicianService.getScheduleByDate(date);
   const schedulesMap = new Map(
@@ -34,51 +39,51 @@ const assignTechnicians = async (appointmentTechMap, getSlots, appointments, dat
 
   const backtrack = async (idx, current, usedTechs) => {
     if (idx === appointmentTechMap.length) {
-      if (current.includes(null)) return;
-
       const slots = await getSlots(current, appointments, date, schedulesMap);
+      const usesNoPreference = current.some(t => t.name === "No Preference");
 
-      if (slots.length > best.commonSlots.length) {
-        best = { assignedTechs: [...current], commonSlots: slots };
+      if (!usesNoPreference) {
+        if (!bestAllReal || slots.length > bestAllReal.commonSlots.length) {
+          bestAllReal = { assignedTechs: [...current], commonSlots: slots };
+        }
       }
+
+      if (slots.length > bestAny.commonSlots.length) {
+        bestAny = { assignedTechs: [...current], commonSlots: slots };
+      }
+
       return;
     }
 
     const techOptions = appointmentTechMap[idx] || [];
-    let tried = false;
 
     for (const tech of techOptions.filter(t => t && t.name !== "No Preference")) {
       if (usedTechs.has(tech.name)) continue;
       usedTechs.add(tech.name);
       current.push(tech);
-      tried = true;
       await backtrack(idx + 1, current, usedTechs);
       current.pop();
       usedTechs.delete(tech.name);
     }
 
     for (const tech of techOptions.filter(t => t && t.name === "No Preference")) {
+      if (usedTechs.has(tech.name)) continue;
+      usedTechs.add(tech.name);
       current.push(tech);
-      tried = true;
       await backtrack(idx + 1, current, usedTechs);
       current.pop();
-    }
-
-    if (!tried) {
-      current.push(null);
-      await backtrack(idx + 1, current, usedTechs);
-      current.pop();
+      usedTechs.delete(tech.name);
     }
   };
 
   await backtrack(0, [], new Set());
 
-  if (!best.assignedTechs.length) {
-    return { assignedTechs: [], commonSlots: [] };
-  }
+  if (bestAllReal) return bestAllReal;
+  if (bestAny.assignedTechs.length) return bestAny;
 
-  return best;
+  return { assignedTechs: [], commonSlots: [] };
 };
+
 
 /**
  * Fetches available appointment slots and generates appointment forms for a given date, services, and group size.
