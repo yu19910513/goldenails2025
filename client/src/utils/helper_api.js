@@ -41,15 +41,16 @@ const assignTechnicians = async (appointmentTechMap, getSlots, appointments, dat
     if (idx === appointmentTechMap.length) {
       const slots = await getSlots(current, appointments, date, schedulesMap);
       const usesNoPreference = current.some(t => t.name === "No Preference");
-
-      if (!usesNoPreference) {
-        if (!bestAllReal || slots.length > bestAllReal.commonSlots.length) {
-          bestAllReal = { assignedTechs: [...current], commonSlots: slots };
+      if (slots.length > 0) {
+        if (!usesNoPreference) {
+          if (!bestAllReal || slots.length > bestAllReal.commonSlots.length) {
+            bestAllReal = { assignedTechs: [...current], commonSlots: slots };
+          }
         }
-      }
 
-      if (slots.length > bestAny.commonSlots.length) {
-        bestAny = { assignedTechs: [...current], commonSlots: slots };
+        if (slots.length > bestAny.commonSlots.length) {
+          bestAny = { assignedTechs: [...current], commonSlots: slots };
+        }
       }
 
       return;
