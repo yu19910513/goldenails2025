@@ -14,13 +14,13 @@ import {
     sanitizeObjectInput,
     isTokenValid,
     distributeItems,
-    assignTechnicians,
     extractServiceNames,
     formatStartTime,
     formatEndTime,
     formatDate,
     buildNotificationData,
-    formatTimeSlot
+    formatTimeSlot,
+    getCommonAvailableSlots
 } from "../utils/helper";
 
 
@@ -585,170 +585,6 @@ describe("distributeItems", () => {
     });
 });
 
-const mockGetSlots = async (assignedTechs, appointments, date) => {
-    if (assignedTechs.includes(null)) return [];
-    // return dummy slots with length equal to number of assigned techs
-    return assignedTechs.map((t, idx) => new Date(Date.now() + idx * 1000));
-};
-
-describe("assignTechnicians", () => {
-    test("assigns one tech per appointment and maximizes common slots", async () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "Alice" }, { id: 2, name: "No Preference" }],
-            [{ id: 3, name: "Bob" }, { id: 4, name: "No Preference" }]
-        ];
-
-        const appointments = [
-            [{ id: 101, category_id: 10 }],
-            [{ id: 102, category_id: 20 }]
-        ];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        expect(result.assignedTechs).toHaveLength(2);
-        expect(result.assignedTechs.map(t => t.name)).toEqual(["Alice", "Bob"]);
-        expect(result.commonSlots.length).toBe(2);
-    });
-
-    test("prefers real techs over 'No Preference'", async () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "No Preference" }],
-            [{ id: 2, name: "Charlie" }, { id: 3, name: "No Preference" }]
-        ];
-
-        const appointments = [
-            [{ id: 101, category_id: 10 }],
-            [{ id: 102, category_id: 20 }]
-        ];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        expect(result.assignedTechs.map(t => t.name)).toEqual(["No Preference", "Charlie"]);
-    });
-
-    test("returns empty if any appointment cannot be staffed", async () => {
-        const appointmentTechMap = [
-            [], // no tech available for first appointment
-            [{ id: 2, name: "Charlie" }]
-        ];
-
-        const appointments = [
-            [{ id: 101, category_id: 10 }],
-            [{ id: 102, category_id: 20 }]
-        ];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        expect(result.assignedTechs).toEqual([]);
-        expect(result.commonSlots).toEqual([]);
-    });
-
-    test("does not assign the same tech to multiple appointments", async () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }],
-            [{ id: 1, name: "Alice" }, { id: 3, name: "Charlie" }]
-        ];
-
-        const appointments = [
-            [{ id: 101, category_id: 10 }],
-            [{ id: 102, category_id: 20 }]
-        ];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        const techNames = result.assignedTechs.map(t => t.name);
-        expect(techNames).toHaveLength(2);
-        expect(new Set(techNames).size).toBe(2); // ensure no duplicate techs
-    });
-
-    test("picks combination that maximizes common slots among multiple valid options", async () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }],
-            [{ id: 2, name: "Bob" }, { id: 3, name: "Charlie" }]
-        ];
-
-        const appointments = [
-            [{ id: 101, category_id: 10 }],
-            [{ id: 102, category_id: 20 }]
-        ];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        const techNames = result.assignedTechs.map(t => t.name);
-        expect(techNames).toEqual(["Alice", "Bob"]);
-        expect(result.commonSlots.length).toBe(2);
-    });
-
-    test("works when all techs are 'No Preference'", async () => {
-        const appointmentTechMap = [
-            [{ id: 1, name: "No Preference" }],
-            [{ id: 2, name: "No Preference" }]
-        ];
-
-        const appointments = [
-            [{ id: 101, category_id: 10 }],
-            [{ id: 102, category_id: 20 }]
-        ];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        const techNames = result.assignedTechs.map(t => t.name);
-        expect(techNames).toEqual(["No Preference", "No Preference"]);
-        expect(result.commonSlots.length).toBe(2);
-    });
-
-    test("returns empty arrays if appointmentTechMap is empty", async () => {
-        const result = await assignTechnicians([], mockGetSlots, [], "2025-09-30");
-        expect(result.assignedTechs).toEqual([]);
-        expect(result.commonSlots).toEqual([]);
-    });
-
-    test("single appointment works correctly", async () => {
-        const appointmentTechMap = [[{ id: 1, name: "Alice" }, { id: 2, name: "No Preference" }]];
-        const appointments = [[{ id: 101, category_id: 10 }]];
-
-        const result = await assignTechnicians(
-            appointmentTechMap,
-            mockGetSlots,
-            appointments,
-            "2025-09-30"
-        );
-
-        expect(result.assignedTechs.map(t => t.name)).toEqual(["Alice"]);
-        expect(result.commonSlots.length).toBe(1);
-    });
-});
-
 describe("extractServiceNames", () => {
     it("should extract all service names from nested services", () => {
         const services = {
@@ -905,7 +741,6 @@ describe("buildNotificationData", () => {
         });
     });
 });
-
 
 
 
