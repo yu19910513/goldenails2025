@@ -25,4 +25,15 @@ class TechnicianService extends Service {
   }
 }
 
+/**
+   * Retrieves the daily schedule, including all technicians and their appointments for a specific date.
+   *
+   * @param {string} date - The date for which to fetch the schedule, in 'YYYY-MM-DD' format.
+   * @returns {Promise<object[]>} A promise that resolves to an array of technician objects, each containing their appointments for the day.
+   * @throws {Error} Throws an error if the network request fails.
+   */
+getScheduleByDate(date) {
+  return this.http.get("/schedule", { params: { date } });
+}
+
 export default new TechnicianService();
