@@ -6,63 +6,78 @@ import {
   formatTime,
   getBusinessHours,
   distributeItems,
-  assignTechnicians
+  getCommonAvailableSlots
 } from "./helper";
 
 /**
- * Calculates the intersection of available appointment slots across multiple technicians.
+ * Finds the optimal assignment of technicians to appointments using a backtracking algorithm.
  *
- * For each technician:
- * 1. Retrieves existing appointments via `AppointmentService.findByTechId`.
- * 2. Groups the current appointment's services by category using `groupServicesByCategory`.
- * 3. Computes available time slots with `calculateAvailableSlots`.
- * 4. Intersects the slots with the previous technicians to find common available times.
+ * This function is optimized to perform a single upfront network request to fetch all
+ * technician schedules for a given day, preventing multiple API calls during the recursive search.
+ * It explores all valid technician combinations and returns the assignment that results in the
+ * maximum number of common available time slots.
  *
  * @async
- * @function getCommonAvailableSlots
- * @param {Array<Object|null>} assignedTechs - Array of technician objects {id, name}, or null for unassigned.
- * @param {Array<Array<Object>>} appointments - Array of appointments, each being an array of service objects {id, category_id, ...}.
- * @param {string} customerDate - Date string in YYYY-MM-DD format for which slots are calculated.
- * @returns {Promise<Array<Date>>} Promise resolving to an array of Date objects representing the common available time slots.
- *
- * @example
- * const techs = [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }];
- * const appointments = [
- *   [{ id: "svc1", category_id: 10 }],
- *   [{ id: "svc2", category_id: 20 }]
- * ];
- * const availableSlots = await getCommonAvailableSlots(techs, appointments, "2025-09-28");
- * console.log(availableSlots);
+ * @param {Array<Array<object>>} appointmentTechMap - An array where each inner array contains the potential technician objects available for the corresponding appointment.
+ * @param {Function} getSlots - A callback function to calculate common available slots for a given assignment. It receives the assigned technicians, appointments, date, and the pre-fetched schedules map.
+ * @param {Array<Array<object>>} appointments - An array of appointment objects (service groups), corresponding to each entry in `appointmentTechMap`.
+ * @param {string} date - The target date for the appointments in 'YYYY-MM-DD' format.
+ * @returns {Promise<{assignedTechs: Array<object>, commonSlots: Array<Date>}>} A promise that resolves to an object containing the best assignment. If no valid assignment is found, the arrays will be empty.
  */
+const assignTechnicians = async (appointmentTechMap, getSlots, appointments, date) => {
+  let best = { assignedTechs: [], commonSlots: [] };
 
-const getCommonAvailableSlots = async (assignedTechs, appointments, customerDate) => {
-  let commonSlots = null;
+  const allSchedulesResponse = await TechnicianService.getScheduleByDate(date);
+  const schedulesMap = new Map(
+    allSchedulesResponse.data.map(tech => [tech.id, tech.Appointments || []])
+  );
 
-  for (let i = 0; i < assignedTechs.length; i++) {
-    const tech = assignedTechs[i];
-    if (!tech) continue;
+  const backtrack = async (idx, current, usedTechs) => {
+    if (idx === appointmentTechMap.length) {
+      if (current.includes(null)) return;
 
-    const appt = appointments[i];
-    const res = await AppointmentService.findByTechId(tech.id);
-    const techAppointments = Array.isArray(res.data) ? res.data : [];
+      const slots = await getSlots(current, appointments, date, schedulesMap);
 
-    const slots = calculateAvailableSlots(
-      techAppointments,
-      groupServicesByCategory(appt),
-      customerDate,
-      getBusinessHours(customerDate),
-      tech
-    );
-
-    if (!commonSlots) {
-      commonSlots = slots;
-    } else {
-      const slotTimes = new Set(slots.map(s => s.getTime()));
-      commonSlots = commonSlots.filter(s => slotTimes.has(s.getTime()));
+      if (slots.length > best.commonSlots.length) {
+        best = { assignedTechs: [...current], commonSlots: slots };
+      }
+      return;
     }
+
+    const techOptions = appointmentTechMap[idx] || [];
+    let tried = false;
+
+    for (const tech of techOptions.filter(t => t && t.name !== "No Preference")) {
+      if (usedTechs.has(tech.name)) continue;
+      usedTechs.add(tech.name);
+      current.push(tech);
+      tried = true;
+      await backtrack(idx + 1, current, usedTechs);
+      current.pop();
+      usedTechs.delete(tech.name);
+    }
+
+    for (const tech of techOptions.filter(t => t && t.name === "No Preference")) {
+      current.push(tech);
+      tried = true;
+      await backtrack(idx + 1, current, usedTechs);
+      current.pop();
+    }
+
+    if (!tried) {
+      current.push(null);
+      await backtrack(idx + 1, current, usedTechs);
+      current.pop();
+    }
+  };
+
+  await backtrack(0, [], new Set());
+
+  if (!best.assignedTechs.length) {
+    return { assignedTechs: [], commonSlots: [] };
   }
 
-  return commonSlots || [];
+  return best;
 };
 
 /**
@@ -139,6 +154,6 @@ const fetchAvailability = async (date, selectedServices, groupSize, getSlots = g
 };
 
 export {
-  getCommonAvailableSlots,
+  assignTechnicians,
   fetchAvailability
 }
