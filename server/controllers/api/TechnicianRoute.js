@@ -134,18 +134,18 @@ router.post("/available", async (req, res) => {
 
 /**
  * @route GET /schedule
- * @description Fetches the daily schedule by returning all technicians and their associated appointments for a given date. Technicians with no appointments are included with an empty appointments array, ensuring a complete roster is always returned. Customer information is excluded for privacy.
+ * @description Fetches the daily schedule. It returns all **active** technicians and their associated **non-deleted** appointments for a given date. Technicians with no appointments for that day are still included with an empty appointments array, ensuring a complete roster is always returned. Customer information is excluded for privacy.
  *
  * @param {object} req - The Express request object.
  * @param {object} req.query - The query parameters of the request.
- * @param {string} req.query.date - The date for which the schedule is fetched (format: YYYY-MM-DD). This parameter is required.
+ * @param {string} req.query.date - The date for which the schedule is fetched (format: YYYY-MM-DD). This parameter is **required**.
  *
  * @param {object} res - The Express response object.
  *
  * @returns {object[]} res.body - An array of technician objects, each populated with their appointments for the day.
  * @returns {number} res.body[].id - The technician's unique ID.
  * @returns {string} res.body[].name - The technician's name.
- * @returns {object[]} res.body[].Appointments - A list of appointments for the technician. Note: The name is capitalized by Sequelize default. This array will be empty if the technician has no appointments on the given date.
+ * @returns {object[]} res.body[].Appointments - A list of appointments for the technician. Note: The name is capitalized by Sequelize's default. This array will be empty if the technician has no appointments on the given date.
  * @returns {number} res.body[].Appointments[].id - The appointment's unique ID.
  * @returns {string} res.body[].Appointments[].date - The date of the appointment.
  * @returns {object[]} res.body[].Appointments[].Services - A list of services included in the appointment.
@@ -163,7 +163,7 @@ router.post("/available", async (req, res) => {
  * .then(data => console.log(data))
  * .catch(error => console.error(error));
  *
- * // Example Response Body (without customer info):
+ * // Example Response Body:
  * [
  * {
  * "id": 1,
@@ -209,10 +209,12 @@ router.get("/schedule", async (req, res) => {
               attributes: ["id", "name", "time"],
               through: { attributes: [] },
             },
-            // The 'Customer' include block has been removed from here
           ],
         },
       ],
+      where: {
+        status: true,
+      },
       order: [
         ['name', 'ASC'],
         [Appointment, 'id', 'ASC'],

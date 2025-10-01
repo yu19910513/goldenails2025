@@ -23,17 +23,28 @@ class TechnicianService extends Service {
   getAvailableTechnicians(categoryIds) {
     return this.http.post("/technicians/available", { categoryIds });
   }
+
+  /**
+  * Retrieves the daily schedule for all technicians for a specific date.
+  *
+  * @param {string} date - The date for which to fetch the schedule, in 'YYYY-MM-DD' format.
+  * @returns {Promise<any>} A promise that resolves with the full HTTP response from the server. The schedule data, an array of technician objects, is typically found in the `data` property of the resolved object.
+  * @throws {Error} Rejects the promise if the network request fails or the server returns an error.
+  * @example
+  * // Assuming 'apiService' is an instance of the class containing this method
+  * apiService.getScheduleByDate('2025-10-22')
+  * .then(response => {
+  * console.log('Schedule for 2025-10-22:', response.data);
+  * })
+  * .catch(error => {
+  * console.error('Failed to fetch schedule:', error);
+  * });
+  */
+  getScheduleByDate(date) {
+    return this.http.get("/technicians/schedule", { params: { date } });
+  }
 }
 
-/**
-   * Retrieves the daily schedule, including all technicians and their appointments for a specific date.
-   *
-   * @param {string} date - The date for which to fetch the schedule, in 'YYYY-MM-DD' format.
-   * @returns {Promise<object[]>} A promise that resolves to an array of technician objects, each containing their appointments for the day.
-   * @throws {Error} Throws an error if the network request fails.
-   */
-getScheduleByDate(date) {
-  return this.http.get("/schedule", { params: { date } });
-}
+
 
 export default new TechnicianService();
