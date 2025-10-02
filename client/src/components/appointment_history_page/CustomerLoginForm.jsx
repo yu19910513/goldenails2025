@@ -1,5 +1,18 @@
 import React from 'react';
 
+/**
+ * Form component for customers to log in and access their appointment history.
+ * Requires phone number and name that were used when scheduling the appointment.
+ * 
+ * @param {Object} props - Component props.
+ * @param {string} props.phoneNumber - Current phone number input value.
+ * @param {function} props.setPhoneNumber - Function to update the phone number state.
+ * @param {string} props.enteredName - Current name input value.
+ * @param {function} props.setEnteredName - Function to update the name state.
+ * @param {function} props.handleSubmit - Function to handle form submission.
+ * @param {boolean} props.loading - Indicates whether form submission is in progress.
+ * @returns {JSX.Element} Rendered customer login form.
+ */
 const CustomerLoginForm = ({ phoneNumber, setPhoneNumber, enteredName, setEnteredName, handleSubmit, loading }) => (
     <form onSubmit={handleSubmit}>
         <p className="instruction">

@@ -7,14 +7,34 @@ import TabbedView from '../components/shared/TabbedView';
 import AppointmentTabFactory from '../components/appointment_history_page/AppointmentTabFactory';
 import './appointmentHistory.css';
 
+/**
+ * Page component to display a customer's appointment history.
+ * Includes customer login by phone number and name, and displays
+ * past, present, and future appointments in a tabbed view.
+ * 
+ * @component
+ * @returns {JSX.Element} Appointment history page.
+ */
 const AppointmentHistory = () => {
+    /** @type {[string, function]} Phone number input value and setter */
     const [phoneNumber, setPhoneNumber] = useState('');
+    /** @type {[string, function]} Name input value and setter */
     const [enteredName, setEnteredName] = useState('');
+    /** @type {[Object|null, function]} Customer information once validated */
     const [customerInfo, setCustomerInfo] = useState(null);
+    /** @type {[Object, function]} Appointments categorized by past, present, future */
     const [appointments, setAppointments] = useState({ future: [], present: [], past: [] });
+    /** @type {[boolean, function]} Loading state for form submission */
     const [loading, setLoading] = useState(false);
+    /** @type {[string|null, function]} Error message */
     const [error, setError] = useState(null);
 
+    /**
+     * Handles form submission for customer login.
+     * Validates customer using phone number and name, then fetches appointments.
+     * 
+     * @param {React.FormEvent<HTMLFormElement>} e - Form submission event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -38,6 +58,11 @@ const AppointmentHistory = () => {
         }
     };
 
+    /**
+     * Fetches the customer's appointment history and updates state.
+     * 
+     * @param {number} customerId - ID of the customer.
+     */
     const fetchAppointments = async (customerId) => {
         try {
             const response = await AppointmentService.customer_history(customerId);
@@ -48,6 +73,12 @@ const AppointmentHistory = () => {
         }
     };
 
+    /**
+     * Determines CSS class for an appointment row based on its date.
+     * 
+     * @param {Object} appointment - Appointment object with a date field.
+     * @returns {string} CSS class name: 'future-appointment', 'present-appointment', or 'past-appointment'.
+     */
     const getAppointmentClass = (appointment) => {
         const appointmentDate = new Date(appointment.date + 'T00:00:00');
         const now = new Date();
