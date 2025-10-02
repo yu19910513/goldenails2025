@@ -54,6 +54,12 @@ const AppointmentTable = ({ appointmentsList, showCancel, customerInfo, fetchApp
             for (const appt of apptsToCancel) {
                 await AppointmentService.soft_delete(appt.id);
             }
+            
+            const techNames = apptsToCancel
+                .flatMap(a => a.Technicians.map(t => t.name))
+                .join(', ');
+            appointment.Technicians = [{ name: techNames }];
+
             alert("Appointment successfully canceled.");
             sendCancellationNotification({ ...appointment, Customer: customerInfo });
             fetchAppointments(customerInfo.id);
