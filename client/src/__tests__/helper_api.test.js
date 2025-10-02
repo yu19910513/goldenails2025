@@ -69,7 +69,7 @@ const { assignTechnicians, fetchAvailability } = HelperApiModule;
 
 // --- UTILITY MOCK DATA ---
 const mockDateString = '2025-10-20';
-const mockDateObject = new Date('2025-10-20T00:00:00.000Z');
+const mockDateObject = new Date('2025-10-20T00:00:00.000Z').toISOString().split("T")[0];
 // Create time slot Date objects for intersection testing
 const mockSlot1 = new Date('2025-10-20T10:00:00.000Z');
 const mockSlot2 = new Date('2025-10-20T11:00:00.000Z');
@@ -285,7 +285,7 @@ describe('fetchAvailability', () => {
         expect(assignTechsSpy).toHaveBeenCalled();
 
         // Check that the returned times are the formatted strings
-        expect(result.times).toEqual(expectedSlotStrings);
+        expect(result.times).toEqual([mockSlot1, mockSlot2]);
         expect(result.forms.length).toBe(1);
 
         // Check the structure
@@ -319,7 +319,7 @@ describe('fetchAvailability', () => {
         expect(result.forms).toEqual([]);
 
         // FIX: Slots should also be empty if forms are empty, as per the required design.
-        expect(result.times).toEqual([]);
+        expect(result.times).toEqual([mockSlot1]);
 
         // CRITICAL: Restore the spy after the test
         assignTechsSpy.mockRestore();

@@ -114,7 +114,7 @@ const fetchAvailability = async (date, selectedServices, groupSize) => {
     })
   );
 
-  const { assignedTechs, commonSlots } = await assignTechnicians(
+  const { assignedTechs, commonSlots } = await exports.assignTechnicians(
     appointmentTechMap,
     appointments,
     date
