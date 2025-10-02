@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CustomerService from '../services/customerService';
 import AppointmentService from '../services/appointmentService';
-import { sendCancellationNotification } from '../utils/helper'
+import { sendCancellationNotification } from '../utils/helper';
 import './appointmentHistory.css';
 
 const AppointmentHistory = () => {
@@ -11,9 +11,9 @@ const AppointmentHistory = () => {
     const [appointments, setAppointments] = useState({ future: [], present: [], past: [] });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [tab, setTab] = useState('present'); // Default tab is 'now'
+    const [tab, setTab] = useState('present');
 
-    // Handle form submission for phone and name
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -36,7 +36,7 @@ const AppointmentHistory = () => {
         }
     };
 
-    // Fetch customer appointments after validation
+    // Fetch appointments
     const fetchAppointments = async (customerId) => {
         try {
             const response = await AppointmentService.customer_history(customerId);
@@ -47,55 +47,88 @@ const AppointmentHistory = () => {
         }
     };
 
+    // Group appointments by date + time
+    const groupAppointmentsByTime = (appointmentsList) => {
+        const groupedMap = {};
 
-    // Handle appointment cancellation
-    const handleCancel = async (appointment) => {
-        const confirmCancel = window.confirm("Are you sure you want to cancel this appointment?");
-        if (!confirmCancel) return;
+        appointmentsList.forEach((appt) => {
+            const key = `${appt.date}_${appt.start_service_time}`;
+            if (!groupedMap[key]) {
+                groupedMap[key] = { ...appt, Technicians: [], Services: [] };
+            }
+            groupedMap[key].Technicians.push(...appt.Technicians);
+            groupedMap[key].Services.push(...appt.Services);
+        });
 
-        try {
-            await AppointmentService.soft_delete(appointment.id);
-            alert("Appointment successfully canceled.");
-            sendCancellationNotification({ ...appointment, Customer: customerInfo });
-            fetchAppointments(customerInfo.id); // Refresh appointments after cancellation
-        } catch (error) {
-            alert("Failed to cancel appointment.");
-            console.error(error);
-        }
+        return Object.values(groupedMap);
     };
 
-    // Switch tabs
-    const handleTabChange = (tabName) => {
-        setTab(tabName);
-    };
-
-    // Render the appointments table based on selected tab
+    // Render appointments
     const renderAppointments = (appointmentsList, showCancel = false) => {
-        return appointmentsList.length === 0 ? (
-            <p>No appointments found.</p>
-        ) : (
+        if (appointmentsList.length === 0) return <p>No appointments found.</p>;
+
+        const groupedAppointments = groupAppointmentsByTime(appointmentsList);
+
+        return (
             <table className="appointment-table">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Technician</th>
+                        <th>Technician(s)</th>
                         <th>Services</th>
                         {showCancel && <th>Action</th>}
                     </tr>
                 </thead>
                 <tbody>
-                    {appointmentsList.map((appointment, index) => (
+                    {groupedAppointments.map((appointment, index) => (
                         <tr key={index} className={getAppointmentClass(appointment)}>
                             <td>{appointment.date}, {appointment.start_service_time}</td>
-                            <td>{appointment.Technicians[0].name}</td>
                             <td>
-                                {appointment.Services.map((service, idx) => (
-                                    <div key={idx}>{service.name}</div>
-                                ))}
+                                {appointment.Technicians.map((t) => t.name).join(', ')}
+                                {appointment.Technicians.length > 1 && (
+                                    <div className="group-label">
+                                        (Group booking with {appointment.Technicians.length} technicians)
+                                    </div>
+                                )}
+                            </td>
+                            <td>
+                                {(() => {
+                                    const serviceCount = {};
+                                    appointment.Services.forEach((s) => {
+                                        serviceCount[s.name] = (serviceCount[s.name] || 0) + 1;
+                                    });
+                                    return Object.entries(serviceCount).map(([name, count], idx) => (
+                                        <div key={idx}>
+                                            {name}{count > 1 ? ` x${count}` : ''}
+                                        </div>
+                                    ));
+                                })()}
                             </td>
                             {showCancel && (
                                 <td>
-                                    <button className="cancel-btn" onClick={() => handleCancel(appointment)}>
+                                    <button
+                                        className="cancel-btn"
+                                        onClick={async () => {
+                                            const confirmCancel = window.confirm("Are you sure you want to cancel this appointment?");
+                                            if (!confirmCancel) return;
+
+                                            try {
+                                                // Cancel all appointments in the group
+                                                const apptsToCancel = appointmentsList.filter(
+                                                    (a) => a.date === appointment.date && a.start_service_time === appointment.start_service_time
+                                                );
+                                                for (const appt of apptsToCancel) {
+                                                    await AppointmentService.soft_delete(appt.id);
+                                                }
+                                                alert("Appointment successfully canceled.");
+                                                sendCancellationNotification({ ...appointment, Customer: customerInfo });
+                                                fetchAppointments(customerInfo.id);
+                                            } catch (error) {
+                                                alert("Failed to cancel appointment.");
+                                                console.error(error);
+                                            }
+                                        }}
+                                    >
                                         Cancel Appt.
                                     </button>
                                 </td>
@@ -107,7 +140,7 @@ const AppointmentHistory = () => {
         );
     };
 
-    // Get the class for each row based on appointment status
+    // Get class for row
     const getAppointmentClass = (appointment) => {
         const appointmentDate = new Date(appointment.date + 'T00:00:00');
         const now = new Date();
@@ -115,6 +148,9 @@ const AppointmentHistory = () => {
         if (appointmentDate.toDateString() === now.toDateString()) return 'present-appointment';
         return 'past-appointment';
     };
+
+    // Switch tabs
+    const handleTabChange = (tabName) => setTab(tabName);
 
     return (
         <div className="appointment-history">
@@ -153,15 +189,9 @@ const AppointmentHistory = () => {
                 <div>
                     <h3>Welcome back, {enteredName.toUpperCase()}!</h3>
                     <div className="tabs">
-                        <button className={tab === 'present' ? 'active' : ''} onClick={() => handleTabChange('present')}>
-                            Today's
-                        </button>
-                        <button className={tab === 'future' ? 'active' : ''} onClick={() => handleTabChange('future')}>
-                            Future Appts.
-                        </button>
-                        <button className={tab === 'past' ? 'active' : ''} onClick={() => handleTabChange('past')}>
-                            Appt. History
-                        </button>
+                        <button className={tab === 'present' ? 'active' : ''} onClick={() => handleTabChange('present')}>Today's</button>
+                        <button className={tab === 'future' ? 'active' : ''} onClick={() => handleTabChange('future')}>Future Appts.</button>
+                        <button className={tab === 'past' ? 'active' : ''} onClick={() => handleTabChange('past')}>Appt. History</button>
                     </div>
                     <div>
                         {tab === 'present' && renderAppointments(appointments.present)}
@@ -170,7 +200,6 @@ const AppointmentHistory = () => {
                     </div>
                 </div>
             )}
-
             {error && <p className="error">{error}</p>}
         </div>
     );
