@@ -1,8 +1,6 @@
-import AppointmentService from "../services/appointmentService";
 import TechnicianService from "../services/technicianService";
 import {
   formatTime,
-  getBusinessHours,
   distributeItems,
   getCommonAvailableSlots
 } from "./helper";
@@ -114,7 +112,7 @@ const fetchAvailability = async (date, selectedServices, groupSize) => {
     })
   );
 
-  const { assignedTechs, commonSlots } = await exports.assignTechnicians(
+  const { assignedTechs, commonSlots } = await assignTechnicians(
     appointmentTechMap,
     appointments,
     date

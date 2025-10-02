@@ -193,9 +193,7 @@ const calculateAvailableSlots = (
     .filter(day => !isNaN(day) && day >= 0 && day <= 6);
   const selectedWeekday = (new Date(selectedDate).getDay() + 1) % 7;
 
-  if (appointments.length === 0) {
-    console.log("No appointments found.");
-  } else {
+  if (appointments.length !== 0) {
     const filteredAppointments = appointments.filter(
       (appointment) =>
         new Date(appointment.date).toISOString().split("T")[0] === selectedDate
