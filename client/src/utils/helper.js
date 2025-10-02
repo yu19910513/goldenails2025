@@ -193,9 +193,7 @@ const calculateAvailableSlots = (
     .filter(day => !isNaN(day) && day >= 0 && day <= 6);
   const selectedWeekday = (new Date(selectedDate).getDay() + 1) % 7;
 
-  if (appointments.length === 0) {
-    console.log("No appointments found.");
-  } else {
+  if (appointments.length !== 0) {
     const filteredAppointments = appointments.filter(
       (appointment) =>
         new Date(appointment.date).toISOString().split("T")[0] === selectedDate
@@ -722,34 +720,6 @@ const distributeItems = (items, size) => {
 };
 
 /**
- * Assign technicians to appointments
- * @param {Array[]} appointmentTechMap - Array of arrays of available techs per appointment
- * @returns {Array} assignedTechs - Array of assigned technician objects or null
- */
-const assignTechnicians = (appointmentTechMap) => {
-  const assignedTechs = [];
-  const usedTechs = new Set();
-
-  for (const techOptions of appointmentTechMap) {
-    // Prefer a tech that is not "No Preference" and hasn't been used
-    let assigned = techOptions.find(t => t.name !== "No Preference" && !usedTechs.has(t.name));
-
-    // If none, fallback to "No Preference"
-    if (!assigned) assigned = techOptions.find(t => t.name === "No Preference");
-
-    if (assigned) {
-      assignedTechs.push(assigned);
-      if (assigned.name !== "No Preference") usedTechs.add(assigned.name);
-    } else {
-      assignedTechs.push(null); // no tech available
-    }
-  }
-
-  return assignedTechs;
-};
-
-
-/**
  * Extracts all service names from an appointment's services object.
  *
  * @param {Object.<string, {name: string}[]>} services - The services object where keys are categories
@@ -923,6 +893,52 @@ const buildNotificationData = (
   };
 };
 
+/**
+ * Calculates the common available time slots for a group of assigned technicians.
+ *
+ * This function finds the intersection of each technician's availability for a given
+ * date and set of services. It operates on pre-fetched schedule data to ensure
+ * it does not perform any new I/O or network requests.
+ *
+ * @param {Array<object>} assignedTechs An array of technician objects assigned to the appointments.
+ * @param {Array<Array<object>>} appointments An array of appointment objects (service groups), corresponding to each technician in `assignedTechs`.
+ * @param {string} customerDate The target date for finding slots, typically in 'YYYY-MM-DD' format.
+ * @param {Map<number, Array<object>>} allTechnicianSchedules A map containing pre-fetched appointment data for all relevant technicians. The key is the technician ID, and the value is an array of their existing appointment objects.
+ * @returns {Array<Date>} An array of `Date` objects representing the time slots available for all assigned technicians. Returns an empty array if no common slots exist.
+ */
+const getCommonAvailableSlots = (assignedTechs, appointments, customerDate, allTechnicianSchedules) => {
+  let commonSlots = null;
+
+  for (let i = 0; i < assignedTechs.length; i++) {
+    const tech = assignedTechs[i];
+    if (!tech) continue;
+
+    const appt = appointments[i];
+    const techAppointments = allTechnicianSchedules.get(tech.id) || [];
+
+    const slots = calculateAvailableSlots(
+      techAppointments,
+      groupServicesByCategory(appt),
+      customerDate,
+      getBusinessHours(customerDate),
+      tech
+    );
+
+    if (commonSlots === null) {
+      commonSlots = new Set(slots.map(s => s.getTime()));
+    } else {
+      const currentSlots = new Set(slots.map(s => s.getTime()));
+      commonSlots.forEach(slotTime => {
+        if (!currentSlots.has(slotTime)) {
+          commonSlots.delete(slotTime);
+        }
+      });
+    }
+  }
+
+  return commonSlots ? Array.from(commonSlots).map(time => new Date(time)) : [];
+};
+
 
 export {
   formatPrice,
@@ -941,7 +957,7 @@ export {
   sanitizeObjectInput,
   isTokenValid,
   distributeItems,
-  assignTechnicians,
+  getCommonAvailableSlots,
   extractServiceNames,
   formatStartTime,
   formatEndTime,

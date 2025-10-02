@@ -1,107 +1,103 @@
-import AppointmentService from "../services/appointmentService";
 import TechnicianService from "../services/technicianService";
 import {
-  calculateAvailableSlots,
-  groupServicesByCategory,
   formatTime,
-  getBusinessHours,
   distributeItems,
-  assignTechnicians
+  getCommonAvailableSlots
 } from "./helper";
 
 /**
- * Calculates the intersection of available appointment slots across multiple technicians.
+ * Executes a backtracking search to assign unique, compatible technicians to a list of
+ * concurrent appointments and finds the set of maximum overlapping time slots available
+ * for all assigned technicians.
  *
- * For each technician:
- * 1. Retrieves existing appointments via `AppointmentService.findByTechId`.
- * 2. Groups the current appointment's services by category using `groupServicesByCategory`.
- * 3. Computes available time slots with `calculateAvailableSlots`.
- * 4. Intersects the slots with the previous technicians to find common available times.
+ * This function uses a recursive search to try all unique technician assignments for the
+ * concurrent appointment groups. It prioritizes the best assignment (one with the most
+ * available slots) where all assigned technicians are *real* (i.e., not "No Preference"),
+ * before falling back to the best overall assignment.
  *
- * @async
- * @function getCommonAvailableSlots
- * @param {Array<Object|null>} assignedTechs - Array of technician objects {id, name}, or null for unassigned.
- * @param {Array<Array<Object>>} appointments - Array of appointments, each being an array of service objects {id, category_id, ...}.
- * @param {string} customerDate - Date string in YYYY-MM-DD format for which slots are calculated.
- * @returns {Promise<Array<Date>>} Promise resolving to an array of Date objects representing the common available time slots.
- *
- * @example
- * const techs = [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }];
- * const appointments = [
- *   [{ id: "svc1", category_id: 10 }],
- *   [{ id: "svc2", category_id: 20 }]
- * ];
- * const availableSlots = await getCommonAvailableSlots(techs, appointments, "2025-09-28");
- * console.log(availableSlots);
+ * @param {Array<Array<Technician>>} appointmentTechMap - An array where each element is a list
+ * of all compatible technicians for the corresponding concurrent appointment group.
+ * @param {Array<Array<Service>>} appointments - The grouped services (concurrent appointments),
+ * used by the slot calculation helper (`getCommonAvailableSlots`) to determine duration.
+ * @param {Date} date - The date to check for schedule availability.
+ * @returns {Promise<{assignedTechs: Technician[], commonSlots: string[]}>} A promise that
+ * resolves to the best found assignment of technicians and their common available time slots.
  */
+const assignTechnicians = async (appointmentTechMap, appointments, date) => {
+  let bestAllReal = null;
+  let bestAny = { assignedTechs: [], commonSlots: [] };
 
-const getCommonAvailableSlots = async (assignedTechs, appointments, customerDate) => {
-  let commonSlots = null;
+  const allSchedulesResponse = await TechnicianService.getScheduleByDate(date);
+  const schedulesMap = new Map(
+    allSchedulesResponse.data.map(tech => [tech.id, tech.Appointments || []])
+  );
 
-  for (let i = 0; i < assignedTechs.length; i++) {
-    const tech = assignedTechs[i];
-    if (!tech) continue;
+  const backtrack = async (idx, current, usedTechs) => {
+    if (idx === appointmentTechMap.length) {
+      const slots = await getCommonAvailableSlots(current, appointments, date, schedulesMap);
+      const usesNoPreference = current.some(t => t.name === "No Preference");
+      if (slots.length > 0) {
+        if (!usesNoPreference) {
+          if (!bestAllReal || slots.length > bestAllReal.commonSlots.length) {
+            bestAllReal = { assignedTechs: [...current], commonSlots: slots };
+          }
+        }
 
-    const appt = appointments[i];
-    const res = await AppointmentService.findByTechId(tech.id);
-    const techAppointments = Array.isArray(res.data) ? res.data : [];
+        if (slots.length > bestAny.commonSlots.length) {
+          bestAny = { assignedTechs: [...current], commonSlots: slots };
+        }
+      }
 
-    const slots = calculateAvailableSlots(
-      techAppointments,
-      groupServicesByCategory(appt),
-      customerDate,
-      getBusinessHours(customerDate),
-      tech
-    );
-
-    if (!commonSlots) {
-      commonSlots = slots;
-    } else {
-      const slotTimes = new Set(slots.map(s => s.getTime()));
-      commonSlots = commonSlots.filter(s => slotTimes.has(s.getTime()));
+      return;
     }
-  }
 
-  return commonSlots || [];
+    const techOptions = appointmentTechMap[idx] || [];
+
+    for (const tech of techOptions.filter(t => t && t.name !== "No Preference")) {
+      if (usedTechs.has(tech.name)) continue;
+      usedTechs.add(tech.name);
+      current.push(tech);
+      await backtrack(idx + 1, current, usedTechs);
+      current.pop();
+      usedTechs.delete(tech.name);
+    }
+
+    for (const tech of techOptions.filter(t => t && t.name === "No Preference")) {
+      if (usedTechs.has(tech.name)) continue;
+      usedTechs.add(tech.name);
+      current.push(tech);
+      await backtrack(idx + 1, current, usedTechs);
+      current.pop();
+      usedTechs.delete(tech.name);
+    }
+  };
+
+  await backtrack(0, [], new Set());
+
+  if (bestAllReal) return bestAllReal;
+  if (bestAny.assignedTechs.length) return bestAny;
+
+  return { assignedTechs: [], commonSlots: [] };
 };
 
 /**
- * Fetches available appointment slots and generates appointment forms for a given date, services, and group size.
+ * Calculates the booking availability and technician assignments for a group of services
+ * on a specific date, attempting to find a single, common time slot.
  *
- * This function:
- * 1. Expands each selected service according to its quantity.
- * 2. Groups services into appointments based on the provided group size.
- * 3. Fetches available technicians for each appointment group.
- * 4. Assigns technicians to appointments using `assignTechnicians`.
- * 5. Computes common available time slots across all assigned technicians using a provided `getSlots` function.
- * 6. Generates appointment "forms" with date, time, technician, and services included.
+ * This process involves:
+ * 1. Flattening the requested services based on quantity.
+ * 2. Grouping the flattened services into concurrent 'appointments' based on the `groupSize`.
+ * 3. For each concurrent appointment, finding all technicians who can perform the required service categories.
+ * 4. Using an external service (`assignTechnicians`) to assign a specific technician to each appointment
+ * and determine the common available time slots on the given date.
+ * 5. Constructing structured booking forms based on the successful assignments and common slots.
  *
- * @async
- * @function fetchAvailability
- * @param {string} date - The selected date in YYYY-MM-DD format.
- * @param {Array<Object>} selectedServices - Array of service objects:
- *   { id: number|string, name: string, category_id: number|string, quantity: number }.
- * @param {number} groupSize - Number of people in the group; used to distribute services into appointments.
- * @param {Function} [getSlots=getCommonAvailableSlots] - Optional function to calculate common available slots.
- *   Should have signature `(assignedTechs: Array<Object>, appointments: Array<Array<Object>>, date: string) => Promise<Array<Date>>`.
- * @returns {Promise<Object>} Promise resolving to an object with:
- *   @property {Array<Object>} forms - Generated appointment forms, each containing:
- *     - date {string} - Appointment date
- *     - time {string} - Selected time slot (formatted)
- *     - technician {Object|null} - Assigned technician {id, name} or null
- *     - services {Array<Object>} - Array of services included in this appointment
- *   @property {Array<Date>} times - Array of available Date objects for the selected date
- *
- * @example
- * const { forms, times } = await fetchAvailability(
- *   "2025-09-28",
- *   [{ id: 1, name: "Haircut", category_id: 10, quantity: 2 }],
- *   2
- * );
- * console.log(forms, times);
+ * @param {Date|null} date - The target date for the booking.
+ * @param {Service[]} selectedServices - An array of services requested, including their requested quantities.
+ * @param {number} groupSize - The maximum number of concurrent services/appointments that can be handled simultaneously (e.g., number of treatment rooms or staff available).
+ * @returns {Promise<AvailabilityResult>} A promise that resolves to an object containing structured booking forms and the common available time slots.
  */
-
-const fetchAvailability = async (date, selectedServices, groupSize, getSlots = getCommonAvailableSlots) => {
+const fetchAvailability = async (date, selectedServices, groupSize) => {
   if (!date || selectedServices.length === 0) return { forms: [], times: [] };
 
   const servicePool = selectedServices.flatMap(s => Array(s.quantity).fill(s));
@@ -116,17 +112,20 @@ const fetchAvailability = async (date, selectedServices, groupSize, getSlots = g
     })
   );
 
-  const assignedTechs = assignTechnicians(appointmentTechMap);
-  const commonSlots = await getSlots(assignedTechs, appointments, date);
+  const { assignedTechs, commonSlots } = await assignTechnicians(
+    appointmentTechMap,
+    appointments,
+    date
+  );
 
-  const forms = appointments.map((appt, idx) => ({
-    date,
-    time: commonSlots?.[0] ? formatTime(commonSlots[0]) : "",
-    technician: assignedTechs[idx]
-      ? { id: assignedTechs[idx].id, name: assignedTechs[idx].name }
-      : null,
-    services: appt
-  }));
+  const forms = assignedTechs.length === appointments.length
+    ? appointments.map((appt, idx) => ({
+      date,
+      time: commonSlots?.[0] ? formatTime(commonSlots[0]) : "",
+      technician: { id: assignedTechs[idx].id, name: assignedTechs[idx].name },
+      services: appt
+    }))
+    : [];
 
   console.log("Appointments (services grouped):", appointments);
   console.log("Assigned Technicians:", assignedTechs);
@@ -135,6 +134,6 @@ const fetchAvailability = async (date, selectedServices, groupSize, getSlots = g
 };
 
 export {
-  getCommonAvailableSlots,
+  assignTechnicians,
   fetchAvailability
 }
