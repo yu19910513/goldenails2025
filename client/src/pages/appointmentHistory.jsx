@@ -1,113 +1,84 @@
 import React, { useState } from 'react';
-import CustomerService from '../services/customerService';
-import AppointmentService from '../services/appointmentService';
-import { sendCancellationNotification } from '../utils/helper'
+import CustomerService from '../services/CustomerService';
+import AppointmentService from '../services/AppointmentService';
+import { sendCancellationNotification } from '../utils/helper';
+import CustomerLoginForm from '../components/appointment_history_page/CustomerLoginForm';
+import TabbedView from '../components/shared/TabbedView';
+import AppointmentTabFactory from '../components/appointment_history_page/AppointmentTabFactory';
 import './appointmentHistory.css';
 
+/**
+ * Page component to display a customer's appointment history.
+ * Includes customer login by phone number and name, and displays
+ * past, present, and future appointments in a tabbed view.
+ * 
+ * @component
+ * @returns {JSX.Element} Appointment history page.
+ */
 const AppointmentHistory = () => {
+    /** @type {[string, function]} Phone number input value and setter */
     const [phoneNumber, setPhoneNumber] = useState('');
+    /** @type {[string, function]} Name input value and setter */
     const [enteredName, setEnteredName] = useState('');
+    /** @type {[Object|null, function]} Customer information once validated */
     const [customerInfo, setCustomerInfo] = useState(null);
+    /** @type {[Object, function]} Appointments categorized by past, present, future */
     const [appointments, setAppointments] = useState({ future: [], present: [], past: [] });
+    /** @type {[boolean, function]} Loading state for form submission */
     const [loading, setLoading] = useState(false);
+    /** @type {[string|null, function]} Error message */
     const [error, setError] = useState(null);
-    const [tab, setTab] = useState('present'); // Default tab is 'now'
 
-    // Handle form submission for phone and name
+    /**
+     * Handles form submission for customer login.
+     * Validates customer using phone number and name, then fetches appointments.
+     * 
+     * @param {React.FormEvent<HTMLFormElement>} e - Form submission event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            const response = await CustomerService.validateUsingNumberAndName(phoneNumber, enteredName.trim().toUpperCase());
+            const response = await CustomerService.validateUsingNumberAndName(
+                phoneNumber,
+                enteredName.trim().toUpperCase()
+            );
             const customer = response.data;
             if (customer) {
                 setCustomerInfo(customer);
                 fetchAppointments(customer.id);
-            } else {
-                setError('Customer not found');
-            }
-        } catch (error) {
+            } else setError('Customer not found');
+        } catch (err) {
             setError('Error validating customer');
-            console.error(error);
+            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
-    // Fetch customer appointments after validation
+    /**
+     * Fetches the customer's appointment history and updates state.
+     * 
+     * @param {number} customerId - ID of the customer.
+     */
     const fetchAppointments = async (customerId) => {
         try {
             const response = await AppointmentService.customer_history(customerId);
             setAppointments(response.data);
-        } catch (error) {
+        } catch (err) {
             setError('Error fetching appointments');
-            console.error(error);
+            console.error(err);
         }
     };
 
-
-    // Handle appointment cancellation
-    const handleCancel = async (appointment) => {
-        const confirmCancel = window.confirm("Are you sure you want to cancel this appointment?");
-        if (!confirmCancel) return;
-
-        try {
-            await AppointmentService.soft_delete(appointment.id);
-            alert("Appointment successfully canceled.");
-            sendCancellationNotification({ ...appointment, Customer: customerInfo });
-            fetchAppointments(customerInfo.id); // Refresh appointments after cancellation
-        } catch (error) {
-            alert("Failed to cancel appointment.");
-            console.error(error);
-        }
-    };
-
-    // Switch tabs
-    const handleTabChange = (tabName) => {
-        setTab(tabName);
-    };
-
-    // Render the appointments table based on selected tab
-    const renderAppointments = (appointmentsList, showCancel = false) => {
-        return appointmentsList.length === 0 ? (
-            <p>No appointments found.</p>
-        ) : (
-            <table className="appointment-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Technician</th>
-                        <th>Services</th>
-                        {showCancel && <th>Action</th>}
-                    </tr>
-                </thead>
-                <tbody>
-                    {appointmentsList.map((appointment, index) => (
-                        <tr key={index} className={getAppointmentClass(appointment)}>
-                            <td>{appointment.date}, {appointment.start_service_time}</td>
-                            <td>{appointment.Technicians[0].name}</td>
-                            <td>
-                                {appointment.Services.map((service, idx) => (
-                                    <div key={idx}>{service.name}</div>
-                                ))}
-                            </td>
-                            {showCancel && (
-                                <td>
-                                    <button className="cancel-btn" onClick={() => handleCancel(appointment)}>
-                                        Cancel Appt.
-                                    </button>
-                                </td>
-                            )}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        );
-    };
-
-    // Get the class for each row based on appointment status
+    /**
+     * Determines CSS class for an appointment row based on its date.
+     * 
+     * @param {Object} appointment - Appointment object with a date field.
+     * @returns {string} CSS class name: 'future-appointment', 'present-appointment', or 'past-appointment'.
+     */
     const getAppointmentClass = (appointment) => {
         const appointmentDate = new Date(appointment.date + 'T00:00:00');
         const now = new Date();
@@ -116,58 +87,34 @@ const AppointmentHistory = () => {
         return 'past-appointment';
     };
 
+    // Instantiate factory once customer info is available
+    const tabFactory = customerInfo
+        ? new AppointmentTabFactory(customerInfo, fetchAppointments, getAppointmentClass)
+        : null;
+
+    const appointmentTabs = tabFactory
+        ? [
+            tabFactory.createTab('present', "Today's", appointments.present),
+            tabFactory.createTab('future', 'Future Appts.', appointments.future, true),
+            tabFactory.createTab('past', 'Appt. History', appointments.past)
+        ]
+        : [];
+
     return (
         <div className="appointment-history">
             {!customerInfo ? (
-                <form onSubmit={handleSubmit}>
-                    <p className="instruction">
-                        Please enter the phone number and name used when scheduling your appointment to access your appointment history.
-                    </p>
-                    <div>
-                        <label>Phone Number:</label>
-                        <input
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                            required
-                            pattern="[0-9]*"
-                        />
-                    </div>
-                    <div>
-                        <label>Name:</label>
-                        <input
-                            type="text"
-                            value={enteredName}
-                            onChange={(e) => setEnteredName(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Loading...' : 'Enter'}
-                    </button>
-                    <p className="note">
-                        For assistance with accessing your appointment history, please contact our Gig Harbor location at (253) 851-7563.
-                    </p>
-                </form>
+                <CustomerLoginForm
+                    phoneNumber={phoneNumber}
+                    setPhoneNumber={setPhoneNumber}
+                    enteredName={enteredName}
+                    setEnteredName={setEnteredName}
+                    handleSubmit={handleSubmit}
+                    loading={loading}
+                />
             ) : (
                 <div>
                     <h3>Welcome back, {enteredName.toUpperCase()}!</h3>
-                    <div className="tabs">
-                        <button className={tab === 'present' ? 'active' : ''} onClick={() => handleTabChange('present')}>
-                            Today's
-                        </button>
-                        <button className={tab === 'future' ? 'active' : ''} onClick={() => handleTabChange('future')}>
-                            Future Appts.
-                        </button>
-                        <button className={tab === 'past' ? 'active' : ''} onClick={() => handleTabChange('past')}>
-                            Appt. History
-                        </button>
-                    </div>
-                    <div>
-                        {tab === 'present' && renderAppointments(appointments.present)}
-                        {tab === 'future' && renderAppointments(appointments.future, true)}
-                        {tab === 'past' && renderAppointments(appointments.past)}
-                    </div>
+                    <TabbedView tabs={appointmentTabs} />
                 </div>
             )}
 
