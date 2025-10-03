@@ -1,34 +1,39 @@
 /* General container styling */
-.page-container {
+.nsm-page-container {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  
 }
 
-.menu-container {
+.nsm-menu-container {
   max-width: 1200px;
   font-family: 'Arial', sans-serif;
   color: #333;
   background-color: #f9f9f9;
-  width: 100%;  /* Make sure the container takes the full width of the screen */
+  width: 100%;
   display: flex;
   flex-direction: row;
-  padding: 2rem; /* Adds spacing inside the container */
-  box-sizing: border-box; /* Ensures padding is included in the width calculation */
-  margin: 0; /* Remove any margin */
+  justify-content: space-between;
+  /* Add space between sections */
+  gap: 2rem;
+  /* Optional: additional horizontal gap */
+  padding: 2rem;
+  box-sizing: border-box;
+  margin: 0;
 }
 
-/* Each category section */
-.menu-section {
-  margin-bottom: 2rem;
+.nsm-menu-section {
+  flex: 1;
+  /* Allow sections to grow equally */
+  min-width: 220px;
+  /* Prevent sections from getting too narrow */
   text-align: left;
-  width: 100%; /* Ensure sections take the full width of their parent */
 }
+
 
 /* Menu category style */
-.menu-category {
+.nsm-menu-category {
   font-family: "Didot", Georgia, serif;
   font-weight: bold;
   font-size: 1.5rem;
@@ -39,27 +44,28 @@
 }
 
 /* Table layout */
-.menu-table {
+.nsm-menu-table {
   font-family: "Optima", arial;
-  width: 100%; /* Ensure table takes the full width of the container */
+  width: 100%;
+  /* Ensure table takes the full width of the container */
   border-collapse: collapse;
   margin-top: 0.5rem;
 }
 
-.menu-table tbody tr {
+.nsm-menu-table tbody tr {
   border-bottom: 1px solid #e9ecef;
 }
 
-.menu-table tbody tr:last-child {
+.nsm-menu-table tbody tr:last-child {
   border-bottom: none;
 }
 
-.item-name {
+.nsm-item-name {
   padding: 0.5rem 1rem;
   text-align: left;
 }
 
-.item-price {
+.nsm-item-price {
   padding: 0.5rem 1rem;
   font-weight: 500;
   text-align: right;
@@ -67,8 +73,8 @@
 }
 
 /* Loading and error states */
-.loading,
-.error {
+.nsm-loading,
+.nsm-error {
   font-size: 1.2rem;
   color: #6c757d;
   text-align: center;
@@ -76,27 +82,38 @@
 }
 
 /* Highlight row on hover */
-.menu-table tbody tr:hover {
+.nsm-menu-table tbody tr:hover {
   background-color: #f5f5f5;
   transition: background-color 0.3s ease;
 }
 
 /* Optional: Change text color on hover */
-.menu-table tbody tr:hover .item-name,
-.menu-table tbody tr:hover .item-price {
+.nsm-menu-table tbody tr:hover .nsm-item-name,
+.nsm-menu-table tbody tr:hover .nsm-item-price {
   color: #d6336c;
   font-weight: 600;
 }
 
 /* Mobile responsiveness (smaller screens) */
-@media screen and (max-width: 768px) {
-  .menu-container {
-    padding: 1rem; /* Reduce padding on smaller screens */
-    display: block;
+@media screen and (max-width: 1000px) {
+  .nsm-menu-container {
+    /* Convert the menu container to a CSS Grid layout. */
+    display: grid;
+    /* * This is the core of the responsive column layout.
+     * - `repeat(auto-fit, ...)`: Create as many columns as can fit.
+     * - `minmax(200px, 1fr)`: Each column must be at least 200px wide,
+     * but can grow to fill any extra space (1fr).
+     * This automatically handles 2, 3, 4, etc., columns without more media queries.
+     */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    /* Consistent spacing between all grid items. */
   }
 
-  .menu-table {
-    width: 100%; /* Ensure the table takes up the full width on mobile */
-    padding-left: 0; /* Remove any left padding */
+  .nsm-menu-table {
+    width: 100%;
+    /* Ensure the table takes up the full width on mobile */
+    padding-left: 0;
+    /* Remove any left padding */
   }
 }

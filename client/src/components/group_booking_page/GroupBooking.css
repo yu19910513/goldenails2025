@@ -395,7 +395,7 @@
      * but can grow to fill any extra space (1fr).
      * This automatically handles 2, 3, 4, etc., columns without more media queries.
      */
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 2rem;
         /* Consistent spacing between all grid items. */
     }
