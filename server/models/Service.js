@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-class Service extends Model {}
+class Service extends Model { }
 
 Service.init(
   {
@@ -23,11 +23,15 @@ Service.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    add_on: {
+    description: {
+      type: DataTypes.TEXT,  
+      allowNull: true,        
+    },
+    deprecated: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false, // Set default value to false
-    },    
+      defaultValue: false, 
+    },
     category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
