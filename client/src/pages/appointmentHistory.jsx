@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import CustomerService from '../services/CustomerService';
-import AppointmentService from '../services/AppointmentService';
-import { sendCancellationNotification } from '../utils/helper';
+import CustomerService from '../services/customerService';
+import AppointmentService from '../services/appointmentService';
 import CustomerLoginForm from '../components/appointment_history_page/CustomerLoginForm';
 import TabbedView from '../components/shared/TabbedView';
 import AppointmentTabFactory from '../components/appointment_history_page/AppointmentTabFactory';
