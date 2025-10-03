@@ -18,23 +18,82 @@ import AppointmentService from '../../services/appointmentService';
  */
 const AppointmentTable = ({ appointmentsList, showCancel, customerInfo, fetchAppointments, getAppointmentClass }) => {
 
-    /**
-     * Groups appointments by date and start_service_time.
-     * Combines technicians and services for appointments with the same date and time.
-     * 
-     * @param {Array<Object>} appointmentsList - List of appointment objects.
-     * @returns {Array<Object>} Grouped appointments.
-     */
+/**
+ * Groups a list of appointments by their date and start time.
+ * 
+ * - Appointments with the same `date` and `start_service_time` are merged.
+ * - Technicians from each merged appointment are combined into a single array.
+ * - Services from each merged appointment are merged, and duplicate service names
+ *   are consolidated with a `count` property (e.g., "Essential Manicure x 2").
+ *
+ * @param {Array<Object>} appointmentsList - The list of appointment objects to group.
+ * @param {string} appointmentsList[].date - The appointment date (YYYY-MM-DD).
+ * @param {string} appointmentsList[].start_service_time - The service start time (HH:mm).
+ * @param {Array<Object>} appointmentsList[].Technicians - Array of technician objects.
+ * @param {Array<Object>} appointmentsList[].Services - Array of service objects.
+ * @returns {Array<Object>} An array of grouped appointment objects where:
+ *   - `Technicians` is a combined list of all technicians.
+ *   - `Services` is a deduplicated list of services with an added `count` property.
+ *
+ * @example
+ * const grouped = groupAppointmentsByTime([
+ *   {
+ *     date: "2025-10-05",
+ *     start_service_time: "10:00",
+ *     Technicians: [{ name: "Jane" }],
+ *     Services: [{ name: "Manicure" }]
+ *   },
+ *   {
+ *     date: "2025-10-05",
+ *     start_service_time: "10:00",
+ *     Technicians: [{ name: "Anna" }],
+ *     Services: [{ name: "Manicure" }, { name: "Pedicure" }]
+ *   }
+ * ]);
+ *
+ * // Result:
+ * // [
+ * //   {
+ * //     date: "2025-10-05",
+ * //     start_service_time: "10:00",
+ * //     Technicians: [{ name: "Jane" }, { name: "Anna" }],
+ * //     Services: [
+ * //       { name: "Manicure", count: 2 },
+ * //       { name: "Pedicure", count: 1 }
+ * //     ]
+ * //   }
+ * // ]
+ */
     const groupAppointmentsByTime = (appointmentsList) => {
         const groupedMap = {};
+
         appointmentsList.forEach((appt) => {
             const key = `${appt.date}_${appt.start_service_time}`;
-            if (!groupedMap[key]) groupedMap[key] = { ...appt, Technicians: [], Services: [] };
+
+            if (!groupedMap[key]) {
+                groupedMap[key] = { ...appt, Technicians: [], Services: [] };
+            }
+
             groupedMap[key].Technicians.push(...appt.Technicians);
             groupedMap[key].Services.push(...appt.Services);
         });
-        return Object.values(groupedMap);
+
+        return Object.values(groupedMap).map((group) => {
+            const serviceCounts = group.Services.reduce((acc, s) => {
+                if (!acc[s.name]) {
+                    acc[s.name] = { ...s, count: 0 };
+                }
+                acc[s.name].count++;
+                return acc;
+            }, {});
+
+            return {
+                ...group,
+                Services: Object.values(serviceCounts),
+            };
+        });
     };
+
 
     /**
      * Handles cancellation of an appointment.
@@ -54,7 +113,7 @@ const AppointmentTable = ({ appointmentsList, showCancel, customerInfo, fetchApp
             for (const appt of apptsToCancel) {
                 await AppointmentService.soft_delete(appt.id);
             }
-            
+
             const techNames = apptsToCancel
                 .flatMap(a => a.Technicians.map(t => t.name))
                 .join(', ');
@@ -96,7 +155,11 @@ const AppointmentTable = ({ appointmentsList, showCancel, customerInfo, fetchApp
                             )}
                         </td>
                         <td>
-                            {appointment.Services.map((s, idx) => <div key={idx}>{s.name}</div>)}
+                            {appointment.Services.map((s, idx) => (
+                                <div key={idx}>
+                                    {s.name}{s.count > 1 ? ` x ${s.count}` : ""}
+                                </div>
+                            ))}
                         </td>
                         {showCancel && (
                             <td>
