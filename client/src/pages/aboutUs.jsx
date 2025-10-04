@@ -28,21 +28,21 @@ const timelineData = [
         title: "Move to Gig Harbor",
         description:
             "The family moved to a quieter town, selling the Seattle location but continuing the legacy with a new salon in Gig Harbor.",
-        image: "/images/timeline-2008-placeholder.jpg",
+        image: "/images/timeline-2008.jpg",
     },
     {
         year: "2019",
         title: "Lisa's Ownership",
         description:
             "Under Lisa, the salon expanded and modernized, building strong customer relationships while keeping the family values intact.",
-        image: "/images/timeline-2019-placeholder.jpg",
+        image: "/images/timeline-2019.jpg",
     },
     {
         year: "2024",
         title: "Full Circle",
         description:
             "The founders’ granddaughter, June, and her husband, Rex, took over the salon alongside June’s mother, Tracy, continuing the family legacy.",
-        image: "/images/timeline-2024-placeholder.jpg",
+        image: "/images/timeline-2024.jpg",
     },
 ];
 

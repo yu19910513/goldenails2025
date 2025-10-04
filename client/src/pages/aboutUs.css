@@ -169,13 +169,23 @@
 
 .aboutus-timeline-image {
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .aboutus-timeline-image img {
     width: 100%;
+    max-width: 400px;
+    /* limit max width */
+    height: auto;
+    /* maintain aspect ratio */
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    /* ensures image fills without stretching */
 }
+
 
 /* Vertical timeline line */
 .aboutus-timeline-container::before {
