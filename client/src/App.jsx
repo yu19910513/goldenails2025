@@ -8,6 +8,7 @@ import GroupBooking from './pages/groupBooking';
 import AppointmentHistory from './pages/appointmentHistory';
 import Config from './pages/config';
 import ServicesMenu from './pages/servicemenu';
+import AboutUs from './pages/aboutUs';
 import ContactForm from './pages/contactForm';
 import LegalDisclaimer from './components/policy_and_disclaimer/LegalDisclaimer';
 import PrivacyPolicy from './components/policy_and_disclaimer/PrivacyPolicy';
@@ -31,6 +32,7 @@ const App = () => (
       <Route path="/booking" element={<Booking />} />
       <Route path="/groupbooking" element={<GroupBooking />} />
       <Route path="/ourservices" element={<ServicesMenu />} />
+      <Route path="/aboutus" element={<AboutUs />} />
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/legal-disclaimer" element={<LegalDisclaimer />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />

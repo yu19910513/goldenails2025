@@ -1,0 +1,218 @@
+.aboutus-wrapper {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #333;
+}
+
+/* Fade-in animation */
+.aboutus-fade {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.aboutus-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hero Section */
+.aboutus-hero {
+    position: relative;
+    height: 60vh;
+    overflow: hidden;
+}
+
+.aboutus-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.aboutus-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+}
+
+.aboutus-hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #ffd700;
+}
+
+.aboutus-hero-subtitle {
+    font-size: 1.25rem;
+    max-width: 700px;
+}
+
+/* Split Sections */
+.aboutus-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.aboutus-section.reverse {
+    flex-direction: row-reverse;
+}
+
+.aboutus-content {
+    flex: 1;
+}
+
+.aboutus-content h2 {
+    font-size: 2rem;
+    color: #b57f50;
+    margin-bottom: 1rem;
+}
+
+.aboutus-content p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+    font-size: 1.05rem;
+}
+
+.aboutus-highlight {
+    font-weight: 600;
+    color: #a4693d;
+}
+
+.aboutus-image {
+    flex: 1;
+}
+
+.aboutus-image img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Quote */
+.aboutus-quote {
+    margin-top: 2rem;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: #444;
+    border-left: 4px solid #b57f50;
+    padding-left: 1rem;
+}
+
+/* Timeline Section */
+.aboutus-timeline-section {
+    padding: 4rem 2rem;
+    background-color: #fff7f0;
+}
+
+.aboutus-timeline-heading {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #b57f50;
+    margin-bottom: 3rem;
+}
+
+.aboutus-timeline-container {
+    position: relative;
+}
+
+.aboutus-timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4rem;
+    position: relative;
+}
+
+.aboutus-timeline-item.left .aboutus-timeline-content {
+    order: 1;
+    text-align: right;
+    padding-right: 2rem;
+}
+
+.aboutus-timeline-item.left .aboutus-timeline-image {
+    order: 2;
+}
+
+.aboutus-timeline-item.right .aboutus-timeline-content {
+    order: 2;
+    text-align: left;
+    padding-left: 2rem;
+}
+
+.aboutus-timeline-item.right .aboutus-timeline-image {
+    order: 1;
+}
+
+.aboutus-timeline-content {
+    flex: 1;
+}
+
+.aboutus-timeline-content h3 {
+    font-size: 1.5rem;
+    color: #a4693d;
+    margin-bottom: 0.5rem;
+}
+
+.aboutus-timeline-content p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+.aboutus-timeline-image {
+    flex: 1;
+}
+
+.aboutus-timeline-image img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Vertical timeline line */
+.aboutus-timeline-container::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 4px;
+    height: 100%;
+    background-color: #b57f50;
+    transform: translateX(-50%);
+    top: 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+
+    .aboutus-section,
+    .aboutus-timeline-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .aboutus-section.reverse,
+    .aboutus-timeline-item.left,
+    .aboutus-timeline-item.right {
+        flex-direction: column;
+    }
+
+    .aboutus-timeline-container::before {
+        left: 8px;
+    }
+
+    .aboutus-content h2 {
+        font-size: 1.6rem;
+    }
+
+    .aboutus-hero-title {
+        font-size: 2.2rem;
+    }
+}
