@@ -70,7 +70,7 @@ const AboutUs = () => {
             {/* Hero Section */}
             <div className="aboutus-hero aboutus-fade">
                 <img
-                    src="/images/aboutus-hero-placeholder.jpg"
+                    src="/images/aboutus-hero.jpg"
                     alt="Golden Nails legacy"
                     className="aboutus-hero-image"
                 />

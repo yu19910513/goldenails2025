@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Header.css";
 import LeaveWarningModal from "../booking_page/LeaveWarningModal";
-import { isTokenValid } from '../../utils/helper'
+import { isTokenValid } from '../../utils/helper';
 
 const Header = () => {
   const location = useLocation();
@@ -12,9 +12,10 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 New state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+
   // Toggle booking state
   const handleBookingToggle = () => {
     if (isBookingActive) {
@@ -91,25 +92,29 @@ const Header = () => {
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
+            <a href="/aboutus" className={`nav-link ${isActive("/aboutus") ? "active-link" : ""}`}>
+              About Us
+            </a>
+          </li>
+          <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="/appointmenthistory" className={`nav-link ${isActive("/appointmenthistory") ? "active-link" : ""}`}>
               Appointment History
             </a>
           </li>
           <li>
             <a
-              href={isBookingActive ? "/" : "/bookingchoice"} // prevent wrong redirect
+              href={isBookingActive ? "/" : "/bookingchoice"}
               className={`nav-link ${isBookingActive ? "active-link" : ""}`}
               onClick={(e) => {
                 if (isBookingActive) {
-                  e.preventDefault(); // stop the browser from going to /bookingchoice
-                  handleBookingToggle(); // open modal
+                  e.preventDefault();
+                  handleBookingToggle();
                 }
               }}
             >
               {isBookingActive ? "Cancel Booking" : "Book Now"}
             </a>
           </li>
-
 
           {isLoggedIn && (
             <>
