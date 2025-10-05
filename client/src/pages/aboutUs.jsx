@@ -3,7 +3,7 @@ import "./aboutUs.css";
 
 const timelineData = [
     {
-        year: "1994",
+        year: "1991",
         title: "Immigration to Seattle",
         description:
             "Our founders immigrated to Seattle through the HO program after the Vietnam War. In their mid-forties, with grown children, they started over with little more than determination.",
@@ -14,7 +14,7 @@ const timelineData = [
         title: "Founding Golden Nails",
         description:
             "They sold all their gold savings to open their first nail salon in Seattle, naming it Golden Nails — a tribute to sacrifice and perseverance.",
-        image: "/images/timeline-2000-placeholder.jpg",
+        image: "/images/timeline-2000.jpg",
     },
     {
         year: "2002",
@@ -75,9 +75,9 @@ const AboutUs = () => {
                     className="aboutus-hero-image"
                 />
                 <div className="aboutus-hero-overlay">
-                    <h1 className="aboutus-hero-title">About Us</h1>
+                    <h1 className="aboutus-hero-title">About Golden Nails</h1>
                     <p className="aboutus-hero-subtitle">
-                        More than a salon — a story of family, resilience, and legacy.
+                        More than a salon — a story of American dream.
                     </p>
                 </div>
             </div>
@@ -86,25 +86,25 @@ const AboutUs = () => {
             <div className="aboutus-section aboutus-fade">
                 <div className="aboutus-image">
                     <img
-                        src="/images/aboutus-founders-placeholder.jpg"
+                        src="/images/aboutus-founders.jpg"
                         alt="Founders of Golden Nails"
                     />
                 </div>
                 <div className="aboutus-content">
                     <h2>Our Journey</h2>
                     <p>
-                        Our story began in 1994, when our founders immigrated to Seattle
+                        Our story began in 1991, when our founders immigrated to Seattle
                         through the HO program after the Vietnam War. Already in their
                         mid-forties, with grown children, they started over with little more
                         than determination.
                     </p>
                     <p>
-                        For nearly a decade they worked in Chinatown restaurants — the
-                        husband as a dishwasher, the wife as a waitress. Every dollar saved
+                        For nearly a decade, they labored side by side in Chinatown — he at the
+                        sink, she among the tables and ledger books. Every dollar saved
                         went into small pieces of gold, their only wealth and security.
                     </p>
                     <p>
-                        By the early 2000s, they sold that gold to pursue a dream of their
+                        By the early 2000s, they sold the gold to pursue a dream of their
                         own. With those savings, they opened{" "}
                         <span className="aboutus-highlight">Golden Nails</span> in Seattle —
                         a tribute to sacrifice and perseverance.
@@ -130,7 +130,7 @@ const AboutUs = () => {
                 </div>
                 <div className="aboutus-image">
                     <img
-                        src="/images/aboutus-legacy-placeholder.jpg"
+                        src="/images/aboutus-legacy.jpg"
                         alt="Golden Nails legacy continues"
                     />
                 </div>
@@ -139,7 +139,7 @@ const AboutUs = () => {
             <div className="aboutus-section aboutus-fade">
                 <div className="aboutus-image">
                     <img
-                        src="/images/aboutus-family-placeholder.jpg"
+                        src="/images/aboutus-family.jpg"
                         alt="Family carrying on the Golden Nails legacy"
                     />
                 </div>
