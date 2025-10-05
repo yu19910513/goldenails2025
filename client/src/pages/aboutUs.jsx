@@ -21,7 +21,7 @@ const timelineData = [
         title: "Early Struggles",
         description:
             "The recession hit hard, but through perseverance and community support, Golden Nails survived and grew stronger.",
-        image: "/images/timeline-2002-placeholder.jpg",
+        image: "/images/timeline-2002.jpg",
     },
     {
         year: "2008",
