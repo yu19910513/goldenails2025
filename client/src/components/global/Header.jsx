@@ -91,7 +91,7 @@ const Header = () => {
         <ul className={`header-nav-list ${isMenuOpen && isMobile ? "header-nav-list--open" : ""}`}>
           {/* ADDED: Logo placeholder for mobile menu */}
           <li className="header-logo-placeholder">
-            <img src="/images/full_logo.jpg" alt="Golden Nails Logo" />
+            <img src="/images/full_logo.png" alt="Golden Nails Logo" />
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="/" className={`header-nav-link ${isActive("/home") ? "header-nav-link--active" : ""}`}>
