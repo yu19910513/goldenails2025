@@ -154,7 +154,7 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
         number and name to access your records. Should there be any changes to
         your appointment, we will notify you via phone or text and update your
         online appointment record accordingly. If you need to cancel or modify
-        your appointment, you may use the 'Appointment History' to do so or
+        your appointment, you may use the 'My Visits' to do so or
         contact us at <strong>253-851-7563</strong>.
       </p>
 
