@@ -1,25 +1,61 @@
-.hero {
-    max-width: 100vw;
-    /* Prevents the image from exceeding the viewport width */
-    max-height: 100vh;
-    /* Prevents the image from exceeding the viewport height */
-    width: auto;
-    /* Ensures the aspect ratio is maintained */
-    height: 700px;
-    /* Ensures the aspect ratio is maintained */
-    object-fit: contain;
-    /* Ensures the image fits within the defined dimensions */
+/* Main container for the hero section */
+.home-hero {
+    position: relative;
+    font-family: serif;
+    height: 100vh;
+    max-height: 700px;
+    width: 100vw;
+    color: white;
     background-image: url('/images/hero_white.jpg');
-    /* Remove the quotes */
     background-size: cover;
-    /* Ensures the image covers the element */
     background-position: center;
-    /* Centers the image */
     background-repeat: no-repeat;
-    /* Prevents the image from repeating */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    /* Adjusted padding for better mobile view */
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Prevents blur from spilling out */
 }
 
-.announcement-bar-container {
+/* This pseudo-element creates the dark overlay on mobile */
+.home-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    /* No overlay on desktop by default */
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+/* Wrapper for centering content */
+.home-hero__content-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    /* Make sure content is above the overlay */
+    z-index: 2;
+}
+
+/* The main content block */
+.home-hero__content {
+    max-width: 56rem;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    /* Slightly more rounded */
+    animation: fadeIn 1s ease-in-out;
+    transition: background-color 0.3s ease, border 0.3s ease;
+}
+
+.home-hero__announcement-bar {
     width: 100%;
     position: absolute;
     top: 0;
@@ -27,93 +63,128 @@
     z-index: 10;
 }
 
-.adBoard {
+.home-hero__title {
     font-family: "Didot", Georgia, serif;
-    line-height: 1.5;
+    line-height: 1.2;
+    color: #06402B;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.07)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.06));
+}
+
+.home-hero__subtext {
+    font-family: "Didot", Georgia, serif;
+    color: #06402B;
+    margin-bottom: 1.5rem;
+}
+
+.home-hero__info {
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+    font-family: "Optima", arial, sans-serif;
     color: #06402B;
 }
 
-.subtext {
-    font-family: "Didot", Georgia, serif;
-    color: #06402B;
+.home-hero__info-text {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
 }
 
-.button-group {
+.home-hero__actions {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin-top: 1rem;
 }
 
-.button-group a {
-    border: 2px solid;
+.home-hero__button {
+    border: 2px solid #A44235;
     color: #A44235;
-    /* Default color for normal screens */
+    background-color: transparent;
     padding: 0.75rem 1rem;
     font-size: 1.125rem;
     font-family: 'Optima', sans-serif;
-    text-align: center;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    box-shadow: 0 4px 6px #A44235(0, 0, 0, 0.1);
+    transition: background-color 0.3s, color 0.3s, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
-    /* Ensures padding and borders are included in size */
     width: 150px;
-    /* Fixed width for buttons */
-    height: auto;
-    /* Allow height to adjust based on content */
     min-height: 50px;
-    /* Ensure a consistent minimum height */
-    word-wrap: break-word;
-    /* Wrap long words to fit within the button */
-    overflow: hidden;
-    /* Prevent content from overflowing */
     display: flex;
-    /* Flex container for better alignment */
     align-items: center;
-    /* Center text vertically */
     justify-content: center;
-    /* Center text horizontally */
     text-decoration: none;
-    /* Remove underline */
+    border-radius: 5px;
 }
 
-/* Hover effects */
-.button-group a:hover {
+.home-hero__button:hover {
     background-color: #A44235;
     color: white;
+    transform: scale(1.05);
+    /* Add a slight zoom on hover */
 }
 
+/* Large screen adjustments */
+@media (min-width: 1024px) {
+    .home-hero__content-wrapper {
+        justify-content: flex-start;
+    }
+
+    .home-hero__content {
+        margin-right: 5rem;
+        margin-left: auto;
+    }
+}
+
+/* === ENHANCED MOBILE STYLES === */
 @media (max-width: 768px) {
-    .hero {
-        background-image: url('/images/hero_pink.jpg');
-        /* Image for smaller screens */
-        color: black;
+    .home-hero {
+        background-image: url('/images/hero-christmas.jpg');
     }
 
-    .adBoard {
+    /* Add a dark overlay to help text stand out */
+    .home-hero::before {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    /* 1. The "Frosted Glass" Card */
+    .home-hero__content {
+        /* This creates the blurred background effect */
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        /* For Safari support */
+        background-color: rgba(30, 30, 30, 0.25);
+        /* Dark, semi-transparent base */
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        /* Subtle edge highlight */
+    }
+
+    /* 2. Improved Readability & Typography */
+    .home-hero__title,
+    .home-hero__subtext,
+    .home-hero__info {
+        color: #f5f5f5;
+        /* Use a softer white */
+        /* A stronger, cleaner shadow provides depth and contrast */
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    /* 3. Bolder, Clearer Buttons */
+    .home-hero__button {
+        background-color: #A44235;
+        /* Solid, festive red background */
         color: #ffffff;
-        /* Dark green color */
-        text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.4);
+        /* White text */
+        border: 2px solid #A44235;
+        /* Matching border */
     }
 
-    .button-group a {
-        border: 2px solid white;
-        /* White border on small screens */
-        color: white;
-        /* White text on small screens */
-        width: 150px;
-        /* Keep the same width */
-        height: 50px;
-        /* Keep the same height */
-        line-height: 50px;
-        /* Maintain vertical alignment */
+    .home-hero__button:hover {
+        background-color: #C85041;
+        /* A slightly brighter red on hover */
+        border-color: #C85041;
+        color: #ffffff;
     }
-
-    /* Hover effects for small screens */
-    .button-group a:hover {
-        background-color: white;
-        color: black;
-    }
-
 }
