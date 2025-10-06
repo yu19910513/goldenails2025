@@ -1,16 +1,31 @@
 /**
- * @file Header.css
- * @description Styles for the main site header and navigation components.
- */
+ * @file Header.css
+ * @description Styles for the main site header and navigation components.
+ * Includes responsive design, glassmorphism effect for mobile,
+ * and accessibility enhancements.
+ */
 
 /* ==========================================================================
-   Base Header Styles
-   ========================================================================== */
+   Color Palette & Root Variables
+   ========================================================================== */
+
+:root {
+  --color-gold: #C0B283;
+  --color-dark-charcoal: #2d2d2d;
+  --color-light-text: #F5F5F5;
+  --color-dark-text: #000000;
+  --color-white: #ffffff;
+  --color-border-dark: #444;
+}
+
+/* ==========================================================================
+   Base Header Styles
+   ========================================================================== */
 
 .site-header {
   /* Main container for the fixed header bar */
-  background-color: #ffffff;
-  color: rgb(0, 0, 0);
+  background-color: var(--color-white);
+  color: var(--color-dark-text);
   padding: 10px;
   position: sticky;
   top: 0;
@@ -28,8 +43,8 @@
 }
 
 /* ==========================================================================
-   Navigation Links and List (Desktop/Default)
-   ========================================================================== */
+   Navigation Links and List (Desktop/Default)
+   ========================================================================== */
 
 .header-nav-list {
   /* Desktop navigation list */
@@ -46,32 +61,39 @@
 
 .header-nav-link {
   /* Default link styling */
-  color: rgb(0, 0, 0);
+  color: var(--color-dark-text);
   text-decoration: none;
   padding: 10px;
   font-size: 1rem;
   font-family: 'serif', sans-serif;
   transition: color 0.2s ease, text-decoration 0.2s ease;
-  /* Ensure underline transition is smooth */
   display: inline-block;
+  border-radius: 4px;
+  /* Added for focus outline */
 }
 
-/* Desktop Hover Effect: Black Underline (no color change) */
-.header-nav-link:hover {
-  color: rgb(0, 0, 0);
-  /* Explicitly keep the color black */
+/* Desktop Hover & Focus Effects */
+.header-nav-link:hover,
+.header-nav-link:focus {
+  color: var(--color-dark-text);
   text-decoration: underline;
-  /* Add the underline */
   text-underline-offset: 4px;
-  /* Space between text and underline */
   text-decoration-thickness: 1px;
-  /* Set underline thickness */
+  outline: none;
+  /* Remove default browser outline */
 }
+
+/* Specific focus style for keyboard navigation */
+.header-nav-link:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
 
 /* Active State: Keep bold, keep color black for non-booking links */
 .header-nav-link--active {
   font-weight: bold;
-  color: rgb(0, 0, 0);
+  color: var(--color-dark-text);
 }
 
 .header-logo-link {
@@ -81,10 +103,8 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: rgb(0, 0, 0);
-  /* Ensures the logo text is black */
+  color: var(--color-dark-text);
   text-decoration: none;
-  /* Remove any potential underline on hover for the logo */
 }
 
 /* Hide the mobile logo placeholder on desktop */
@@ -94,8 +114,8 @@
 
 
 /* ==========================================================================
-   Hamburger Menu and Overlay
-   ========================================================================== */
+   Hamburger Menu and Overlay
+   ========================================================================== */
 
 .header-hamburger {
   /* Hamburger icon container (hidden by default on desktop) */
@@ -105,8 +125,9 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  right: 20px;
   z-index: 1001;
+  padding: 10px;
+  /* Increase clickable area */
 }
 
 .header-bar {
@@ -152,8 +173,8 @@
 }
 
 /* ==========================================================================
-   Mobile Styles (Max Width 768px)
-   ========================================================================== */
+   Mobile Styles (Max Width 768px)
+   ========================================================================== */
 
 @media (max-width: 768px) {
 
@@ -173,17 +194,25 @@
     max-width: 300px;
     height: 100vh;
     padding: 0;
-    background-color: #2d2d2d;
-    /* Updated */
+    background-color: var(--color-dark-charcoal);
+    /* Solid color fallback */
     z-index: 1002;
     transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
     overflow-y: auto;
   }
 
   .header-nav-list--open {
     /* Show the mobile menu when open */
     transform: translateX(0);
+
+    /* --- LIQUID GLASS EFFECT --- */
+    background: rgba(45, 45, 45, 0.75);
+    /* Semi-transparent tint */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(18px);
+    /* For Safari */
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .header-logo-placeholder {
@@ -193,8 +222,7 @@
     justify-content: center;
     padding: 20px;
     height: auto;
-    border-bottom: 1px solid #444;
-    /* Updated */
+    border-bottom: 1px solid var(--color-border-dark);
   }
 
   .header-logo-placeholder img {
@@ -208,8 +236,7 @@
     /* Individual list item styling */
     width: 100%;
     text-align: left;
-    border-bottom: 1px solid #444;
-    /* Updated */
+    border-bottom: 1px solid var(--color-border-dark);
   }
 
   .header-nav-list li:last-child {
@@ -222,32 +249,28 @@
     font-size: 1.1rem;
     width: 100%;
     display: block;
-    color: #F5F5F5;
-    /* Updated */
+    color: var(--color-light-text);
     text-decoration: none;
   }
 
-  /* Mobile Hover Effect: Subtle background change */
-  .header-nav-list .header-nav-link:hover {
-    background-color: #444;
-    /* Updated */
-    color: #ffffff;
-    /* Updated */
+  /* Mobile Hover & Focus Effects */
+  .header-nav-list .header-nav-link:hover,
+  .header-nav-list .header-nav-link:focus {
+    background-color: var(--color-border-dark);
+    color: var(--color-white);
     text-decoration: none;
+    outline: none;
   }
 
-  /* Ensure active link background is also visible */
+  /* Active link style in mobile menu */
   .header-nav-list .header-nav-link--active {
-    background-color: #444;
-    /* Updated */
+    background-color: var(--color-border-dark);
     font-weight: bold;
-    color: #C0B283;
-    /* Updated - Pale Gold */
+    color: var(--color-gold);
   }
 
   .header-logo-link {
-    /* Adjust logo size on mobile to be less dominant */
+    /* Adjust logo size on mobile */
     font-size: 1.4rem;
-    padding: 10px 20px;
   }
 }
