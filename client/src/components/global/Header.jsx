@@ -94,7 +94,7 @@ const Header = () => {
             <img src="/images/full_logo.jpg" alt="Golden Nails Logo" />
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/" className={`header-nav-link ${isActive("/aboutus") ? "header-nav-link--active" : ""}`}>
+            <a href="/" className={`header-nav-link ${isActive("/home") ? "header-nav-link--active" : ""}`}>
               Home
             </a>
           </li>
@@ -116,7 +116,7 @@ const Header = () => {
           <li>
             <a
               href={isBookingActive ? "/" : "/bookingchoice"}
-              className={`header-nav-link ${isBookingActive ? "header-nav-link--active" : ""}`}
+              className={`header-nav-link ${isActive("/bookingchoice") ? "header-nav-link--active" : ""}`}
               onClick={(e) => {
                 if (isBookingActive) {
                   e.preventDefault();
