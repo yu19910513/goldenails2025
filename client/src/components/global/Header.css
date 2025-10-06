@@ -1,165 +1,253 @@
-/* Header Styles */
-.header {
+/**
+ * @file Header.css
+ * @description Styles for the main site header and navigation components.
+ */
+
+/* ==========================================================================
+   Base Header Styles
+   ========================================================================== */
+
+.site-header {
+  /* Main container for the fixed header bar */
   background-color: #ffffff;
-  /* Light purple background */
   color: rgb(0, 0, 0);
   padding: 10px;
   position: sticky;
-  /* Sticky header */
   top: 0;
-  padding: 10px;
   width: 100%;
   z-index: 1000;
-  /* Ensure it stays on top of other content */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-nav {
+.header-nav {
+  /* Container for logo, links, and hamburger */
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
 }
 
-/* Increase size and use a different font for Golden Nails */
-.nav-link {
+/* ==========================================================================
+   Navigation Links and List (Desktop/Default)
+   ========================================================================== */
+
+.header-nav-list {
+  /* Desktop navigation list */
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+}
+
+.header-nav-list li {
+  list-style: none;
+}
+
+.header-nav-link {
+  /* Default link styling */
   color: rgb(0, 0, 0);
   text-decoration: none;
   padding: 10px;
   font-size: 1rem;
   font-family: 'serif', sans-serif;
-  /* Default font */
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+  /* Ensure underline transition is smooth */
+  display: inline-block;
 }
 
-/* Hover effect for nav links */
-.nav-link:hover,
-.active-link {
-  color: #000000;
-  /* Change color on hover or when active (light pink color) */
+/* Desktop Hover Effect: Black Underline (no color change) */
+.header-nav-link:hover {
+  color: rgb(0, 0, 0);
+  /* Explicitly keep the color black */
+  text-decoration: underline;
+  /* Add the underline */
+  text-underline-offset: 4px;
+  /* Space between text and underline */
+  text-decoration-thickness: 1px;
+  /* Set underline thickness */
 }
 
-/* Custom style for the "Golden Nails" link */
-.nav-link.gold-nails {
-  font-size: 1.6rem;
-  /* Larger font size */
-  font-family: 'Didot', serif, 'Times New Roman', Times, serif;
-  /* Use a different font (you can choose another one from Google Fonts) */
+/* Active State: Keep bold, keep color black for non-booking links */
+.header-nav-link--active {
   font-weight: bold;
-  /* Bold font */
-  text-transform: uppercase;
-  /* Optional: make the text uppercase */
-  letter-spacing: 2px;
-  /* Optional: add some spacing between letters */
-}
-
-/* Hamburger Icon */
-.hamburger {
-  display: none;
-  /* Hide on large screens */
-  cursor: pointer;
-  position: absolute;
-  right: 10px;
-  /* Position hamburger on the right */
-  top: 10px;
-}
-
-.bar {
-  width: 25px;
-  height: 3px;
-  background-color: rgb(77, 75, 75);
-  margin: 5px 0;
-  transition: all 0.3s ease;
-  /* Add transition for smooth animation */
-}
-
-/* When the hamburger is clicked and the menu is open */
-.hamburger.open .bar:nth-child(1) {
-  transform: rotate(45deg);
-  position: absolute;
-  top: 0;
-}
-
-.hamburger.open .bar:nth-child(2) {
-  opacity: 0;
-  /* Hide the middle bar */
-}
-
-.hamburger.open .bar:nth-child(3) {
-  transform: rotate(-45deg);
-  position: absolute;
-  bottom: 0;
-}
-
-/* Navbar Links Styling */
-.nav-list {
-  display: flex;
-  gap: 20px;
-  justify-content: flex-start;
-  /* Links are aligned to the left by default */
-}
-
-.nav-list.open {
-  display: block;
-  /* Show on mobile when hamburger is clicked */
-}
-
-.nav-list li {
-  list-style: none;
-}
-
-.nav-list a {
-  padding: 10px;
-  font-size: 1rem;
   color: rgb(0, 0, 0);
 }
 
-/* Active link style: Bold when selected */
-.active-link {
+.header-logo-link {
+  /* Specific styles for the "Golden Nails" logo text */
+  font-size: 1.6rem;
+  font-family: 'Didot', serif, 'Times New Roman', Times, serif;
   font-weight: bold;
-  /* Make the text bold when active */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgb(0, 0, 0);
+  /* Ensures the logo text is black */
+  text-decoration: none;
+  /* Remove any potential underline on hover for the logo */
 }
 
-/* Mobile Styles */
+/* Hide the mobile logo placeholder on desktop */
+.header-logo-placeholder {
+  display: none;
+}
+
+
+/* ==========================================================================
+   Hamburger Menu and Overlay
+   ========================================================================== */
+
+.header-hamburger {
+  /* Hamburger icon container (hidden by default on desktop) */
+  display: none;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 20px;
+  z-index: 1001;
+}
+
+.header-bar {
+  /* Individual bar within the hamburger icon */
+  width: 25px;
+  height: 3px;
+  background-color: rgb(77, 75, 75);
+  margin: 4px 0;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+/* Transform the icon to an 'X' when open */
+.header-hamburger--open .header-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.header-hamburger--open .header-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.header-hamburger--open .header-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.header-overlay {
+  /* Background screen dimming effect for mobile menu */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.header-overlay--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   Mobile Styles (Max Width 768px)
+   ========================================================================== */
+
 @media (max-width: 768px) {
 
-  /* Show hamburger menu on smaller screens */
-  .hamburger {
+  /* Show hamburger on mobile */
+  .header-hamburger {
     display: block;
   }
 
-  .nav-list {
-    display: none;
-    /* Hide links initially */
-    position: absolute;
-    top: 60px;
+  .header-nav-list {
+    /* Mobile menu styles */
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
     left: 0;
-    width: 100%;
-    background-color: rgb(168, 168, 168);
-    /* Light purple background for mobile */
-    opacity: 88%;
-    padding: 10px;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    padding: 0;
+    background-color: #2d2d2d;
+    /* Updated */
+    z-index: 1002;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
   }
 
-  .nav-list a {
-    padding: 10px;
-    font-size: 1rem;
-    color: white;
+  .header-nav-list--open {
+    /* Show the mobile menu when open */
+    transform: translateX(0);
   }
 
-  .nav-list.open {
-    display: block;
-    /* Open menu when hamburger is clicked */
+  .header-logo-placeholder {
+    /* Show and style the logo inside the mobile menu */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    height: auto;
+    border-bottom: 1px solid #444;
+    /* Updated */
   }
 
-  .nav-list li {
+  .header-logo-placeholder img {
+    /* Style the actual logo image */
+    max-width: 100%;
+    max-height: 100px;
+    object-fit: contain;
+  }
+
+  .header-nav-list li {
+    /* Individual list item styling */
     width: 100%;
     text-align: left;
-    padding: 10px;
+    border-bottom: 1px solid #444;
+    /* Updated */
   }
 
-  /* Adjust links for smaller screens */
-  .nav-link {
-    padding: 15px;
-    font-size: 1.2rem;
+  .header-nav-list li:last-child {
+    border-bottom: none;
+  }
+
+  .header-nav-list .header-nav-link {
+    /* Mobile link styling */
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    width: 100%;
+    display: block;
+    color: #F5F5F5;
+    /* Updated */
+    text-decoration: none;
+  }
+
+  /* Mobile Hover Effect: Subtle background change */
+  .header-nav-list .header-nav-link:hover {
+    background-color: #444;
+    /* Updated */
+    color: #ffffff;
+    /* Updated */
+    text-decoration: none;
+  }
+
+  /* Ensure active link background is also visible */
+  .header-nav-list .header-nav-link--active {
+    background-color: #444;
+    /* Updated */
+    font-weight: bold;
+    color: #C0B283;
+    /* Updated - Pale Gold */
+  }
+
+  .header-logo-link {
+    /* Adjust logo size on mobile to be less dominant */
+    font-size: 1.4rem;
+    padding: 10px 20px;
   }
 }
