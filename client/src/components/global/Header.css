@@ -16,6 +16,7 @@
   --color-white: #ffffff;
   --color-border-dark: #444;
   --color-hover-bg: rgba(240, 236, 230, 0.6);
+  --color-frosted-bg: rgba(255, 255, 255, 0.15);
   /* warm neutral hover */
 }
 
@@ -24,7 +25,8 @@
 /* ========================================================================== */
 
 .site-header {
-  background-color: var(--color-white);
+  background: var(--color-frosted-bg);
+  backdrop-filter: blur(16px) saturate(180%);
   color: var(--color-dark-text);
   padding: 10px;
   position: sticky;
@@ -184,6 +186,11 @@
 /* ========================================================================== */
 
 @media (max-width: 768px) {
+  .site-header {
+    background: var(--color-white);
+    backdrop-filter: none;
+  }
+
   .header-hamburger {
     display: block;
   }
