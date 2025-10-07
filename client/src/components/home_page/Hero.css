@@ -64,7 +64,7 @@
 }
 
 .home-hero__title {
-    font-family: "Didot", Georgia, serif;
+    font-family: "Didot", serif, "Times New Roman", Times, serif;
     line-height: 1.2;
     color: #06402B;
     font-size: 3rem;
@@ -74,7 +74,7 @@
 }
 
 .home-hero__subtext {
-    font-family: "Didot", Georgia, serif;
+    font-family: "Didot", serif, "Times New Roman", Times, serif;
     color: #06402B;
     margin-bottom: 1.5rem;
 }
@@ -138,53 +138,71 @@
     }
 }
 
-/* === ENHANCED MOBILE STYLES === */
+/* === ENHANCED MOBILE STYLES (Updated for new background) === */
+/* Media query to ensure these styles only apply to screens 768px or smaller */
 @media (max-width: 768px) {
+
+    /* 1. Update the background image */
     .home-hero {
-        background-image: url('/images/hero-christmas.jpg');
+        /* Set the new background image for mobile devices */
+        background-image: url('images/hero_green.jpg');
     }
 
-    /* Add a dark overlay to help text stand out */
+    /* 2. Adjust the overlay for better color harmony */
     .home-hero::before {
-        background-color: rgba(0, 0, 0, 0.3);
+        /* A semi-transparent warm, dark brown overlay complements the image
+           better than a plain black one, preventing colors from looking muddy. */
+        background-color: rgba(60, 45, 35, 0.35);
     }
 
-    /* 1. The "Frosted Glass" Card */
+    /* 3. Refine the "Frosted Glass" Card for a more elegant look */
     .home-hero__content {
-        /* This creates the blurred background effect */
-        backdrop-filter: blur(3px);
-        -webkit-backdrop-filter: blur(3px);
+        /* Increased the blur for a softer, more premium glass effect */
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         /* For Safari support */
-        background-color: rgba(30, 30, 30, 0.25);
-        /* Dark, semi-transparent base */
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        /* Subtle edge highlight */
+
+        /* Using a lighter, more transparent base for the card */
+        background-color: rgba(249, 246, 238, 0.1);
+
+        /* A delicate, brighter border to catch the light */
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: background-color 0.4s ease, border-color 0.4s ease;
     }
 
-    /* 2. Improved Readability & Typography */
+    /* 4. Soften Text Shadow for better readability and elegance */
     .home-hero__title,
     .home-hero__subtext,
     .home-hero__info {
-        color: #f5f5f5;
-        /* Use a softer white */
-        /* A stronger, cleaner shadow provides depth and contrast */
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        /* The creamy, off-white from the nails feels warmer than pure white. */
+        color: #F9F6EE;
+
+        /* A more diffuse and subtle shadow provides depth without feeling heavy */
+        text-shadow: 0 2px 10px rgba(45, 30, 20, 0.6);
     }
 
-    /* 3. Bolder, Clearer Buttons */
+    /* 5. Create an elegant "Ghost Button" design with improved readability */
     .home-hero__button {
-        background-color: #A44235;
-        /* Solid, festive red background */
-        color: #ffffff;
-        /* White text */
-        border: 2px solid #A44235;
-        /* Matching border */
+        /* Transparent background for a lighter, more sophisticated feel */
+        background-color: transparent;
+        /* A softer, caramel-tan color pulled from the nail art */
+        color: #D4AF90;
+        border: 2px solid #D4AF90;
+        font-weight: 600; /* Bolder text for clarity on a transparent background */
+        /* Adding a subtle text shadow to improve readability against the background */
+        text-shadow: 0 1px 4px rgba(45, 30, 20, 0.7);
+        /* Smoother transition for a more graceful interaction */
+        transition: background-color 0.4s ease, color 0.4s ease, transform 0.3s ease;
     }
 
     .home-hero__button:hover {
-        background-color: #C85041;
-        /* A slightly brighter red on hover */
-        border-color: #C85041;
-        color: #ffffff;
+        /* The button fills with color on hover for a satisfying feedback */
+        background-color: #D4AF90;
+        border-color: #D4AF90;
+        /* The text inverts to the deep brown for a beautiful contrast */
+        color: #4E342E;
+        transform: scale(1.03); /* A more subtle zoom effect */
+        text-shadow: none; /* Remove shadow on hover as it's no longer needed */
     }
 }
+

@@ -62,13 +62,13 @@ const Hero = () => {
               3610 Grandview St, Gig Harbor, WA
             </p>
             <p className="home-hero__info-text">
-              Open Hours: 9 AM - 6:30 PM | Sun: 11 AM - 5 PM
+              9 AM - 6:30 PM | Sun: 11 AM - 5 PM
             </p>
           </div>
 
           <div className="home-hero__actions">
             <a href="tel:+12538517563" className="home-hero__button">
-              Call Us Now
+              Call Us
             </a>
             <a href="/bookingchoice" className="home-hero__button">
               Book Now
