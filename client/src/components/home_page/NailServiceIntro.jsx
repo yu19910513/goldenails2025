@@ -1,25 +1,66 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./NailServiceIntro.css";
 
+/**
+ * @typedef {object} NailServiceIntroProps
+ * An empty object as this component currently accepts no props.
+ */
+
+/**
+ * Renders an introductory section for nail services, featuring a
+ * text description and an auto-cycling image carousel.
+ *
+ * The component implements an auto-play feature for the images,
+ * and uses IntersectionObserver to trigger fade-in animations
+ * when the component scrolls into view. Clicking the image advances it.
+ *
+ * @param {NailServiceIntroProps} props - Component props (none required).
+ * @returns {JSX.Element} The NailServiceIntro component.
+ */
 const NailServiceIntro = () => {
   const images = [
-    "images/nail_3.PNG", // First image
-    "images/nail_2.PNG", // Second image
-    "images/nail_1.PNG", // Third image
+    "images/intro_004.jpg",
+    "images/intro_002.jpg",
+    "images/intro_003.jpg",
+    "images/intro_001.jpg"
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const imageRef = useRef(null); // Reference for the image
-  const textRef = useRef(null); // Reference for the text section
-  const [isImageVisible, setIsImageVisible] = useState(false); // Track image visibility
-  const [isTextVisible, setIsTextVisible] = useState(false); // Track text visibility
+  const imageRef = useRef(null);
+  const textRef = useRef(null);
+  const [isImageVisible, setIsImageVisible] = useState(false);
+  const [isTextVisible, setIsTextVisible] = useState(false);
 
-  const handleImageClick = () => {
+  /**
+   * Advances the current image index by one, wrapping around to the start
+   * of the array if the end is reached.
+   *
+   * This function is used for both the auto-play timer and manual clicks.
+   */
+  const goToNextImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
 
-  // Set up the IntersectionObserver to detect when the image and text enter the viewport
+  /**
+   * Event handler for when the image section is clicked.
+   * Advances to the next image.
+   */
+  const handleImageClick = () => {
+    goToNextImage();
+  };
+
+  /**
+   * Hook to handle side effects:
+   * 1. Sets up an interval for auto-cycling the images every 5 seconds.
+   * 2. Initializes an IntersectionObserver to detect when the image and text
+   * elements enter the viewport, setting state for fade-in animations.
+   *
+   * Includes a cleanup function to clear both the interval and the observer
+   * when the component unmounts.
+   */
   useEffect(() => {
+    const intervalId = setInterval(goToNextImage, 5000);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -31,17 +72,18 @@ const NailServiceIntro = () => {
           }
         });
       },
-      { threshold: 0.4 } // Trigger when 50% of the element is visible
+      { threshold: 0.4 }
     );
 
     if (imageRef.current) observer.observe(imageRef.current);
     if (textRef.current) observer.observe(textRef.current);
 
     return () => {
+      clearInterval(intervalId);
       if (imageRef.current) observer.unobserve(imageRef.current);
       if (textRef.current) observer.unobserve(textRef.current);
     };
-  }, []);
+  }, [images.length]);
 
   return (
     <div className="nail-service-container">
