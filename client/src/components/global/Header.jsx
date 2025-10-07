@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./Header.css"; // Assuming you will update the CSS file to match
+import "./Header.css";
 import LeaveWarningModal from "../booking_page/LeaveWarningModal";
-import { isTokenValid } from '../../utils/helper';
+import { isTokenValid } from "../../utils/helper";
+import {
+  FaHome,
+  FaConciergeBell,
+  FaInfoCircle,
+  FaHistory,
+  FaPlusCircle,
+  FaThLarge,
+  FaSignOutAlt,
+  FaTimes, // For Cancel Booking icon
+} from "react-icons/fa";
 
 const Header = () => {
   const location = useLocation();
@@ -74,7 +84,6 @@ const Header = () => {
 
   return (
     <header className="site-header">
-      {/* ADDED: Background overlay */}
       <div className={`header-overlay ${isMenuOpen ? "header-overlay--open" : ""}`} onClick={toggleMenu}></div>
 
       <nav className="header-nav">
@@ -89,31 +98,32 @@ const Header = () => {
         </a>
 
         <ul className={`header-nav-list ${isMenuOpen && isMobile ? "header-nav-list--open" : ""}`}>
-          {/* ADDED: Logo placeholder for mobile menu */}
           <li className="header-logo-placeholder">
-            <img src="/images/full_logo.png" alt="Golden Nails Logo" />
+            Golden Nails
           </li>
+
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/" className={`header-nav-link ${isActive("/home") ? "header-nav-link--active" : ""}`}>
-              Home
+            <a href="/" className={`header-nav-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
+              <FaHome className="nav-icon" /> <span>Home</span>
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="/ourservices" className={`header-nav-link ${isActive("/ourservices") ? "header-nav-link--active" : ""}`}>
-              Services
+              <FaConciergeBell className="nav-icon" /> <span>Services</span>
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="/aboutus" className={`header-nav-link ${isActive("/aboutus") ? "header-nav-link--active" : ""}`}>
-              About Us
+              <FaInfoCircle className="nav-icon" /> <span>About Us</span>
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
             <a href="/appointmenthistory" className={`header-nav-link ${isActive("/appointmenthistory") ? "header-nav-link--active" : ""}`}>
-              My Visits
+              <FaHistory className="nav-icon" /> <span>My Visits</span>
             </a>
           </li>
-          <li>
+
+          <li className="header-nav-item--separator">
             <a
               href={isBookingActive ? "/" : "/bookingchoice"}
               className={`header-nav-link ${isActive("/bookingchoice") ? "header-nav-link--active" : ""}`}
@@ -124,20 +134,21 @@ const Header = () => {
                 }
               }}
             >
-              {isBookingActive ? "Cancel Booking" : "Book Now"}
+              {isBookingActive ? <FaTimes className="nav-icon" /> : <FaPlusCircle className="nav-icon" />}
+              <span>{isBookingActive ? "Cancel Booking" : "Book Now"}</span>
             </a>
           </li>
 
           {isLoggedIn && (
             <>
-              <li>
+              <li className="header-nav-item--separator"> {/* <<<< Added class name here */}
                 <a href="/dashboard" className={`header-nav-link ${isActive("/dashboard") ? "header-nav-link--active" : ""}`}>
-                  Dashboard
+                  <FaThLarge className="nav-icon" /> <span>Dashboard</span>
                 </a>
               </li>
               <li>
                 <a href="#" className="header-nav-link" onClick={handleLogout}>
-                  Log Out
+                  <FaSignOutAlt className="nav-icon" /> <span>Log Out</span>
                 </a>
               </li>
             </>

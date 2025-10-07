@@ -67,6 +67,11 @@
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
+/* Hide nav icons by default on desktop */
+.nav-icon {
+  display: none;
+}
+
 .header-nav-link:hover,
 .header-nav-link:focus {
   background-color: var(--color-hover-bg);
@@ -139,7 +144,6 @@
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Soft overlay when menu is open */
 .header-overlay {
   position: fixed;
   top: 0;
@@ -178,6 +182,7 @@
     max-width: 320px;
     height: 100vh;
     padding: 0;
+    gap: 0px;
     background-color: var(--color-white);
     z-index: 1002;
     transform: translateX(100%);
@@ -187,7 +192,6 @@
 
   .header-nav-list--open {
     transform: translateX(0);
-    /* Natural frosted white */
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -195,6 +199,7 @@
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.08);
   }
 
+  /* This provides the first line you wanted */
   .header-logo-placeholder {
     display: flex;
     align-items: center;
@@ -202,6 +207,12 @@
     padding: 20px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     background-color: var(--color-hover-bg);
+    font-family: "Didot", serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color-dark-charcoal);
   }
 
   .header-logo-placeholder img {
@@ -216,27 +227,39 @@
     transition: background-color 0.2s ease;
   }
 
-  .header-nav-list li:last-child .header-nav-link {
-    border-bottom: none;
+  /* Rule to create the separator lines */
+  .header-nav-item--separator {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    padding-top: 5px;
   }
 
-  /* Row hover effect on mobile */
   .header-nav-list li:hover {
     background-color: var(--color-hover-bg);
   }
 
   .header-nav-list .header-nav-link {
-    display: block;
-    padding: 15px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 22px;
     font-size: 1.1rem;
     color: var(--color-dark-text);
     text-decoration: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    /* No border-bottom on every link */
+  }
+
+  /* Show icons on mobile and style them */
+  .nav-icon {
+    display: inline-block;
+    font-size: 1.2rem;
+    color: var(--color-dark-charcoal);
+    flex-shrink: 0;
   }
 
   .header-nav-list .header-nav-link:hover,
   .header-nav-list .header-nav-link:focus {
-    background-color: var(--color-hover-bg);
+    background-color: transparent;
     color: var(--color-dark-text);
   }
 
@@ -245,21 +268,11 @@
     color: var(--color-gold);
   }
 
+  .header-nav-list .header-nav-link--active .nav-icon {
+    color: var(--color-gold);
+  }
+
   .header-logo-link {
     font-size: 1.4rem;
-  }
-}
-
-/* ========================================================================== */
-/* Animations */
-/* ========================================================================== */
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-
-  to {
-    transform: translateX(0);
   }
 }
