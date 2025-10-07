@@ -1,165 +1,278 @@
-/* Header Styles */
-.header {
-  background-color: #ffffff;
-  /* Light purple background */
-  color: rgb(0, 0, 0);
-  padding: 10px;
-  position: sticky;
-  /* Sticky header */
-  top: 0;
-  padding: 10px;
-  width: 100%;
-  z-index: 1000;
-  /* Ensure it stays on top of other content */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+/**
+ * @file Header.css
+ * @description Styles for the main site header and navigation components.
+ * Includes responsive design, frosted-glass mobile menu, and accessibility enhancements.
+ */
+
+/* ========================================================================== */
+/* Color Palette & Root Variables */
+/* ========================================================================== */
+
+:root {
+  --color-gold: #C0B283;
+  --color-dark-charcoal: #2d2d2d;
+  --color-light-text: #F5F5F5;
+  --color-dark-text: #000000;
+  --color-white: #ffffff;
+  --color-border-dark: #444;
+  --color-hover-bg: rgba(240, 236, 230, 0.6);
+  /* warm neutral hover */
 }
 
-nav {
+/* ========================================================================== */
+/* Base Header Styles */
+/* ========================================================================== */
+
+.site-header {
+  background-color: var(--color-white);
+  color: var(--color-dark-text);
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
 }
 
-/* Increase size and use a different font for Golden Nails */
-.nav-link {
-  color: rgb(0, 0, 0);
-  text-decoration: none;
-  padding: 10px;
-  font-size: 1rem;
-  font-family: 'serif', sans-serif;
-  /* Default font */
-}
+/* ========================================================================== */
+/* Navigation Links (Desktop) */
+/* ========================================================================== */
 
-/* Hover effect for nav links */
-.nav-link:hover,
-.active-link {
-  color: #000000;
-  /* Change color on hover or when active (light pink color) */
-}
-
-/* Custom style for the "Golden Nails" link */
-.nav-link.gold-nails {
-  font-size: 1.6rem;
-  /* Larger font size */
-  font-family: 'Didot', serif, 'Times New Roman', Times, serif;
-  /* Use a different font (you can choose another one from Google Fonts) */
-  font-weight: bold;
-  /* Bold font */
-  text-transform: uppercase;
-  /* Optional: make the text uppercase */
-  letter-spacing: 2px;
-  /* Optional: add some spacing between letters */
-}
-
-/* Hamburger Icon */
-.hamburger {
-  display: none;
-  /* Hide on large screens */
-  cursor: pointer;
-  position: absolute;
-  right: 10px;
-  /* Position hamburger on the right */
-  top: 10px;
-}
-
-.bar {
-  width: 25px;
-  height: 3px;
-  background-color: rgb(77, 75, 75);
-  margin: 5px 0;
-  transition: all 0.3s ease;
-  /* Add transition for smooth animation */
-}
-
-/* When the hamburger is clicked and the menu is open */
-.hamburger.open .bar:nth-child(1) {
-  transform: rotate(45deg);
-  position: absolute;
-  top: 0;
-}
-
-.hamburger.open .bar:nth-child(2) {
-  opacity: 0;
-  /* Hide the middle bar */
-}
-
-.hamburger.open .bar:nth-child(3) {
-  transform: rotate(-45deg);
-  position: absolute;
-  bottom: 0;
-}
-
-/* Navbar Links Styling */
-.nav-list {
+.header-nav-list {
   display: flex;
   gap: 20px;
-  justify-content: flex-start;
-  /* Links are aligned to the left by default */
+  margin: 0;
+  padding: 0;
 }
 
-.nav-list.open {
-  display: block;
-  /* Show on mobile when hamburger is clicked */
-}
-
-.nav-list li {
+.header-nav-list li {
   list-style: none;
 }
 
-.nav-list a {
+.header-nav-link {
+  color: var(--color-dark-text);
+  text-decoration: none;
   padding: 10px;
   font-size: 1rem;
-  color: rgb(0, 0, 0);
+  font-family: "serif", sans-serif;
+  border-radius: 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-/* Active link style: Bold when selected */
-.active-link {
+/* Hide nav icons by default on desktop */
+.nav-icon {
+  display: none;
+}
+
+.header-nav-link:hover,
+.header-nav-link:focus {
+  background-color: var(--color-hover-bg);
+  color: var(--color-dark-text);
+  text-decoration: none;
+  outline: none;
+}
+
+.header-nav-link:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.header-nav-link--active {
   font-weight: bold;
-  /* Make the text bold when active */
+  color: var(--color-dark-text);
 }
 
-/* Mobile Styles */
+/* ========================================================================== */
+/* Logo */
+/* ========================================================================== */
+
+.header-logo-link {
+  font-size: 1.6rem;
+  font-family: "Didot", serif, "Times New Roman", Times, serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-dark-text);
+  text-decoration: none;
+}
+
+.header-logo-placeholder {
+  display: none;
+}
+
+/* ========================================================================== */
+/* Hamburger Menu & Overlay */
+/* ========================================================================== */
+
+.header-hamburger {
+  display: none;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1001;
+  padding: 10px;
+}
+
+.header-bar {
+  width: 25px;
+  height: 3px;
+  background-color: rgb(77, 75, 75);
+  margin: 4px 0;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.header-hamburger--open .header-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.header-hamburger--open .header-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.header-hamburger--open .header-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.header-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.header-overlay--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ========================================================================== */
+/* Mobile Styles (≤768px) */
+/* ========================================================================== */
+
 @media (max-width: 768px) {
-
-  /* Show hamburger menu on smaller screens */
-  .hamburger {
+  .header-hamburger {
     display: block;
   }
 
-  .nav-list {
-    display: none;
-    /* Hide links initially */
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background-color: rgb(168, 168, 168);
-    /* Light purple background for mobile */
-    opacity: 88%;
-    padding: 10px;
+  .header-nav-list {
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 70%;
+    max-width: 320px;
+    height: 100vh;
+    padding: 0;
+    gap: 0px;
+    background-color: var(--color-white);
+    z-index: 1002;
+    transform: translateX(100%);
+    transition: transform 0.35s ease-in-out;
+    overflow-y: auto;
   }
 
-  .nav-list a {
-    padding: 10px;
-    font-size: 1rem;
-    color: white;
+  .header-nav-list--open {
+    transform: translateX(0);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.08);
   }
 
-  .nav-list.open {
-    display: block;
-    /* Open menu when hamburger is clicked */
+  /* This provides the first line you wanted */
+  .header-logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: var(--color-hover-bg);
+    font-family: "Didot", serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color-dark-charcoal);
   }
 
-  .nav-list li {
+  .header-logo-placeholder img {
+    max-width: 100%;
+    max-height: 100px;
+    object-fit: contain;
+  }
+
+  .header-nav-list li {
     width: 100%;
     text-align: left;
-    padding: 10px;
+    transition: background-color 0.2s ease;
   }
 
-  /* Adjust links for smaller screens */
-  .nav-link {
-    padding: 15px;
+  /* Rule to create the separator lines */
+  .header-nav-item--separator {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    padding-top: 5px;
+  }
+
+  .header-nav-list li:hover {
+    background-color: var(--color-hover-bg);
+  }
+
+  .header-nav-list .header-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 22px;
+    font-size: 1.1rem;
+    color: var(--color-dark-text);
+    text-decoration: none;
+    /* No border-bottom on every link */
+  }
+
+  /* Show icons on mobile and style them */
+  .nav-icon {
+    display: inline-block;
     font-size: 1.2rem;
+    color: var(--color-dark-charcoal);
+    flex-shrink: 0;
+  }
+
+  .header-nav-list .header-nav-link:hover,
+  .header-nav-list .header-nav-link:focus {
+    background-color: transparent;
+    color: var(--color-dark-text);
+  }
+
+  .header-nav-list .header-nav-link--active {
+    font-weight: bold;
+    color: var(--color-gold);
+  }
+
+  .header-nav-list .header-nav-link--active .nav-icon {
+    color: var(--color-gold);
+  }
+
+  .header-logo-link {
+    font-size: 1.4rem;
   }
 }

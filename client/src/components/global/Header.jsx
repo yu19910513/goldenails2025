@@ -2,7 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Header.css";
 import LeaveWarningModal from "../booking_page/LeaveWarningModal";
-import { isTokenValid } from '../../utils/helper';
+import { isTokenValid } from "../../utils/helper";
+import {
+  FaHome,
+  FaConciergeBell,
+  FaInfoCircle,
+  FaHistory,
+  FaPlusCircle,
+  FaThLarge,
+  FaSignOutAlt,
+  FaTimes, // For Cancel Booking icon
+} from "react-icons/fa";
 
 const Header = () => {
   const location = useLocation();
@@ -73,38 +83,50 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
-      <nav>
-        <div className={`hamburger ${isMenuOpen ? "open" : ""}`} onClick={toggleMenu}>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
+    <header className="site-header">
+      <div className={`header-overlay ${isMenuOpen ? "header-overlay--open" : ""}`} onClick={toggleMenu}></div>
+
+      <nav className="header-nav">
+        <div className={`header-hamburger ${isMenuOpen ? "header-hamburger--open" : ""}`} onClick={toggleMenu}>
+          <div className="header-bar"></div>
+          <div className="header-bar"></div>
+          <div className="header-bar"></div>
         </div>
 
-        <a href="/" className={`nav-link gold-nails ${isActive("/") ? "active-link" : ""}`}>
+        <a href="/" className={`header-nav-link header-logo-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
           Golden Nails
         </a>
 
-        <ul className={`nav-list ${isMenuOpen && isMobile ? "open" : ""}`}>
+        <ul className={`header-nav-list ${isMenuOpen && isMobile ? "header-nav-list--open" : ""}`}>
+          <li className="header-logo-placeholder">
+            Golden Nails
+          </li>
+
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/ourservices" className={`nav-link ${isActive("/ourservices") ? "active-link" : ""}`}>
-              Our Services
+            <a href="/" className={`header-nav-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
+              <FaHome className="nav-icon" /> <span>Home</span>
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/aboutus" className={`nav-link ${isActive("/aboutus") ? "active-link" : ""}`}>
-              About Us
+            <a href="/ourservices" className={`header-nav-link ${isActive("/ourservices") ? "header-nav-link--active" : ""}`}>
+              <FaConciergeBell className="nav-icon" /> <span>Services</span>
             </a>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/appointmenthistory" className={`nav-link ${isActive("/appointmenthistory") ? "active-link" : ""}`}>
-              Appointment History
+            <a href="/aboutus" className={`header-nav-link ${isActive("/aboutus") ? "header-nav-link--active" : ""}`}>
+              <FaInfoCircle className="nav-icon" /> <span>About Us</span>
             </a>
           </li>
-          <li>
+          <li style={{ display: isBookingActive ? "none" : "block" }}>
+            <a href="/appointmenthistory" className={`header-nav-link ${isActive("/appointmenthistory") ? "header-nav-link--active" : ""}`}>
+              <FaHistory className="nav-icon" /> <span>My Visits</span>
+            </a>
+          </li>
+
+          <li className="header-nav-item--separator">
             <a
               href={isBookingActive ? "/" : "/bookingchoice"}
-              className={`nav-link ${isBookingActive ? "active-link" : ""}`}
+              className={`header-nav-link ${isActive("/bookingchoice") ? "header-nav-link--active" : ""}`}
               onClick={(e) => {
                 if (isBookingActive) {
                   e.preventDefault();
@@ -112,20 +134,21 @@ const Header = () => {
                 }
               }}
             >
-              {isBookingActive ? "Cancel Booking" : "Book Now"}
+              {isBookingActive ? <FaTimes className="nav-icon" /> : <FaPlusCircle className="nav-icon" />}
+              <span>{isBookingActive ? "Cancel Booking" : "Book Now"}</span>
             </a>
           </li>
 
           {isLoggedIn && (
             <>
-              <li>
-                <a href="/dashboard" className={`nav-link ${isActive("/dashboard") ? "active-link" : ""}`}>
-                  Dashboard
+              <li className="header-nav-item--separator"> {/* <<<< Added class name here */}
+                <a href="/dashboard" className={`header-nav-link ${isActive("/dashboard") ? "header-nav-link--active" : ""}`}>
+                  <FaThLarge className="nav-icon" /> <span>Dashboard</span>
                 </a>
               </li>
               <li>
-                <a href="#" className="nav-link" onClick={handleLogout}>
-                  Log Out
+                <a href="#" className="header-nav-link" onClick={handleLogout}>
+                  <FaSignOutAlt className="nav-icon" /> <span>Log Out</span>
                 </a>
               </li>
             </>
