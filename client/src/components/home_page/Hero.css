@@ -1,4 +1,14 @@
-/* Main container for the hero section */
+/**
+ * =============================================================================
+ * HOME PAGE HERO SECTION
+ *
+ * This stylesheet defines the styles for the main hero component on the homepage.
+ * It includes a full-screen background, centered content, and responsive
+ * adjustments for both large and small screens.
+ * =============================================================================
+ */
+
+/* --- Main Hero Container --- */
 .home-hero {
     position: relative;
     font-family: serif;
@@ -15,13 +25,14 @@
     justify-content: center;
     text-align: center;
     padding: 1rem;
-    /* Adjusted padding for better mobile view */
     box-sizing: border-box;
     overflow: hidden;
-    /* Prevents blur from spilling out */
+    /* Prevents child element effects from spilling out */
 }
 
-/* This pseudo-element creates the dark overlay on mobile */
+/* --- Background Overlay --- */
+/* Creates a color overlay on top of the background image.
+   It is transparent by default and gets a color on mobile viewports. */
 .home-hero::before {
     content: '';
     position: absolute;
@@ -30,31 +41,30 @@
     width: 100%;
     height: 100%;
     background-color: transparent;
-    /* No overlay on desktop by default */
     z-index: 1;
     transition: background-color 0.3s ease;
 }
 
-/* Wrapper for centering content */
+/* --- Content Layout --- */
 .home-hero__content-wrapper {
     width: 100%;
     display: flex;
     justify-content: center;
     position: relative;
-    /* Make sure content is above the overlay */
     z-index: 2;
+    /* Ensures content appears above the overlay */
 }
 
-/* The main content block */
 .home-hero__content {
     max-width: 56rem;
     padding: 2rem;
     border-radius: 0.75rem;
-    /* Slightly more rounded */
     animation: fadeIn 1s ease-in-out;
     transition: background-color 0.3s ease, border 0.3s ease;
 }
 
+/* --- Announcement Bar --- */
+/* Absolutely positioned bar at the top of the hero section */
 .home-hero__announcement-bar {
     width: 100%;
     position: absolute;
@@ -63,6 +73,7 @@
     z-index: 10;
 }
 
+/* --- Typography --- */
 .home-hero__title {
     font-family: "Didot", serif, "Times New Roman", Times, serif;
     line-height: 1.2;
@@ -92,6 +103,7 @@
     margin-bottom: 0.5rem;
 }
 
+/* --- Action Buttons --- */
 .home-hero__actions {
     display: flex;
     justify-content: center;
@@ -123,86 +135,108 @@
     background-color: #A44235;
     color: white;
     transform: scale(1.05);
-    /* Add a slight zoom on hover */
 }
 
-/* Large screen adjustments */
+/**
+ * =============================================================================
+ * RESPONSIVE STYLES
+ * =============================================================================
+ */
+
+/* --- Large Screens (Desktop) --- */
 @media (min-width: 1024px) {
     .home-hero__content-wrapper {
         justify-content: flex-start;
+        /* Aligns content to the left */
     }
 
     .home-hero__content {
         margin-right: 5rem;
         margin-left: auto;
+        /* Pushes content block to the right side */
     }
 }
 
-/* === ENHANCED MOBILE STYLES (Updated for new background) === */
-/* Media query to ensure these styles only apply to screens 768px or smaller */
+/* --- Small Screens (Tablet and Mobile) --- */
 @media (max-width: 768px) {
 
-    /* 1. Update the background image */
+    /* Updates the background image for a better mobile experience */
     .home-hero {
-        /* Set the new background image for mobile devices */
         background-image: url('/images/hero_green.jpg');
     }
 
-    /* 2. Adjust the overlay for better color harmony */
+    /* Adds a semi-transparent dark overlay to improve text readability */
     .home-hero::before {
-        /* A semi-transparent warm, dark brown overlay complements the image
-           better than a plain black one, preventing colors from looking muddy. */
         background-color: rgba(60, 45, 35, 0.35);
     }
 
-    /* 3. Refine the "Frosted Glass" Card for a more elegant look */
+    /* Creates a "frosted glass" effect for the content card */
     .home-hero__content {
-        /* Increased the blur for a softer, more premium glass effect */
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        /* For Safari support */
-
-        /* Using a lighter, more transparent base for the card */
+        /* Safari support */
         background-color: rgba(249, 246, 238, 0.1);
-
-        /* A delicate, brighter border to catch the light */
         border: 1px solid rgba(255, 255, 255, 0.2);
         transition: background-color 0.4s ease, border-color 0.4s ease;
     }
 
-    /* 4. Soften Text Shadow for better readability and elegance */
+    /* Adjusts text color and adds shadow for better contrast */
     .home-hero__title,
     .home-hero__subtext,
     .home-hero__info {
-        /* The creamy, off-white from the nails feels warmer than pure white. */
         color: #F9F6EE;
-
-        /* A more diffuse and subtle shadow provides depth without feeling heavy */
         text-shadow: 0 2px 10px rgba(45, 30, 20, 0.6);
     }
 
-    /* 5. Create an elegant "Ghost Button" design with improved readability */
-    .home-hero__button {
-        /* Transparent background for a lighter, more sophisticated feel */
-        background-color: transparent;
-        /* A softer, caramel-tan color pulled from the nail art */
-        color: #D4AF90;
+    /* --- Mobile Button Base Styles --- */
+    .home-hero__button,
+    .home-hero__button:visited {
+        display: inline-block;
+        padding: 12px 24px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        border-radius: 8px;
         border: 2px solid #D4AF90;
-        font-weight: 600; /* Bolder text for clarity on a transparent background */
-        /* Adding a subtle text shadow to improve readability against the background */
-        text-shadow: 0 1px 4px rgba(45, 30, 20, 0.7);
-        /* Smoother transition for a more graceful interaction */
-        transition: background-color 0.4s ease, color 0.4s ease, transform 0.3s ease;
+        transition: background-color 0.4s ease, color 0.4s ease, transform 0.3s ease, filter 0.3s ease;
     }
 
-    .home-hero__button:hover {
-        /* The button fills with color on hover for a satisfying feedback */
+    /* --- Secondary Button ("Call Us") --- */
+    /* Default outlined state */
+    .home-hero__button--secondary {
+        background-color: transparent;
+        color: #D4AF90;
+        text-shadow: 0 1px 4px rgba(45, 30, 20, 0.7);
+    }
+
+    /* Hover/focus state fills with color */
+    .home-hero__button--secondary:hover,
+    .home-hero__button--secondary:focus,
+    .home-hero__button--secondary:active {
         background-color: #D4AF90;
-        border-color: #D4AF90;
-        /* The text inverts to the deep brown for a beautiful contrast */
         color: #4E342E;
-        transform: scale(1.03); /* A more subtle zoom effect */
-        text-shadow: none; /* Remove shadow on hover as it's no longer needed */
+        text-shadow: none;
+        transform: scale(1.03);
+        outline: none;
+    }
+
+    /* --- Primary Button ("Book Now") --- */
+    /* Default solid state */
+    .home-hero__button--primary {
+        background-color: #D4AF90;
+        color: #4E342E;
+    }
+
+    /* Hover/focus state with a subtle darken effect */
+    .home-hero__button--primary:hover,
+    .home-hero__button--primary:focus,
+    .home-hero__button--primary:active {
+        transform: scale(1.03);
+        filter: brightness(0.95);
+        outline: none;
+        background-color: #D4AF90;
+        /* Re-declare to override browser defaults */
+        color: #4E342E;
     }
 }
-

@@ -67,10 +67,10 @@ const Hero = () => {
           </div>
 
           <div className="home-hero__actions">
-            <a href="tel:+12538517563" className="home-hero__button">
+            <a href="tel:+12538517563" className="home-hero__button home-hero__button--secondary">
               Call Us
             </a>
-            <a href="/bookingchoice" className="home-hero__button">
+            <a href="/bookingchoice" className="home-hero__button home-hero__button--primary">
               Book Now
             </a>
           </div>
