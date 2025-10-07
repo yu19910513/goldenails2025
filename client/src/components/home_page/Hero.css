@@ -145,7 +145,7 @@
     /* 1. Update the background image */
     .home-hero {
         /* Set the new background image for mobile devices */
-        background-image: url('images/hero_green.jpg');
+        background-image: url('/images/hero_green.jpg');
     }
 
     /* 2. Adjust the overlay for better color harmony */
