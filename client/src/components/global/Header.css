@@ -1,13 +1,12 @@
 /**
  * @file Header.css
  * @description Styles for the main site header and navigation components.
- * Includes responsive design, glassmorphism effect for mobile,
- * and accessibility enhancements.
+ * Includes responsive design, frosted-glass mobile menu, and accessibility enhancements.
  */
 
-/* ==========================================================================
-   Color Palette & Root Variables
-   ========================================================================== */
+/* ========================================================================== */
+/* Color Palette & Root Variables */
+/* ========================================================================== */
 
 :root {
   --color-gold: #C0B283;
@@ -16,14 +15,15 @@
   --color-dark-text: #000000;
   --color-white: #ffffff;
   --color-border-dark: #444;
+  --color-hover-bg: rgba(240, 236, 230, 0.6);
+  /* warm neutral hover */
 }
 
-/* ==========================================================================
-   Base Header Styles
-   ========================================================================== */
+/* ========================================================================== */
+/* Base Header Styles */
+/* ========================================================================== */
 
 .site-header {
-  /* Main container for the fixed header bar */
   background-color: var(--color-white);
   color: var(--color-dark-text);
   padding: 10px;
@@ -32,25 +32,23 @@
   width: 100%;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .header-nav {
-  /* Container for logo, links, and hamburger */
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
 }
 
-/* ==========================================================================
-   Navigation Links and List (Desktop/Default)
-   ========================================================================== */
+/* ========================================================================== */
+/* Navigation Links (Desktop) */
+/* ========================================================================== */
 
 .header-nav-list {
-  /* Desktop navigation list */
   display: flex;
   gap: 20px;
-  justify-content: flex-start;
   margin: 0;
   padding: 0;
 }
@@ -60,46 +58,40 @@
 }
 
 .header-nav-link {
-  /* Default link styling */
   color: var(--color-dark-text);
   text-decoration: none;
   padding: 10px;
   font-size: 1rem;
-  font-family: 'serif', sans-serif;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
-  display: inline-block;
+  font-family: "serif", sans-serif;
   border-radius: 4px;
-  /* Added for focus outline */
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-/* Desktop Hover & Focus Effects */
 .header-nav-link:hover,
 .header-nav-link:focus {
+  background-color: var(--color-hover-bg);
   color: var(--color-dark-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 1px;
+  text-decoration: none;
   outline: none;
-  /* Remove default browser outline */
 }
 
-/* Specific focus style for keyboard navigation */
 .header-nav-link:focus-visible {
   outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }
 
-
-/* Active State: Keep bold, keep color black for non-booking links */
 .header-nav-link--active {
   font-weight: bold;
   color: var(--color-dark-text);
 }
 
+/* ========================================================================== */
+/* Logo */
+/* ========================================================================== */
+
 .header-logo-link {
-  /* Specific styles for the "Golden Nails" logo text */
   font-size: 1.6rem;
-  font-family: 'Didot', serif, 'Times New Roman', Times, serif;
+  font-family: "Didot", serif, "Times New Roman", Times, serif;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -107,18 +99,15 @@
   text-decoration: none;
 }
 
-/* Hide the mobile logo placeholder on desktop */
 .header-logo-placeholder {
   display: none;
 }
 
-
-/* ==========================================================================
-   Hamburger Menu and Overlay
-   ========================================================================== */
+/* ========================================================================== */
+/* Hamburger Menu & Overlay */
+/* ========================================================================== */
 
 .header-hamburger {
-  /* Hamburger icon container (hidden by default on desktop) */
   display: none;
   cursor: pointer;
   position: absolute;
@@ -127,11 +116,9 @@
   transform: translateY(-50%);
   z-index: 1001;
   padding: 10px;
-  /* Increase clickable area */
 }
 
 .header-bar {
-  /* Individual bar within the hamburger icon */
   width: 25px;
   height: 3px;
   background-color: rgb(77, 75, 75);
@@ -140,7 +127,6 @@
   display: block;
 }
 
-/* Transform the icon to an 'X' when open */
 .header-hamburger--open .header-bar:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
@@ -153,14 +139,16 @@
   transform: translateY(-7px) rotate(-45deg);
 }
 
+/* Soft overlay when menu is open */
 .header-overlay {
-  /* Background screen dimming effect for mobile menu */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 999;
   opacity: 0;
   pointer-events: none;
@@ -172,105 +160,107 @@
   pointer-events: auto;
 }
 
-/* ==========================================================================
-   Mobile Styles (Max Width 768px)
-   ========================================================================== */
+/* ========================================================================== */
+/* Mobile Styles (≤768px) */
+/* ========================================================================== */
 
 @media (max-width: 768px) {
-
-  /* Show hamburger on mobile */
   .header-hamburger {
     display: block;
   }
 
   .header-nav-list {
-    /* Mobile menu styles */
-    display: flex;
     flex-direction: column;
     position: fixed;
     top: 0;
-    left: 0;
+    right: 0;
     width: 70%;
-    max-width: 300px;
+    max-width: 320px;
     height: 100vh;
     padding: 0;
-    background-color: var(--color-dark-charcoal);
-    /* Solid color fallback */
+    background-color: var(--color-white);
     z-index: 1002;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+    transform: translateX(100%);
+    transition: transform 0.35s ease-in-out;
     overflow-y: auto;
   }
 
   .header-nav-list--open {
-    /* Show the mobile menu when open */
     transform: translateX(0);
-
-    /* --- LIQUID GLASS EFFECT --- */
-    background: rgba(45, 45, 45, 0.75);
-    /* Semi-transparent tint */
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(18px);
-    /* For Safari */
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    /* Natural frosted white */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.08);
+    animation: slideIn 0.4s ease forwards;
   }
 
   .header-logo-placeholder {
-    /* Show and style the logo inside the mobile menu */
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    height: auto;
-    border-bottom: 1px solid var(--color-border-dark);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: var(--color-hover-bg);
   }
 
   .header-logo-placeholder img {
-    /* Style the actual logo image */
     max-width: 100%;
     max-height: 100px;
     object-fit: contain;
   }
 
   .header-nav-list li {
-    /* Individual list item styling */
     width: 100%;
     text-align: left;
-    border-bottom: 1px solid var(--color-border-dark);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s ease;
   }
 
   .header-nav-list li:last-child {
     border-bottom: none;
   }
 
+  /* Row hover effect on mobile */
+  .header-nav-list li:hover {
+    background-color: var(--color-hover-bg);
+  }
+
   .header-nav-list .header-nav-link {
-    /* Mobile link styling */
-    padding: 15px 20px;
-    font-size: 1.1rem;
-    width: 100%;
     display: block;
-    color: var(--color-light-text);
+    padding: 15px 22px;
+    font-size: 1.1rem;
+    color: var(--color-dark-text);
     text-decoration: none;
   }
 
-  /* Mobile Hover & Focus Effects */
   .header-nav-list .header-nav-link:hover,
   .header-nav-list .header-nav-link:focus {
-    background-color: var(--color-border-dark);
-    color: var(--color-white);
-    text-decoration: none;
-    outline: none;
+    background-color: var(--color-hover-bg);
+    color: var(--color-dark-text);
   }
 
-  /* Active link style in mobile menu */
   .header-nav-list .header-nav-link--active {
-    background-color: var(--color-border-dark);
     font-weight: bold;
     color: var(--color-gold);
   }
 
   .header-logo-link {
-    /* Adjust logo size on mobile */
     font-size: 1.4rem;
+  }
+}
+
+/* ========================================================================== */
+/* Animations */
+/* ========================================================================== */
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
   }
 }
