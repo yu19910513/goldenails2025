@@ -93,9 +93,18 @@ const Header = () => {
           <div className="header-bar"></div>
         </div>
 
-        <a href="/" className={`header-nav-link header-logo-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
-          Golden Nails
-        </a>
+        {/* --- START: MODIFIED BRANDING SECTION --- */}
+        <div className="header-brand-group">
+          <a href="/" className={`header-nav-link header-logo-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
+            Golden Nails
+          </a>
+          <img
+            src="/images/wbe-halloween-pumpkins.gif" // 👈 IMPORTANT: Update this path to your GIF
+            alt="Site Animation"
+            className="mobile-header-gif"
+          />
+        </div>
+        {/* --- END: MODIFIED BRANDING SECTION --- */}
 
         <ul className={`header-nav-list ${isMenuOpen && isMobile ? "header-nav-list--open" : ""}`}>
           <li className="header-logo-placeholder">
@@ -141,7 +150,7 @@ const Header = () => {
 
           {isLoggedIn && (
             <>
-              <li className="header-nav-item--separator"> {/* <<<< Added class name here */}
+              <li className="header-nav-item--separator">
                 <a href="/dashboard" className={`header-nav-link ${isActive("/dashboard") ? "header-nav-link--active" : ""}`}>
                   <FaThLarge className="nav-icon" /> <span>Dashboard</span>
                 </a>

@@ -91,8 +91,23 @@
 }
 
 /* ========================================================================== */
-/* Logo */
+/* Logo & GIF */
 /* ========================================================================== */
+
+/* >> ADDED THIS << 
+   This new container will group your logo and the mobile GIF. */
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  /* Adjusts space between logo and GIF */
+}
+
+/* >> ADDED THIS << 
+   This hides the GIF by default on desktop screens. */
+.mobile-header-gif {
+  display: none;
+}
 
 .header-logo-link {
   font-size: 1.6rem;
@@ -173,6 +188,16 @@
     display: block;
   }
 
+  /* >> ADDED THIS << 
+     This shows the GIF on mobile and sets its size. The height is set
+     to prevent it from stretching the header. */
+  .mobile-header-gif {
+    display: block;
+    height: 35px;
+    /* Adjust this value to fit your GIF */
+    width: auto;
+  }
+
   .header-nav-list {
     flex-direction: column;
     position: fixed;
@@ -199,7 +224,6 @@
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.08);
   }
 
-  /* This provides the first line you wanted */
   .header-logo-placeholder {
     display: flex;
     align-items: center;
@@ -227,7 +251,6 @@
     transition: background-color 0.2s ease;
   }
 
-  /* Rule to create the separator lines */
   .header-nav-item--separator {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     margin-top: 5px;
@@ -246,10 +269,8 @@
     font-size: 1.1rem;
     color: var(--color-dark-text);
     text-decoration: none;
-    /* No border-bottom on every link */
   }
 
-  /* Show icons on mobile and style them */
   .nav-icon {
     display: inline-block;
     font-size: 1.2rem;
