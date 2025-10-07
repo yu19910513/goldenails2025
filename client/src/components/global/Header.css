@@ -193,7 +193,6 @@
     -webkit-backdrop-filter: blur(12px);
     border-left: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.08);
-    animation: slideIn 0.4s ease forwards;
   }
 
   .header-logo-placeholder {
@@ -214,11 +213,10 @@
   .header-nav-list li {
     width: 100%;
     text-align: left;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     transition: background-color 0.2s ease;
   }
 
-  .header-nav-list li:last-child {
+  .header-nav-list li:last-child .header-nav-link {
     border-bottom: none;
   }
 
@@ -233,6 +231,7 @@
     font-size: 1.1rem;
     color: var(--color-dark-text);
     text-decoration: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .header-nav-list .header-nav-link:hover,
