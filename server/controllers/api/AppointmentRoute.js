@@ -339,7 +339,7 @@ router.put("/update_note", async (req, res) => {
 router.post("/", async (req, res) => {
   const { customer_id, date, start_service_time, technician_id, service_ids } = req.body;
   console.log(req.body);
-  
+
   try {
     // Validate date and start_service_time
     if (!date || !start_service_time) {
@@ -583,6 +583,9 @@ router.get("/find_alternative_techs", async (req, res) => {
     }
 
     const listed_technicians = await Technician.findAll({
+      where: {
+        status: true, // Only include records where status is true
+      },
       attributes: ["id", "name", "description", "unavailability"]
     });
 
