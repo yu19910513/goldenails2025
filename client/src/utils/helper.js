@@ -128,37 +128,46 @@ const calculateTotalAmount = (selectedServices) => {
 }
 
 /**
- * Calculates available time slots for a technician on a given date, considering
- * appointments, service durations, technician unavailability, business hours, and optional buffer time.
+ * Calculates all available appointment time slots for a technician on a given date.
  *
- * @param {Array<Object>} appointments - An array of existing appointments for the technician.
- * @param {Object<string, Array<{ time: number }>>} selectedServices 
- *   An object where each key is a service category ID, and the value is an array of service objects.
- *   Each service object must include a `time` field representing its duration in minutes.
- * @param {string} selectedDate - The selected date in `YYYY-MM-DD` format.
- * @param {{ start: number, end: number }} businessHours - Object defining start and end business hours (24-hour format).
- * @param {{ name: string, unavailability: string }} technician - The technician object. `unavailability` can be a comma-separated string of weekday indices (0–6).
- * @param {number} [bufferTimeHours=0] - Optional buffer time (in hours) that restricts today's bookings before the buffer window.
+ * The function considers:
+ * - Technician's existing appointments (occupied slots)
+ * - Weekly unavailability (0=Sunday, 6=Saturday)
+ * - Long-term vacation ranges
+ * - Business hours
+ * - Optional buffer time from the current time
  *
- * @returns {Array<Date>} - Array of available slot start times as Date objects.
+ * @param {Array<Object>} appointments - List of existing appointments. Each appointment should have:
+ *   @property {string} date - Appointment date in ISO format ("YYYY-MM-DD").
+ *   @property {string} start_service_time - Appointment start time ("HH:mm").
+ *   @property {Array<Object>} Services - Array of services included in the appointment.
+ *     Each service should have:
+ *       @property {number} time - Duration of the service in minutes.
+ * @param {Object|Array} selectedServices - Services selected for the new appointment. Can be an object or array.
+ * @param {string} selectedDate - Target date to calculate availability in ISO format ("YYYY-MM-DD").
+ * @param {Object} businessHours - Business hours for the day.
+ *   @property {number} start - Opening hour (0–23).
+ *   @property {number} end - Closing hour (0–23).
+ * @param {Object} technician - Technician object containing:
+ *   @property {string} unavailability - Comma-separated weekdays (0=Sunday, 6=Saturday) when the technician is unavailable.
+ *   @property {Array<Object>} [vacation_ranges] - Optional array of long-term day-off ranges.
+ *     Each range object should have:
+ *       @property {string} start - Start date of the vacation ("YYYY-MM-DD").
+ *       @property {string} end - End date of the vacation ("YYYY-MM-DD").
+ * @param {number} [bufferTimeHours=0] - Optional buffer time in hours; slots earlier than `current time + buffer` are excluded.
  *
- * @throws {Error} - May throw if service data is malformed or if dates are invalid.
+ * @returns {Array<Date>} Array of available slot start times as JavaScript Date objects.
  *
  * @example
  * const slots = calculateAvailableSlots(
- *   [{ date: "2025-03-01", start_service_time: "10:00", Services: [{ time: 60 }] }],
- *   {
- *     "1": [{ time: 30 }, { time: 60 }],
- *     "2": [{ time: 45 }]
- *   },
- *   "2025-03-02",
+ *   appointments,
+ *   selectedServices,
+ *   "2025-10-11",
  *   { start: 9, end: 17 },
- *   { name: "Tracy", unavailability: "0,6" },
+ *   technician,
  *   2
  * );
- * // => [Date, Date, ...]
  */
-
 const calculateAvailableSlots = (
   appointments,
   selectedServices,
@@ -169,21 +178,17 @@ const calculateAvailableSlots = (
 ) => {
   const occupiedSlots = [];
 
-  const unavailabilityRanges = {
-    // Lisa: { start: "2025-02-21", end: "2025-03-15" },
-    Tracy: { start: "2025-09-29", end: "2025-10-16" }
-  };
-
-  const unavailableRange = unavailabilityRanges[technician.name];
-  if (unavailableRange) {
-    const unavailableStart = new Date(unavailableRange.start);
-    const unavailableEnd = new Date(unavailableRange.end);
-
+  if (Array.isArray(technician.vacation_ranges)) {
     const selectedDateObj = new Date(selectedDate);
-    if (selectedDateObj >= unavailableStart && selectedDateObj <= unavailableEnd) {
-      return []; // Return no slots if selected date is in the technician's unavailability range
-    }
+    const onVacation = technician.vacation_ranges.some(({ start, end }) => {
+      if (!start || !end) return false;
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      return selectedDateObj >= startDate && selectedDateObj <= endDate;
+    });
+    if (onVacation) return [];
   }
+
   // Parse the technician's unavailability into a set of unavailable weekdays (0=Sunday, 6=Saturday)
   const unavailableDays = (technician.unavailability || "")
     .split(",")
