@@ -34,7 +34,7 @@ const assignTechnicians = async (appointmentTechMap, appointments, date) => {
 
   const backtrack = async (idx, current, usedTechs) => {
     if (idx === appointmentTechMap.length) {
-      const slots = await getCommonAvailableSlots(current, appointments, date, schedulesMap);
+      const slots = getCommonAvailableSlots(current, appointments, date, schedulesMap);
       const usesNoPreference = current.some(t => t.name === "No Preference");
       if (slots.length > 0) {
         if (!usesNoPreference) {

@@ -59,7 +59,7 @@ const TechnicianSelection = ({
   const handleSelectTechnician = (technician) => {
     setSelectedTechnician((prev) =>
       prev?.id === technician.id ? null : {
-        id: technician.id, name: technician.name, unavailability: technician.unavailability
+        id: technician.id, name: technician.name, unavailability: technician.unavailability, vacation_ranges: technician.vacation_ranges
       }
     );
   };
