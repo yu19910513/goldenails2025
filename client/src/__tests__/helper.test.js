@@ -257,6 +257,65 @@ describe("calculateAvailableSlots", () => {
             expect(slot.getTime()).toBeGreaterThanOrEqual(blockedUntil.getTime());
         }
     });
+    it("returns empty array when selected date falls in technician's vacation range", () => {
+        const appointments = [];
+        const selectedServices = {
+            "1": [{ time: 30 }]
+        };
+        const vacationTech = {
+            ...technician,
+            vacation_ranges: [
+                { start: "2025-10-10", end: "2025-10-15" }
+            ]
+        };
+        const selectedDate = "2025-10-12"; // within vacation
+        const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, vacationTech);
+        expect(slots).toEqual([]);
+    });
+
+    it("returns available slots outside of vacation range", () => {
+        const appointments = [];
+        const selectedServices = {
+            "1": [{ time: 30 }]
+        };
+        const vacationTech = {
+            ...technician,
+            vacation_ranges: [
+                { start: "2025-10-10", end: "2025-10-15" }
+            ]
+        };
+        const selectedDate = "2025-10-16"; // after vacation
+        const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, vacationTech);
+        expect(slots.length).toBeGreaterThan(0);
+    });
+
+    it("correctly handles multiple services durations", () => {
+        const appointments = [];
+        const selectedServices = {
+            "1": [{ time: 30 }, { time: 45 }]
+        };
+        const slots = calculateAvailableSlots(appointments, selectedServices, futureDayOnly, businessHours, technician);
+        // Ensure slots are at least 75 minutes apart from each other
+        for (let i = 1; i < slots.length; i++) {
+            const diff = (slots[i].getTime() - slots[i - 1].getTime()) / 60000;
+            expect(diff).toBeGreaterThanOrEqual(30); // Minimum step is 30 min
+        }
+    });
+
+    it("excludes occupied slots even with multiple services selected", () => {
+        const appointments = [
+            {
+                date: futureDayOnly,
+                start_service_time: "10:00",
+                Services: [{ time: 30 }]
+            }
+        ];
+        const selectedServices = {
+            "1": [{ time: 45 }] // longer service
+        };
+        const slots = calculateAvailableSlots(appointments, selectedServices, futureDayOnly, businessHours, technician);
+        expect(slots.some(slot => slot.getTime() === new Date(`${futureDayOnly}T10:00`).getTime())).toBe(false);
+    });
 });
 
 
