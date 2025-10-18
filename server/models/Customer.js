@@ -36,9 +36,9 @@ Customer.init(
       allowNull: true,
     },
     admin_privilege: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: false,
+      defaultValue: 0,
     },
   },
   {
