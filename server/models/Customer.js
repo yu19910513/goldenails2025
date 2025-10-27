@@ -35,6 +35,12 @@ Customer.init(
       type: DataTypes.STRING(6), // Ensures it stores a 6-digit passcode
       allowNull: true,
     },
+    optInSms: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'optInSms',
+    },
     admin_privilege: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
