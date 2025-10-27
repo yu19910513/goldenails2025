@@ -30,6 +30,7 @@ import {
     buildNotificationData,
     formatTimeSlot
 } from "../utils/helper";
+import { addDaysToDate } from "./utils"
 
 
 // ----------------------------------------------------------------------------------
@@ -275,17 +276,21 @@ describe("calculateAvailableSlots", () => {
 
     it("returns available slots outside of vacation range", () => {
         const appointments = [];
+        const skipBusinessHours = {
+            start: 0,
+            end: 24
+        };
         const selectedServices = {
             "1": [{ time: 30 }]
         };
         const vacationTech = {
             ...technician,
             vacation_ranges: [
-                { start: "2025-10-10", end: "2025-10-15" }
+                { start: futureDayOnly, end: addDaysToDate(futureDayOnly, 7) }
             ]
         };
-        const selectedDate = "2025-10-16"; // after vacation
-        const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, vacationTech);
+        const selectedDate = addDaysToDate(futureDayOnly, 8)
+        const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, skipBusinessHours, vacationTech);
         expect(slots.length).toBeGreaterThan(0);
     });
 
