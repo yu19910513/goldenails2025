@@ -45,7 +45,9 @@ const client_tabs = [];
  */
 const Dashboard = () => {
     const token = localStorage.getItem("token");
-
+    if (!token) {
+        return null;
+    }
     try {
         const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT
 
