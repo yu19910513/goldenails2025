@@ -21,7 +21,7 @@ import './PromoModal.css';
  * - Clicking the "Book Now" button closes the modal and navigates to `/bookingchoice`.
  */
 function PromoModal({ show, onClose }) {
-    const flyerImage = "images/promo.PNG";
+    const flyerImage = "https://serverless-golden-nails.vercel.app/images/promo.PNG";
     const navigate = useNavigate();
 
     // Do not render the modal if show is false
