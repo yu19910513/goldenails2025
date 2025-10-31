@@ -968,6 +968,31 @@ const addDaysToDate = (dateString, daysToAdd) => {
   return `${newYear}-${newMonth}-${newDay}`;
 };
 
+/**
+ * Copies a value from sessionStorage to localStorage for a given key.
+ *
+ * @param {string} key - The storage key to copy.
+ *
+ * @example
+ * // Copies the value of 'activePromoKey' from sessionStorage to localStorage
+ * copySessionToLocal('activePromoKey');
+ */
+const copySessionToLocal = (key) => {
+  try {
+    const value = sessionStorage.getItem(key);
+
+    if (value !== null) {
+      localStorage.setItem(key, value);
+      console.log(`Copied "${key}" with value "${value}" from sessionStorage to localStorage.`);
+    } else {
+      console.warn(`No value found in sessionStorage for key "${key}".`);
+    }
+  } catch (error) {
+    console.error(`Error copying key "${key}" to localStorage:`, error);
+  }
+};
+
+
 export {
   formatPrice,
   calculateTotalTime,
@@ -992,5 +1017,6 @@ export {
   formatDate,
   buildNotificationData,
   formatTimeSlot,
-  addDaysToDate
+  addDaysToDate,
+  copySessionToLocal
 };

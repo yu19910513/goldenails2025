@@ -4,7 +4,8 @@ import NotificationService from "../../services/notificationService";
 import {
   formatStartTime,
   formatDate,
-  buildNotificationData
+  buildNotificationData,
+  copySessionToLocal
 } from "../../utils/helper";
 import "./GroupAppointmentConfirmation.css";
 
@@ -162,6 +163,7 @@ const GroupAppointmentConfirmation = ({ appointments }) => {
         className="group-appointment-confirmation__home-button"
         onClick={() => {
           localStorage.clear();
+          copySessionToLocal('activePromoKey');
           navigate("/");
         }}
       >

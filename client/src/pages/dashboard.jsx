@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { copySessionToLocal } from '../utils/helper';
 
 import ApptManagement from '../components/admin_dashboard_page/appt_management_feature/ApptManagement';
 import CustomerManagement from '../components/admin_dashboard_page/CustomerManagement';
@@ -52,6 +53,7 @@ const Dashboard = () => {
         const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT
 
         if (decodedToken?.data?.admin_privilege) {
+            copySessionToLocal('activePromoKey');
             return (
                 <div>
                     <TabbedView tabs={admin_tabs} />

@@ -29,7 +29,8 @@ import {
     formatDate,
     buildNotificationData,
     formatTimeSlot,
-    addDaysToDate
+    addDaysToDate,
+    copySessionToLocal
 } from "../utils/helper";
 
 
@@ -1067,3 +1068,90 @@ describe("distributeItems", () => {
     });
 });
 
+/**
+ * @description Mock sessionStorage and localStorage for Node environment
+ * since Jest runs in Node which does not provide browser storage by default.
+ */
+beforeAll(() => {
+    const storageMock = () => {
+        let store = {};
+        return {
+            getItem: jest.fn((key) => store[key] || null),
+            setItem: jest.fn((key, value) => { store[key] = value; }),
+            clear: jest.fn(() => { store = {}; }),
+            removeItem: jest.fn((key) => { delete store[key]; }),
+        };
+    };
+
+    Object.defineProperty(global, 'sessionStorage', { value: storageMock() });
+    Object.defineProperty(global, 'localStorage', { value: storageMock() });
+});
+
+describe('copySessionToLocal', () => {
+    beforeEach(() => {
+        // Clear mocks and storage before each test
+        sessionStorage.clear();
+        localStorage.clear();
+        jest.clearAllMocks();
+    });
+
+    it('should copy the value from sessionStorage to localStorage if key exists', () => {
+        sessionStorage.setItem('testKey', 'testValue');
+
+        copySessionToLocal('testKey');
+
+        expect(localStorage.getItem('testKey')).toBe('testValue');
+    });
+
+    it('should not create anything in localStorage if key does not exist in sessionStorage', () => {
+        copySessionToLocal('missingKey');
+
+        expect(localStorage.getItem('missingKey')).toBeNull();
+    });
+
+    it('should log appropriate message when key is copied', () => {
+        sessionStorage.setItem('copyKey', '123');
+
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+        copySessionToLocal('copyKey');
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'Copied "copyKey" with value "123" from sessionStorage to localStorage.'
+        );
+
+        consoleSpy.mockRestore();
+    });
+
+    it('should log warning when key does not exist', () => {
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
+
+        copySessionToLocal('nonexistent');
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+            'No value found in sessionStorage for key "nonexistent".'
+        );
+
+        consoleWarnSpy.mockRestore();
+    });
+
+    it('should log error if storage access throws', () => {
+        // Mock sessionStorage.getItem to throw an error
+        const originalGetItem = sessionStorage.getItem;
+        sessionStorage.getItem = jest.fn(() => {
+            throw new Error('Storage error');
+        });
+
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
+        copySessionToLocal('anyKey');
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            'Error copying key "anyKey" to localStorage:',
+            expect.any(Error)
+        );
+
+        consoleErrorSpy.mockRestore();
+        sessionStorage.getItem = originalGetItem;
+    });
+});
