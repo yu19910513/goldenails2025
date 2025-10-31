@@ -6,7 +6,8 @@ import {
     formatEndTime,
     formatDate,
     buildNotificationData,
-    calculateTotalTime
+    calculateTotalTime,
+    copySessionToLocal
 } from "../../utils/helper";
 import NotificationService from "../../services/notificationService";
 import MiscellaneousService from "../../services/miscellaneousService";
@@ -105,6 +106,7 @@ const AppointmentConfirmation = ({ appointmentDetails }) => {
                 className="home-button"
                 onClick={() => {
                     localStorage.clear();
+                    copySessionToLocal('activePromoKey');
                     navigate("/");
                 }}
             >
