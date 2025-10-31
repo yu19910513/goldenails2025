@@ -1,0 +1,106 @@
+/* Dark background overlay */
+.promo-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* White modal box */
+.promo-modal-content {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 90%;
+    width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    /* needed for absolute X button */
+    overflow: hidden;
+}
+
+/* Flyer image */
+.promo-modal-image {
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* Top-right "X" close button */
+.promo-modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.promo-modal-close-btn:hover {
+    background: #d0d0d0;
+    /* slightly darker grey on hover */
+    transform: scale(1.1);
+}
+
+/* "Book Now" button */
+.promo-modal-book-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.promo-modal-book-btn:hover {
+    background-color: #555;
+    transform: scale(1.02);
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+    .promo-modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .promo-modal-close-btn {
+        font-size: 20px;
+        top: 8px;
+        right: 8px;
+    }
+
+    .promo-modal-book-btn {
+        padding: 10px;
+    }
+}
