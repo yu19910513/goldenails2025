@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Header.css";
 import LeaveWarningModal from "../booking_page/LeaveWarningModal";
 import { isTokenValid } from "../../utils/helper";
@@ -11,29 +11,44 @@ import {
   FaPlusCircle,
   FaThLarge,
   FaSignOutAlt,
-  FaTimes, // For Cancel Booking icon
+  FaTimes,
 } from "react-icons/fa";
 
+/**
+ * Renders the main site header and navigation bar.
+ * Handles mobile menu toggling, booking state management,
+ * and user authentication links.
+ */
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // --- State Declarations ---
   const [isBookingActive, setIsBookingActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  /**
+   * Checks if the given path matches the current location pathname.
+   * @param {string} path - The path to check.
+   * @returns {boolean} True if the path is active, false otherwise.
+   */
   const isActive = (path) => location.pathname === path;
 
-  // Toggle booking state
+  /**
+   * Toggles the booking state.
+   */
   const handleBookingToggle = () => {
     if (isBookingActive) {
-      setIsModalOpen(true); // Ask for confirmation before canceling
+      setIsModalOpen(true);
     } else {
       setIsBookingActive(true);
     }
   };
+
+  // --- Effects ---
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -60,6 +75,11 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // --- Event Handlers ---
+
+  /**
+   * Handles the user's confirmation to leave the booking process.
+   */
   const handleLeaveBooking = () => {
     localStorage.clear();
     setIsBookingActive(false);
@@ -68,18 +88,45 @@ const Header = () => {
     setIsModalOpen(false);
   };
 
+  /**
+   * Closes the leave confirmation modal.
+   */
   const handleCancelLeave = () => {
     setIsModalOpen(false);
   };
 
+  /**
+   * Toggles the mobile menu's open/closed state.
+   */
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  /**
+   * Logs the user out and navigates to home.
+   */
   const handleLogout = () => {
     localStorage.clear();
     setIsLoggedIn(false);
     navigate("/");
+  };
+
+  /**
+   * Closes the mobile menu if it's open.
+   * This is called when a navigation link is clicked.
+   */
+  const handleNavClick = () => {
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
+
+  /**
+   * Handles the logout click: logs the user out and closes the menu.
+   */
+  const handleLogoutClick = () => {
+    handleLogout();
+    handleNavClick();
   };
 
   return (
@@ -93,9 +140,20 @@ const Header = () => {
           <div className="header-bar"></div>
         </div>
 
-        <a href="/" className={`header-nav-link header-logo-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
-          Golden Nails
-        </a>
+        <div className="header-brand-group">
+          <Link
+            to="/"
+            className={`header-nav-link header-logo-link ${isActive("/") ? "header-nav-link--active" : ""}`}
+            onClick={handleNavClick}
+          >
+            Golden Nails
+          </Link>
+          <img
+            src=""
+            alt="Site Animation"
+            className="mobile-header-gif"
+          />
+        </div>
 
         <ul className={`header-nav-list ${isMenuOpen && isMobile ? "header-nav-list--open" : ""}`}>
           <li className="header-logo-placeholder">
@@ -103,53 +161,54 @@ const Header = () => {
           </li>
 
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/" className={`header-nav-link ${isActive("/") ? "header-nav-link--active" : ""}`}>
+            <Link to="/" className={`header-nav-link ${isActive("/") ? "header-nav-link--active" : ""}`} onClick={handleNavClick}>
               <FaHome className="nav-icon" /> <span>Home</span>
-            </a>
+            </Link>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/ourservices" className={`header-nav-link ${isActive("/ourservices") ? "header-nav-link--active" : ""}`}>
+            <Link to="/ourservices" className={`header-nav-link ${isActive("/ourservices") ? "header-nav-link--active" : ""}`} onClick={handleNavClick}>
               <FaConciergeBell className="nav-icon" /> <span>Services</span>
-            </a>
+            </Link>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/aboutus" className={`header-nav-link ${isActive("/aboutus") ? "header-nav-link--active" : ""}`}>
+            <Link to="/aboutus" className={`header-nav-link ${isActive("/aboutus") ? "header-nav-link--active" : ""}`} onClick={handleNavClick}>
               <FaInfoCircle className="nav-icon" /> <span>About Us</span>
-            </a>
+            </Link>
           </li>
           <li style={{ display: isBookingActive ? "none" : "block" }}>
-            <a href="/appointmenthistory" className={`header-nav-link ${isActive("/appointmenthistory") ? "header-nav-link--active" : ""}`}>
+            <Link to="/appointmenthistory" className={`header-nav-link ${isActive("/appointmenthistory") ? "header-nav-link--active" : ""}`} onClick={handleNavClick}>
               <FaHistory className="nav-icon" /> <span>My Visits</span>
-            </a>
+            </Link>
           </li>
 
           <li className="header-nav-item--separator">
-            <a
-              href={isBookingActive ? "/" : "/bookingchoice"}
+            <Link
+              to={isBookingActive ? "/" : "/bookingchoice"}
               className={`header-nav-link ${isActive("/bookingchoice") ? "header-nav-link--active" : ""}`}
               onClick={(e) => {
                 if (isBookingActive) {
-                  e.preventDefault();
+                  e.preventDefault(); // Prevent navigation
                   handleBookingToggle();
                 }
+                handleNavClick();
               }}
             >
               {isBookingActive ? <FaTimes className="nav-icon" /> : <FaPlusCircle className="nav-icon" />}
               <span>{isBookingActive ? "Cancel Booking" : "Book Now"}</span>
-            </a>
+            </Link>
           </li>
 
           {isLoggedIn && (
             <>
-              <li className="header-nav-item--separator"> {/* <<<< Added class name here */}
-                <a href="/dashboard" className={`header-nav-link ${isActive("/dashboard") ? "header-nav-link--active" : ""}`}>
+              <li className="header-nav-item--separator">
+                <Link to="/dashboard" className={`header-nav-link ${isActive("/dashboard") ? "header-nav-link--active" : ""}`} onClick={handleNavClick}>
                   <FaThLarge className="nav-icon" /> <span>Dashboard</span>
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="header-nav-link" onClick={handleLogout}>
+                <Link to="/" className="header-nav-link" onClick={handleLogoutClick}>
                   <FaSignOutAlt className="nav-icon" /> <span>Log Out</span>
-                </a>
+                </Link>
               </li>
             </>
           )}

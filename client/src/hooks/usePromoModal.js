@@ -50,9 +50,9 @@ export const usePromoModal = () => {
                 return; // Fail-safe: don't show modal if API fails
             }
             
-            // If the remote switch is OFF, reset the session and hide
+            // If the remote switch is OFF, reset the localstorage and hide
             if (!switchValue) {
-                sessionStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(STORAGE_KEY);
                 return;
             }
 
