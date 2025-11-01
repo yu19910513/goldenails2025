@@ -35,9 +35,21 @@ Customer.init(
       type: DataTypes.STRING(6), // Ensures it stores a 6-digit passcode
       allowNull: true,
     },
+<<<<<<< HEAD
     admin_privilege: {
       type: DataTypes.INTEGER,
       allowNull: false,
+=======
+    optInSms: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'optInSms',
+    },
+    admin_privilege: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+>>>>>>> eb72b47ed569d30ad76f7935ba7f404c6c77b61d
       defaultValue: 0,
     },
   },

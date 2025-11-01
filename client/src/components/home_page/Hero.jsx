@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import MiscellaneousService from "../../services/miscellaneousService";
 import AnnouncementBar from "./AnnouncementBar";
 import "./Hero.css";
 
+/**
+ * Renders the hero section for the homepage.
+ * It fetches and displays dynamic content like an ad board message,
+ * a subtext, and an optional announcement bar.
+ * It also includes static information (address, hours) and action buttons.
+ */
 const Hero = () => {
   const [adBoard, setAdBoard] = useState("Loading ad content...");
   const [subtext, setSubtext] = useState("");
   const [announcementBarPermission, setAnnouncementBarPermission] = useState(null);
 
+  /**
+   * Fetches initial data for the hero section on component mount.
+   * This includes the ad board content, subtext, and permission
+   * for displaying the announcement bar from the miscellaneous service.
+   */
   useEffect(() => {
     const fetchAdBoardData = async () => {
       try {
@@ -70,9 +82,10 @@ const Hero = () => {
             <a href="tel:+12538517563" className="home-hero__button home-hero__button--secondary">
               Call Us
             </a>
-            <a href="/bookingchoice" className="home-hero__button home-hero__button--primary">
+
+            <Link to="/bookingchoice" className="home-hero__button home-hero__button--primary">
               Book Now
-            </a>
+            </Link>
           </div>
         </div>
       </div>

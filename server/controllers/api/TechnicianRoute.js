@@ -113,6 +113,7 @@ router.post("/available", async (req, res) => {
         "description",
         "phone",
         "unavailability",
+        "vacation_ranges",
         [Sequelize.fn("COUNT", Sequelize.fn("DISTINCT", Sequelize.col("Categories.id"))), "categoryCount"]
       ],
       group: [
@@ -120,7 +121,8 @@ router.post("/available", async (req, res) => {
         "Technician.name",
         "Technician.description",
         "Technician.phone",
-        "Technician.unavailability"
+        "Technician.unavailability",
+        "Technician.vacation_ranges"
       ],
       having: Sequelize.literal(`COUNT(DISTINCT Categories.id) = ${categoryIds.length}`),
     });

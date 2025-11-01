@@ -28,7 +28,9 @@ import {
     formatEndTime,
     formatDate,
     buildNotificationData,
-    formatTimeSlot
+    formatTimeSlot,
+    addDaysToDate,
+    copySessionToLocal
 } from "../utils/helper";
 
 
@@ -257,12 +259,129 @@ describe("calculateAvailableSlots", () => {
             expect(slot.getTime()).toBeGreaterThanOrEqual(blockedUntil.getTime());
         }
     });
+    it("returns empty array when selected date falls in technician's vacation range", () => {
+        const appointments = [];
+        const selectedServices = {
+            "1": [{ time: 30 }]
+        };
+        const vacationTech = {
+            ...technician,
+            vacation_ranges: [
+                { start: "2025-10-10", end: "2025-10-15" }
+            ]
+        };
+        const selectedDate = "2025-10-12"; // within vacation
+        const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, businessHours, vacationTech);
+        expect(slots).toEqual([]);
+    });
+
+    it("returns available slots outside of vacation range", () => {
+        const appointments = [];
+        const skipBusinessHours = {
+            start: 0,
+            end: 24
+        };
+        const selectedServices = {
+            "1": [{ time: 30 }]
+        };
+        const vacationTech = {
+            ...technician,
+            vacation_ranges: [
+                { start: futureDayOnly, end: addDaysToDate(futureDayOnly, 7) }
+            ]
+        };
+        const selectedDate = addDaysToDate(futureDayOnly, 8)
+        const slots = calculateAvailableSlots(appointments, selectedServices, selectedDate, skipBusinessHours, vacationTech);
+        expect(slots.length).toBeGreaterThan(0);
+    });
+
+    it("correctly handles multiple services durations", () => {
+        const appointments = [];
+        const selectedServices = {
+            "1": [{ time: 30 }, { time: 45 }]
+        };
+        const slots = calculateAvailableSlots(appointments, selectedServices, futureDayOnly, businessHours, technician);
+        // Ensure slots are at least 75 minutes apart from each other
+        for (let i = 1; i < slots.length; i++) {
+            const diff = (slots[i].getTime() - slots[i - 1].getTime()) / 60000;
+            expect(diff).toBeGreaterThanOrEqual(30); // Minimum step is 30 min
+        }
+    });
+
+    it("excludes occupied slots even with multiple services selected", () => {
+        const appointments = [
+            {
+                date: futureDayOnly,
+                start_service_time: "10:00",
+                Services: [{ time: 30 }]
+            }
+        ];
+        const selectedServices = {
+            "1": [{ time: 45 }] // longer service
+        };
+        const slots = calculateAvailableSlots(appointments, selectedServices, futureDayOnly, businessHours, technician);
+        expect(slots.some(slot => slot.getTime() === new Date(`${futureDayOnly}T10:00`).getTime())).toBe(false);
+    });
 });
 
 
 // ----------------------------------------------------------------------------------
 // --- TIME & DATE TESTS ---
 // ----------------------------------------------------------------------------------
+
+/**
+ * @fileoverview Test suite for the addDaysToDate utility function.
+ *
+ * This suite verifies that the addDaysToDate function correctly handles
+ * various date arithmetic scenarios, including:
+ * - Simple date addition within the same month
+ * - Rolling over to subsequent months and years
+ * - Correctly subtracting days
+ * - Rolling back to previous months and years
+ * - Handling leap years vs. non-leap years
+ */
+describe('addDaysToDate', () => {
+
+    it('should add days within the same month', () => {
+        expect(addDaysToDate("2025-10-10", 2)).toBe("2025-10-12");
+    });
+
+    it('should handle rolling over to the next month', () => {
+        expect(addDaysToDate("2025-10-30", 5)).toBe("2025-11-04");
+    });
+
+    it('should handle rolling over to the next year', () => {
+        expect(addDaysToDate("2025-12-30", 5)).toBe("2026-01-04");
+    });
+
+    it('should handle adding 0 days', () => {
+        expect(addDaysToDate("2025-10-10", 0)).toBe("2025-10-10");
+    });
+
+    it('should correctly subtract days (negative numbers)', () => {
+        expect(addDaysToDate("2025-10-12", -2)).toBe("2025-10-10");
+    });
+
+    it('should handle subtracting and rolling back to a previous month', () => {
+        expect(addDaysToDate("2025-11-04", -5)).toBe("2025-10-30");
+    });
+
+    it('should handle subtracting and rolling back to a previous year', () => {
+        expect(addDaysToDate("2026-01-04", -5)).toBe("2025-12-30");
+    });
+
+    it('should correctly handle a leap year', () => {
+        // 2024 is a leap year
+        expect(addDaysToDate("2024-02-28", 1)).toBe("2024-02-29");
+        expect(addDaysToDate("2024-02-28", 2)).toBe("2024-03-01");
+    });
+
+    it('should correctly handle a non-leap year', () => {
+        // 2025 is not a leap year
+        expect(addDaysToDate("2025-02-28", 1)).toBe("2025-03-01");
+    });
+
+});
 
 /**
  * @describe Test suite for time and date related functions.
@@ -949,3 +1068,90 @@ describe("distributeItems", () => {
     });
 });
 
+/**
+ * @description Mock sessionStorage and localStorage for Node environment
+ * since Jest runs in Node which does not provide browser storage by default.
+ */
+beforeAll(() => {
+    const storageMock = () => {
+        let store = {};
+        return {
+            getItem: jest.fn((key) => store[key] || null),
+            setItem: jest.fn((key, value) => { store[key] = value; }),
+            clear: jest.fn(() => { store = {}; }),
+            removeItem: jest.fn((key) => { delete store[key]; }),
+        };
+    };
+
+    Object.defineProperty(global, 'sessionStorage', { value: storageMock() });
+    Object.defineProperty(global, 'localStorage', { value: storageMock() });
+});
+
+describe('copySessionToLocal', () => {
+    beforeEach(() => {
+        // Clear mocks and storage before each test
+        sessionStorage.clear();
+        localStorage.clear();
+        jest.clearAllMocks();
+    });
+
+    it('should copy the value from sessionStorage to localStorage if key exists', () => {
+        sessionStorage.setItem('testKey', 'testValue');
+
+        copySessionToLocal('testKey');
+
+        expect(localStorage.getItem('testKey')).toBe('testValue');
+    });
+
+    it('should not create anything in localStorage if key does not exist in sessionStorage', () => {
+        copySessionToLocal('missingKey');
+
+        expect(localStorage.getItem('missingKey')).toBeNull();
+    });
+
+    it('should log appropriate message when key is copied', () => {
+        sessionStorage.setItem('copyKey', '123');
+
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+        copySessionToLocal('copyKey');
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'Copied "copyKey" with value "123" from sessionStorage to localStorage.'
+        );
+
+        consoleSpy.mockRestore();
+    });
+
+    it('should log warning when key does not exist', () => {
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
+
+        copySessionToLocal('nonexistent');
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+            'No value found in sessionStorage for key "nonexistent".'
+        );
+
+        consoleWarnSpy.mockRestore();
+    });
+
+    it('should log error if storage access throws', () => {
+        // Mock sessionStorage.getItem to throw an error
+        const originalGetItem = sessionStorage.getItem;
+        sessionStorage.getItem = jest.fn(() => {
+            throw new Error('Storage error');
+        });
+
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
+        copySessionToLocal('anyKey');
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            'Error copying key "anyKey" to localStorage:',
+            expect.any(Error)
+        );
+
+        consoleErrorSpy.mockRestore();
+        sessionStorage.getItem = originalGetItem;
+    });
+});
