@@ -1,6 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './ServiceCards.css';
 
+/**
+ * Renders a horizontally scrolling container of service cards.
+ * Each card displays a service title, description, pricing, and a link
+ * to the main services page.
+ */
 const ServiceCards = () => {
   const services = [
     {
@@ -45,7 +51,7 @@ const ServiceCards = () => {
                 ))}
               </ul>
             </div>
-            <a className="service-card-book-button" href="/ourservices">Detail</a>
+            <Link className="service-card-book-button" to="/ourservices">Detail</Link>
           </div>
         ))}
       </div>

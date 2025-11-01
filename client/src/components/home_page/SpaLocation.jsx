@@ -1,7 +1,12 @@
-import React from 'react';
-import './SpaLocation.css'; // Import the CSS file
+import { Link } from 'react-router-dom'; 
+import './SpaLocation.css'; 
 import LoginStatus from '../utils/LoginStatus';
 
+/**
+ * Renders the spa's location and information section.
+ * Includes a descriptive text block, an embedded map,
+ * quick links, address, and opening hours.
+ */
 const SpaLocation = () => {
   return (
     <div className="spa-container">
@@ -31,8 +36,8 @@ const SpaLocation = () => {
           <div className="quick-links">
             <h3>Quick Links</h3>
             <ul>
-              <li><a href="/faq">FAQ</a></li>
-              <li><a href="/contact">Contact Us</a></li>
+              <li><Link to="/faq">FAQ</Link></li>
+              <li><Link to="/contact">Contact Us</Link></li>
               <li><LoginStatus targetPath="/dashboard" targetText="Dashboard" /></li>
             </ul>
           </div>
