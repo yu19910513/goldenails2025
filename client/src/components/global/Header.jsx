@@ -149,7 +149,7 @@ const Header = () => {
             Golden Nails
           </Link>
           <img
-            src="/images/wbe-halloween-pumpkins.gif"
+            src="https://www.bing.com/th/id/OGC.ba128c9785324fe54ccb847bd6cb7089?o=7&pid=1.7&rm=3&rurl=https%3a%2f%2fmedia2.giphy.com%2fmedia%2f1hSAqluz8AOdTIo9p7%2fgiphy.gif%3fcid%3d6c09b952difskg1ovy2mvrl76uceoaf3h8mzp64q3foeuwli%26ep%3dv1_internal_gif_by_id%26rid%3dgiphy.gif%26ct%3ds&ehk=JDoQupvOdlD2X6VJ2oe5G27eo%2fAihqVg%2b0TNCM3R%2fGg%3d"
             alt="Site Animation"
             className="mobile-header-gif"
           />
