@@ -79,13 +79,11 @@ Technician.init(
         },
       },
     },
-
-    /** Technician active status — true = active, false = inactive */
-    status: {
-      type: DataTypes.BOOLEAN,
+     status: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: true,
-    },
+      defaultValue: 1, // Default status is 'active'
+    }
   },
 
   {

@@ -61,7 +61,7 @@ const authorizeAdmin = (req, res, next) => {
     const decoded = jwt.verify(token, secret); // This will throw if expired
 
     // Check if admin_privilege is true
-    if (decoded?.data?.admin_privilege === true) {
+    if (decoded?.data?.admin_privilege === 1) {
       req.user = decoded.data;
       next(); // Access granted
     } else {

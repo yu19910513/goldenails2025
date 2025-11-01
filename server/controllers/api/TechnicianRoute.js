@@ -43,7 +43,7 @@ router.get("/", async (req, res) => {
   try {
     const technicianRawData = await Technician.findAll({
       where: {
-        status: true, // Only include records where status is true
+        status: 1, // Only include records where status is true
       },
       attributes: ["id", "name", "description"], // Service attributes
     });
@@ -105,7 +105,7 @@ router.post("/available", async (req, res) => {
         },
       ],
       where: {
-        status: true, // Only include records where status is true
+        status: 1, // Only include records where status is true
       },
       attributes: [
         "id",
@@ -215,7 +215,7 @@ router.get("/schedule", async (req, res) => {
         },
       ],
       where: {
-        status: true,
+        status: 1,
       },
       order: [
         ['name', 'ASC'],

@@ -22,8 +22,13 @@ app.get('*', (req, res) => {
 });
 
 // Sync Sequelize and start the server
-sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () =>
-    console.log(`Server running at: http://localhost:${PORT}`)
-  );
-});
+sequelize.authenticate()
+  .then(() => {
+    console.log('✅ Database connection established successfully.');
+    app.listen(PORT, () =>
+      console.log(`Server running at: http://localhost:${PORT}`)
+    );
+  })
+  .catch(err => {
+    console.error('❌ Unable to connect to the database:', err);
+  });

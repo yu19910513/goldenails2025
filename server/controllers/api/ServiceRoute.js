@@ -65,7 +65,7 @@ router.get("/", async (req, res) => {
   try {
     const serviceRawData = await Service.findAll({
       attributes: ["id", "name", "description", "price", "time"],
-      where: { deprecated: false },
+      where: { deprecated: 0 },
       include: [
         {
           model: Category,

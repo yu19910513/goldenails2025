@@ -6,20 +6,20 @@ const Category = require('./Category');
 const Miscellaneous = require('./Miscellaneous');
 
 // Technician - Category
-Technician.belongsToMany(Category, { through: "TechnicianCategory" });
-Category.belongsToMany(Technician, { through: "TechnicianCategory" });
+Technician.belongsToMany(Category, { through: "techniciancategory" });
+Category.belongsToMany(Technician, { through: "techniciancategory" });
 
 // Service - Category
 Service.belongsTo(Category, { foreignKey: "category_id" });
 Category.hasMany(Service, { foreignKey: "category_id" });
 
 // Appointment - Service
-Appointment.belongsToMany(Service, { through: "AppointmentService" });
-Service.belongsToMany(Appointment, { through: "AppointmentService" });
+Appointment.belongsToMany(Service, { through: "appointmentservice" });
+Service.belongsToMany(Appointment, { through: "appointmentservice" });
 
 // Appointment - Technician
-Appointment.belongsToMany(Technician, { through: "AppointmentTechnician" });
-Technician.belongsToMany(Appointment, { through: "AppointmentTechnician" });
+Appointment.belongsToMany(Technician, { through: "appointmenttechnician" });
+Technician.belongsToMany(Appointment, { through: "appointmenttechnician" });
 
 // Customer - Appointment
 Customer.hasMany(Appointment, { foreignKey: "customer_id" });
