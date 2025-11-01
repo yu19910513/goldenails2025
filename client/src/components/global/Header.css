@@ -317,8 +317,8 @@
   }
 
   .header-logo-link {
-    font-family: "Jokerman", "Didot", serif, "Times New Roman", Times, serif; 
-    /* remove font family after the season */
+    /* font-family: "Jokerman", "Didot", serif, "Times New Roman", Times, serif; 
+    remove font family after the season */
     font-size: 1.4rem;
   }
 }
