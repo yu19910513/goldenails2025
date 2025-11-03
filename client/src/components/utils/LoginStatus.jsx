@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { isTokenValid } from "../../utils/helper"
-
+import { Link, useNavigate } from 'react-router-dom';
+import { isTokenValid } from "../../utils/helper";
 
 /**
  * A React component that conditionally displays either a login link or a logout link
@@ -14,6 +14,7 @@ import { isTokenValid } from "../../utils/helper"
  */
 const LoginStatus = ({ targetPath, targetText }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -24,17 +25,17 @@ const LoginStatus = ({ targetPath, targetText }) => {
         e.preventDefault();
         localStorage.removeItem('token');
         setIsLoggedIn(false);
-        window.location.href = '/';
+        navigate('/');
     };
 
     return isLoggedIn ? (
         <>
-            <a href={targetPath}>{targetText}</a> | <a href="#" onClick={handleLogout}>Logout</a>
+            <Link to={targetPath}>{targetText}</Link> |{' '}
+            <Link to="#" onClick={handleLogout}>Logout</Link>
         </>
     ) : (
-        <a href={targetPath}>{targetText}</a>
+        <Link to={targetPath}>{targetText}</Link>
     );
 };
-
 
 export default LoginStatus;
