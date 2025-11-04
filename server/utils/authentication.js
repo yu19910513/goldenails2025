@@ -104,6 +104,32 @@ const basic_auth = (req, res, next) => {
   next();
 };
 
+/* Determines the correct JWT expiration time based on user role.
+ * Admin tokens default to non-expiring if 'ADMIN_TOKEN_EXPIRATION' is 'null' or undefined.
+ * Customer tokens default to 'signToken's' built-in default if 'CUSTOMER_TOKEN_EXPIRATION' is undefined.
+ *
+ * @param {boolean} isAdmin - Whether the user has admin privileges.
+ * @returns {string | null | undefined} The expiration string (e.g., "2h"),
+ * null (for non-expiring), or undefined (to use default).
+ */
+const getTokenExpiration = (isAdmin = false) => {
+  if (isAdmin) {
+    const adminExp = process.env.ADMIN_TOKEN_EXPIRATION;
+
+    // If adminExp is the string 'null' OR it's not set (undefined), return literal null
+    if (adminExp === 'null' || adminExp === undefined) {
+      return null; // Token will not expire
+    }
+    
+    // Otherwise, return the specific duration (e.g., "15m")
+    return adminExp;
+  } else {
+    // For regular customers, return the env variable.
+    // If CUSTOMER_TOKEN_EXPIRATION is undefined, signToken's default ("2h") will apply.
+    return process.env.CUSTOMER_TOKEN_EXPIRATION;
+  }
+};
+
 /**
  * Signs a JWT token with the given payload.
  *
@@ -129,4 +155,4 @@ const signToken = (payload, expiration = "2h") => {
   return jwt.sign({ data: payload }, secret, options);
 };
 
-module.exports = { authenticateUser, authorizeAdmin, signToken, basic_auth };
+module.exports = { authenticateUser, authorizeAdmin, signToken, basic_auth, getTokenExpiration };

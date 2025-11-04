@@ -1,8 +1,11 @@
-const { authenticateUser, authorizeAdmin, basic_auth, signToken } = require('../utils/authentication'); // Update with the correct path
+const { authenticateUser, authorizeAdmin, basic_auth, signToken, getTokenExpiration } = require('../utils/authentication'); // Update with the correct path
 const jwt = require('jsonwebtoken');
 process.env.JWT_SECRET = 'test_secret';
 const secret = process.env.JWT_SECRET;
-jest.mock('jsonwebtoken');
+jest.mock('jsonwebtoken', () => ({
+    sign: jest.fn(),
+    verify: jest.fn(),
+}));
 
 describe('authenticateUser middleware', () => {
     let req;
@@ -176,22 +179,144 @@ describe('basic_auth', () => {
 
 describe('signToken', () => {
     const mockPayload = { id: 123, name: 'John Doe' };
+    const mockToken = 'mock.jwt.token';
+
+    // Keep a clean copy of the environment
+    const originalEnv = { ...process.env };
 
     beforeEach(() => {
-        process.env.JWT_SECRET = 'testsecret';
+        // Reset mocks and environment before each test
+        jest.clearAllMocks();
+        process.env = { ...originalEnv };
+        process.env.JWT_SECRET = 'testsecret'; // Set a default secret for most tests
+
+        // Mock the return value for all sign calls
+        jwt.sign.mockReturnValue(mockToken);
     });
 
-    it('should call jwt.sign with correct arguments and return the token', () => {
-        const mockToken = 'mock.jwt.token';
-        jwt.sign.mockReturnValue(mockToken);
+    afterAll(() => {
+        // Restore the original environment
+        process.env = originalEnv;
+    });
 
+    // --- Test 1: Default Expiration ---
+    it('should use the default "2h" expiration when none is provided', () => {
         const token = signToken(mockPayload);
+
+        // This is your original test, and it's still valid
+        expect(jwt.sign).toHaveBeenCalledWith(
+            { data: mockPayload },
+            'testsecret',
+            { expiresIn: '2h' } // Checks the default
+        );
+        expect(token).toBe(mockToken);
+    });
+
+    // --- Test 2: Custom Expiration ---
+    it('should use a custom expiration when provided (e.g., "7d")', () => {
+        const token = signToken(mockPayload, '7d');
 
         expect(jwt.sign).toHaveBeenCalledWith(
             { data: mockPayload },
             'testsecret',
-            { expiresIn: '2h' }
+            { expiresIn: '7d' } // Checks the custom value
         );
         expect(token).toBe(mockToken);
+    });
+
+    // --- Test 3: Null Expiration (Non-expiring) ---
+    it('should create a non-expiring token when expiration is null', () => {
+        const token = signToken(mockPayload, null);
+
+        // This is the most important new test.
+        // It checks that the options object is empty ({}), 
+        // which is what tells jwt.sign() to not add an 'exp' claim.
+        expect(jwt.sign).toHaveBeenCalledWith(
+            { data: mockPayload },
+            'testsecret',
+            {} // No expiresIn property!
+        );
+        expect(token).toBe(mockToken);
+    });
+
+    // --- Test 4: Missing Secret (Error Handling) ---
+    it('should throw an error if JWT_SECRET is not defined', () => {
+        // Explicitly delete the secret for this one test
+        delete process.env.JWT_SECRET;
+
+        // We test that calling the function...
+        const attemptToSign = () => {
+            signToken(mockPayload);
+        };
+
+        // ...throws the specific error.
+        expect(attemptToSign).toThrow('JWT_SECRET is not defined in environment variables.');
+    });
+});
+
+describe('getTokenExpiration', () => {
+    // Store a copy of the original process.env
+    const originalEnv = { ...process.env };
+
+    beforeEach(() => {
+        // Reset process.env before each test to a clean state
+        // This prevents tests from interfering with each other
+        process.env = { ...originalEnv };
+        delete process.env.ADMIN_TOKEN_EXPIRATION;
+        delete process.env.CUSTOMER_TOKEN_EXPIRATION;
+    });
+
+    afterAll(() => {
+        // Restore the original environment after all tests have run
+        process.env = originalEnv;
+    });
+
+    // --- Test Cases for Admin Users ---
+    describe('when user is an admin (isAdmin = true)', () => {
+
+        test('should return null if ADMIN_TOKEN_EXPIRATION is not set (undefined)', () => {
+            // process.env.ADMIN_TOKEN_EXPIRATION is undefined by default
+            expect(getTokenExpiration(true)).toBeNull();
+        });
+
+        test('should return null if ADMIN_TOKEN_EXPIRATION is the string "null"', () => {
+            process.env.ADMIN_TOKEN_EXPIRATION = 'null';
+            expect(getTokenExpiration(true)).toBeNull();
+        });
+
+        test('should return the specific duration string if set (e.g., "15m")', () => {
+            process.env.ADMIN_TOKEN_EXPIRATION = '15m';
+            expect(getTokenExpiration(true)).toBe('15m');
+        });
+
+        test('should return an empty string if ADMIN_TOKEN_EXPIRATION is set to ""', () => {
+            // This is an edge case, but the logic correctly returns the value
+            process.env.ADMIN_TOKEN_EXPIRATION = '';
+            expect(getTokenExpiration(true)).toBe('');
+        });
+    });
+
+    // --- Test Cases for Regular Customers ---
+    describe('when user is a regular customer (isAdmin = false)', () => {
+
+        test('should return undefined if CUSTOMER_TOKEN_EXPIRATION is not set', () => {
+            // process.env.CUSTOMER_TOKEN_EXPIRATION is undefined
+            expect(getTokenExpiration(false)).toBeUndefined();
+        });
+
+        test('should return the specific duration string if set (e.g., "2h")', () => {
+            process.env.CUSTOMER_TOKEN_EXPIRATION = '2h';
+            expect(getTokenExpiration(false)).toBe('2h');
+        });
+
+        test('should return the string "null" if CUSTOMER_TOKEN_EXPIRATION is set to "null"', () => {
+            process.env.CUSTOMER_TOKEN_EXPIRATION = 'null';
+            expect(getTokenExpiration(false)).toBe('null');
+        });
+
+        test('should return undefined when called with no arguments (defaults to customer)', () => {
+            // This also tests that (isAdmin = false) is the default
+            expect(getTokenExpiration()).toBeUndefined();
+        });
     });
 });
