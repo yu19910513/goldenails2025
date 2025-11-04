@@ -105,15 +105,28 @@ const basic_auth = (req, res, next) => {
 };
 
 /**
- * Generates a JSON Web Token (JWT) for authentication.
- * @function
- * @param {Object} payload - The data to be embedded in the token.
- * @returns {string} The signed JWT token.
+ * Signs a JWT token with the given payload.
+ *
+ * @param {object} payload - The data payload to include in the token (will be nested under `data`).
+ * @param {string | null} [expiration="2h"] - The expiration time (e.g., "2h", "7d"). 
+ * Pass `null` for a token that never expires.
+ * @returns {string} The signed JSON Web Token.
+ * @throws {Error} Throws an error if the JWT_SECRET is not defined.
  */
-const signToken = (payload) => {
+const signToken = (payload, expiration = "2h") => {
   const secret = process.env.JWT_SECRET;
-  const expiration = "2h";
-  return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
+
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables.');
+  }
+
+  const options = {};
+
+  if (expiration) {
+    options.expiresIn = expiration;
+  }
+
+  return jwt.sign({ data: payload }, secret, options);
 };
 
 module.exports = { authenticateUser, authorizeAdmin, signToken, basic_auth };
