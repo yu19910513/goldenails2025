@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 const { Customer } = require("../../models");
 const { sendEmail, sendSMS } = require("../../utils/notification");
 const { validateContactType } = require("../../utils/helper");
-const { signToken } = require("../../utils/authentication");
+const { signToken, getTokenExpiration } = require("../../utils/authentication");
 
 /**
  * Route to send a passcode to the customer via email or SMS.
@@ -56,14 +56,18 @@ router.post("/send-passcode", async (req, res) => {
 });
 
 /**
- * Route to verify the passcode entered by the customer and return an authentication token.
- * @route POST /verify-passcode
- * @param {Object} req - Express request object
- * @param {Object} req.body - Request body
- * @param {string} req.body.identifier - Customer's email or phone number
- * @param {string} req.body.passcode - Passcode received by the customer
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with authentication token or error message
+ * @route   POST /verify-passcode
+ * @desc    Verifies a customer's passcode and issues a JSON Web Token.
+ * @access  Public
+ *
+ * @param {object} req - Express request object.
+ * @param {object} req.body - The request body.
+ * @param {string} req.body.identifier - The customer's email or phone number.
+ * @param {string} req.body.passcode - The one-time passcode.
+ * @param {object} res - Express response object.
+ *
+ * @returns {Promise<void>} Sends a JSON response with a token on success,
+ * or an error message on failure.
  */
 router.post("/verify-passcode", async (req, res) => {
     try {
@@ -71,11 +75,8 @@ router.post("/verify-passcode", async (req, res) => {
 
         const customer = await Customer.findOne({
             where: {
-                [Op.or]: [
-                    { email: identifier },
-                    { phone: identifier }
-                ]
-            }
+                [Op.or]: [{ email: identifier }, { phone: identifier }],
+            },
         });
 
         if (!customer || customer.passcode !== passcode) {
@@ -85,7 +86,16 @@ router.post("/verify-passcode", async (req, res) => {
         customer.passcode = null;
         await customer.save();
 
-        const token = signToken({ phone: customer.phone, id: customer.id, name: customer.name, admin_privilege: customer.admin_privilege });
+        const tokenExpiration = getTokenExpiration(customer.admin_privilege);
+
+        const payload = {
+            phone: customer.phone,
+            id: customer.id,
+            name: customer.name,
+            admin_privilege: customer.admin_privilege,
+        };
+
+        const token = signToken(payload, tokenExpiration);
 
         res.status(200).json({ token });
     } catch (error) {
