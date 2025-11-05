@@ -112,12 +112,11 @@ const basic_auth = (req, res, next) => {
  * it defaults to '1y'.
  *
  * - **Customers:** Returns the `CUSTOMER_TOKEN_EXPIRATION` environment variable.
- * If this is `undefined`, the consuming `jwt.sign` function's own default
- * will apply.
+ * If `CUSTOMER_TOKEN_EXPIRATION` is not set (falsy) or is the literal string 'null',
+ * it defaults to '2h'.
  *
  * @param {boolean} [isAdmin=false] - Whether the user has admin privileges.
- * @returns {string | undefined} The expiration string (e.g., "15m", "1y") or
- * `undefined` (to use the JWT signing default).
+ * @returns {string} The expiration string (e.g., "15m", "1y", "2h").
  */
 const getTokenExpiration = (isAdmin = false) => {
   if (isAdmin) {
@@ -126,10 +125,15 @@ const getTokenExpiration = (isAdmin = false) => {
     if (!adminExp || adminExp === 'null') {
       return '1y';
     }
-
     return adminExp;
+
   } else {
-    return process.env.CUSTOMER_TOKEN_EXPIRATION;
+    const customerExp = process.env.CUSTOMER_TOKEN_EXPIRATION;
+
+    if (!customerExp || customerExp === 'null') {
+      return '2h';
+    }
+    return customerExp;
   }
 };
 
