@@ -105,15 +105,61 @@ const basic_auth = (req, res, next) => {
 };
 
 /**
- * Generates a JSON Web Token (JWT) for authentication.
- * @function
- * @param {Object} payload - The data to be embedded in the token.
- * @returns {string} The signed JWT token.
+ * Determines the correct JWT expiration time based on user role.
+ *
+ * - **Admins:** Returns the `ADMIN_TOKEN_EXPIRATION` environment variable.
+ * If `ADMIN_TOKEN_EXPIRATION` is not set (falsy) or is the literal string 'null',
+ * it defaults to '1y'.
+ *
+ * - **Customers:** Returns the `CUSTOMER_TOKEN_EXPIRATION` environment variable.
+ * If `CUSTOMER_TOKEN_EXPIRATION` is not set (falsy) or is the literal string 'null',
+ * it defaults to '2h'.
+ *
+ * @param {boolean} [isAdmin=false] - Whether the user has admin privileges.
+ * @returns {string} The expiration string (e.g., "15m", "1y", "2h").
  */
-const signToken = (payload) => {
-  const secret = process.env.JWT_SECRET;
-  const expiration = "2h";
-  return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
+const getTokenExpiration = (isAdmin = false) => {
+  if (isAdmin) {
+    const adminExp = process.env.ADMIN_TOKEN_EXPIRATION;
+
+    if (!adminExp || adminExp === 'null') {
+      return '1y';
+    }
+    return adminExp;
+
+  } else {
+    const customerExp = process.env.CUSTOMER_TOKEN_EXPIRATION;
+
+    if (!customerExp || customerExp === 'null') {
+      return '2h';
+    }
+    return customerExp;
+  }
 };
 
-module.exports = { authenticateUser, authorizeAdmin, signToken, basic_auth };
+/**
+ * Signs a JWT token with the given payload.
+ *
+ * @param {object} payload - The data payload to include in the token (will be nested under `data`).
+ * @param {string | null} [expiration="2h"] - The expiration time (e.g., "2h", "7d"). 
+ * Pass `null` for a token that never expires.
+ * @returns {string} The signed JSON Web Token.
+ * @throws {Error} Throws an error if the JWT_SECRET is not defined.
+ */
+const signToken = (payload, expiration = "2h") => {
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables.');
+  }
+
+  const options = {};
+
+  if (expiration) {
+    options.expiresIn = expiration;
+  }
+
+  return jwt.sign({ data: payload }, secret, options);
+};
+
+module.exports = { authenticateUser, authorizeAdmin, signToken, basic_auth, getTokenExpiration };
