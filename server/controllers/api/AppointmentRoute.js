@@ -3,6 +3,7 @@ const router = express.Router();
 const { Appointment, Technician, Service, Customer } = require("../../models");
 const { Op, fn, col, where } = require("sequelize");
 const { groupAppointments, now, overlap, okayToAssign } = require("../../utils/helper");
+const { authorizeAdmin, authenticateUser } = require("../../utils/authentication");
 const moment = require('moment-timezone');
 const { DateTime } = require('luxon');
 
@@ -131,7 +132,7 @@ router.get("/upcoming", async (req, res) => {
  *     console.error(error); // Handle any errors that occur during the request
  *   });
  */
-router.get("/calender", async (req, res) => {
+router.get("/calender", authorizeAdmin, async (req, res) => {
   try {
     // Extract the date from query parameters
     const { date } = req.query;
@@ -199,7 +200,7 @@ router.get("/calender", async (req, res) => {
 });
 
 
-/**
+/**NEED authenticateUser middleware when the customer's account is token-based
  * @route GET /customer_history
  * @description Fetches all non-deleted appointments for a specific customer.
  * @param {Object} req - Express request object.
@@ -247,7 +248,7 @@ router.get("/customer_history", async (req, res) => {
 });
 
 
-/**
+/**NEED authenticateUser middleware when the customer's account is token-based
  * @route PUT /appointment/update_note
  * @description Updates the note field of a specific appointment
  * @param {object} req - Express request object
@@ -437,7 +438,7 @@ router.post("/", async (req, res) => {
  * 
  * @throws {500} - If there is an internal server error during the search operation.
  */
-router.get("/search", async (req, res) => {
+router.get("/search", authorizeAdmin, async (req, res) => {
   try {
     const { keyword } = req.query;
 
@@ -551,7 +552,7 @@ router.get("/search", async (req, res) => {
  * and then checks for available technicians who are not already scheduled for conflicting appointments.
  * It returns a list of technicians who are free during that time window and not marked as deleted.
  */
-router.get("/find_alternative_techs", async (req, res) => {
+router.get("/find_alternative_techs", authenticateUser, async (req, res) => {
   try {
     const technicians = [];
     const { id } = req.query;
@@ -641,7 +642,7 @@ router.get("/find_alternative_techs", async (req, res) => {
  *   "updatedTechnician": { ...technician object... }
  * }
  */
-router.put("/update_technician", async (req, res) => {
+router.put("/update_technician", authorizeAdmin, async (req, res) => {
   try {
     const { id, technician_id } = req.body;
 
