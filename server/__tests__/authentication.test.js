@@ -274,12 +274,12 @@ describe('getTokenExpiration', () => {
     // --- Test Cases for Admin Users ---
     describe('when user is an admin (isAdmin = true)', () => {
 
-        test('should return null if ADMIN_TOKEN_EXPIRATION is not set (undefined)', () => {
+        test('should return default 1y if ADMIN_TOKEN_EXPIRATION is not set (undefined)', () => {
             // process.env.ADMIN_TOKEN_EXPIRATION is undefined by default
             expect(getTokenExpiration(true)).toBe('1y');
         });
 
-        test('should return null if ADMIN_TOKEN_EXPIRATION is the string "null"', () => {
+        test('should return default 1y if ADMIN_TOKEN_EXPIRATION is the string "null"', () => {
             process.env.ADMIN_TOKEN_EXPIRATION = 'null';
             expect(getTokenExpiration(true)).toBe('1y');
         });
@@ -289,7 +289,7 @@ describe('getTokenExpiration', () => {
             expect(getTokenExpiration(true)).toBe('15m');
         });
 
-        test('should return an empty string if ADMIN_TOKEN_EXPIRATION is set to ""', () => {
+        test('should return default 1y if ADMIN_TOKEN_EXPIRATION is set to ""', () => {
             // This is an edge case, but the logic correctly returns the value
             process.env.ADMIN_TOKEN_EXPIRATION = '';
             expect(getTokenExpiration(true)).toBe('1y');
@@ -299,9 +299,9 @@ describe('getTokenExpiration', () => {
     // --- Test Cases for Regular Customers ---
     describe('when user is a regular customer (isAdmin = false)', () => {
 
-        test('should return undefined if CUSTOMER_TOKEN_EXPIRATION is not set', () => {
+        test('should return default 2h if CUSTOMER_TOKEN_EXPIRATION is not set', () => {
             // process.env.CUSTOMER_TOKEN_EXPIRATION is undefined
-            expect(getTokenExpiration(false)).toBeUndefined();
+            expect(getTokenExpiration(false)).toBe('2h');
         });
 
         test('should return the specific duration string if set (e.g., "2h")', () => {
@@ -309,14 +309,14 @@ describe('getTokenExpiration', () => {
             expect(getTokenExpiration(false)).toBe('2h');
         });
 
-        test('should return the string "null" if CUSTOMER_TOKEN_EXPIRATION is set to "null"', () => {
+        test('should return default 2h if CUSTOMER_TOKEN_EXPIRATION is set to "null"', () => {
             process.env.CUSTOMER_TOKEN_EXPIRATION = 'null';
-            expect(getTokenExpiration(false)).toBe('null');
+            expect(getTokenExpiration(false)).toBe('2h');
         });
 
-        test('should return undefined when called with no arguments (defaults to customer)', () => {
+        test('should return default 2h when called with no arguments (defaults to customer)', () => {
             // This also tests that (isAdmin = false) is the default
-            expect(getTokenExpiration()).toBeUndefined();
+            expect(getTokenExpiration()).toBe('2h');
         });
     });
 });
