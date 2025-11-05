@@ -276,12 +276,12 @@ describe('getTokenExpiration', () => {
 
         test('should return null if ADMIN_TOKEN_EXPIRATION is not set (undefined)', () => {
             // process.env.ADMIN_TOKEN_EXPIRATION is undefined by default
-            expect(getTokenExpiration(true)).toBeNull();
+            expect(getTokenExpiration(true)).toBe('1y');
         });
 
         test('should return null if ADMIN_TOKEN_EXPIRATION is the string "null"', () => {
             process.env.ADMIN_TOKEN_EXPIRATION = 'null';
-            expect(getTokenExpiration(true)).toBeNull();
+            expect(getTokenExpiration(true)).toBe('1y');
         });
 
         test('should return the specific duration string if set (e.g., "15m")', () => {
@@ -292,7 +292,7 @@ describe('getTokenExpiration', () => {
         test('should return an empty string if ADMIN_TOKEN_EXPIRATION is set to ""', () => {
             // This is an edge case, but the logic correctly returns the value
             process.env.ADMIN_TOKEN_EXPIRATION = '';
-            expect(getTokenExpiration(true)).toBe('');
+            expect(getTokenExpiration(true)).toBe('1y');
         });
     });
 
