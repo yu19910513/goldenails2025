@@ -104,28 +104,31 @@ const basic_auth = (req, res, next) => {
   next();
 };
 
-/* Determines the correct JWT expiration time based on user role.
- * Admin tokens default to non-expiring if 'ADMIN_TOKEN_EXPIRATION' is 'null' or undefined.
- * Customer tokens default to 'signToken's' built-in default if 'CUSTOMER_TOKEN_EXPIRATION' is undefined.
+/**
+ * Determines the correct JWT expiration time based on user role.
  *
- * @param {boolean} isAdmin - Whether the user has admin privileges.
- * @returns {string | null | undefined} The expiration string (e.g., "2h"),
- * null (for non-expiring), or undefined (to use default).
+ * - **Admins:** Returns the `ADMIN_TOKEN_EXPIRATION` environment variable.
+ * If `ADMIN_TOKEN_EXPIRATION` is not set (falsy) or is the literal string 'null',
+ * it defaults to '1y'.
+ *
+ * - **Customers:** Returns the `CUSTOMER_TOKEN_EXPIRATION` environment variable.
+ * If this is `undefined`, the consuming `jwt.sign` function's own default
+ * will apply.
+ *
+ * @param {boolean} [isAdmin=false] - Whether the user has admin privileges.
+ * @returns {string | undefined} The expiration string (e.g., "15m", "1y") or
+ * `undefined` (to use the JWT signing default).
  */
 const getTokenExpiration = (isAdmin = false) => {
   if (isAdmin) {
     const adminExp = process.env.ADMIN_TOKEN_EXPIRATION;
 
-    // If adminExp is the string 'null' OR it's not set (undefined), return literal null
-    if (adminExp === 'null' || adminExp === undefined) {
-      return null; // Token will not expire
+    if (!adminExp || adminExp === 'null') {
+      return '1y';
     }
-    
-    // Otherwise, return the specific duration (e.g., "15m")
+
     return adminExp;
   } else {
-    // For regular customers, return the env variable.
-    // If CUSTOMER_TOKEN_EXPIRATION is undefined, signToken's default ("2h") will apply.
     return process.env.CUSTOMER_TOKEN_EXPIRATION;
   }
 };
