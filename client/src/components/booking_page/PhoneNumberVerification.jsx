@@ -48,8 +48,17 @@ const PhoneNumberVerification = ({ onVerify }) => {
     }
   };
 
+  /**
+   * Handles the customer creation process.
+   * 1. Validates local form state (name, phone, email).
+   * 2. Asynchronously checks if the phone number or email already exists in the database.
+   * 3. If validation and duplicate checks pass, it attempts to create (upsert) the new customer.
+   * Updates the error message state (`setErrorMessage`) on failure or duplicate.
+   * Calls `onVerify(customer)` on successful creation.
+   */
   const handleCreateCustomer = async () => {
     setErrorMessage("");
+
     if (!name) {
       setErrorMessage("Name is required.");
       return;
@@ -64,14 +73,34 @@ const PhoneNumberVerification = ({ onVerify }) => {
     }
 
     try {
-      const existingCustomer = await CustomerService.smart_search(phone);
+      const searchPromises = [
+        CustomerService.smart_search(phone)
+      ];
 
-      if (existingCustomer?.data?.length > 0) {
-        setErrorMessage("This phone number is already associated with an existing account. Duplicate accounts are not allowed.");
+      if (email) {
+        searchPromises.push(CustomerService.smart_search(email));
+      }
+
+      const results = await Promise.all(searchPromises);
+
+      const phoneResult = results[0];
+      if (phoneResult?.data?.length > 0) {
+        setErrorMessage("This phone number is already associated with an existing account.");
         return;
       }
+
+      if (email && results.length > 1) {
+        const emailResult = results[1];
+        if (emailResult?.data?.length > 0) {
+          setErrorMessage("This email is already associated with an existing account.");
+          return;
+        }
+      }
+
     } catch (error) {
       console.error('smart_search failed:', error);
+      setErrorMessage("An error occurred while checking for duplicates. Please try again.");
+      return;
     }
 
     const newCustomer = { phone, name: name.trim().toUpperCase(), email: email || null, optInSms };
@@ -79,22 +108,60 @@ const PhoneNumberVerification = ({ onVerify }) => {
       const createdCustomer = await CustomerService.upsert(newCustomer);
       onVerify(createdCustomer.data.customer);
     } catch (error) {
-      setErrorMessage(error.response.data.error);
+      setErrorMessage(error.response?.data?.error || "Failed to create customer.");
     }
   };
 
+  /**
+   * Handles saving the email for an existing customer.
+   * 1. Validates the email format from the component's state.
+   * 2. Trims the email and converts an empty string to null for database integrity.
+   * 3. Checks for duplicates, ensuring the email isn't already used by *another* customer.
+   * 4. On success, updates the customer via `upsert`, closes the email modal,
+   * and calls `onVerify` with the updated customer data.
+   * 5. Catches and displays errors from either the duplicate check or the update.
+   */
   const handleSaveEmail = async () => {
-    if (email && !validateEmail(email)) {
+    setErrorMessage("");
+    const newEmail = email ? email.trim() : null;
+
+    if (newEmail && !validateEmail(newEmail)) {
       setErrorMessage("Please enter a valid email address.");
       return;
     }
+
     try {
-      const updatedCustomer = { ...customerData, email };
-      await CustomerService.upsert(updatedCustomer);
-      setShowEmailModal(false);
-      onVerify(updatedCustomer);
+      if (newEmail) {
+        const existingResult = await CustomerService.smart_search(newEmail);
+
+        if (existingResult?.data?.length > 0) {
+          const duplicate = existingResult.data.find(
+            (customer) => customer.id !== customerData.id
+          );
+
+          if (duplicate) {
+            setErrorMessage("This email is already in use by another account.");
+            return;
+          }
+        }
+      }
     } catch (error) {
-      setErrorMessage("Failed to update email. Please try again.");
+      console.error('smart_search failed:', error);
+      setErrorMessage("An error occurred while checking for duplicates. Please try again.");
+      return;
+    }
+
+    try {
+      const customerToUpdate = { ...customerData, email: newEmail, optInSms };
+
+      const response = await CustomerService.upsert(customerToUpdate);
+
+      const savedCustomer = response.data.customer || customerToUpdate;
+
+      setShowEmailModal(false);
+      onVerify(savedCustomer);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.error || "Failed to update email. Please try again.");
     }
   };
 
