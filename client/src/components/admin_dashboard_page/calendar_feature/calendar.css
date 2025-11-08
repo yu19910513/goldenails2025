@@ -194,11 +194,20 @@
 }
 
 .calendar-admin-appointment:hover {
+  /* Add !important to override the inline style 
+    set by React.
+  */
+  height: auto !important; 
+  
+  /* Make sure the minimum height is still reasonable */
+  min-height: 60px; /* or whatever your 1-hour height is */
+
+  z-index: 12; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  
+  /* Your existing hover styles */
   background-color: #c3e6cb;
   border-color: #a4d6aa;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  z-index: 11;
-  /* Bring to front on hover */
 }
 
 .calendar-admin-appointment span {
