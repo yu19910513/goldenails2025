@@ -1,3 +1,5 @@
+/* === CALENDAR.CSS (Full File) === */
+
 /* Ensure styles only apply to this component */
 .calendar-admin-page-container {
   font-family: Arial, sans-serif;
@@ -92,41 +94,88 @@
   padding-bottom: 8px;
 }
 
-/* Time Slots */
-.calendar-admin-time-slots {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+/* ==================================================================
+  CALENDAR GRID & OVERLAY STRUCTURE (NEW & MODIFIED)
+  This is the new structure that replaced your old time slot styles
+==================================================================
+*/
+
+/* NEW: This wrapper holds both the grid and the appointment overlay.
+  It's the "anchor" for our absolute positioning.
+*/
+.calendar-admin-slots-wrapper {
+  position: relative;
 }
 
+/* NEW: This is the container for the background grid rows */
+.calendar-admin-time-slots-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* MODIFIED: This is now just a background row. */
 .calendar-admin-time-slot {
   display: flex;
   align-items: flex-start;
-  padding: 5px;
-  border: 1px solid #f0f0f0;
+  /* Keeps time aligned at the top */
+  /* We use border-bottom to create the hourly lines */
+  border-bottom: 1px solid #f0f0f0;
   background-color: #fafafa;
-  border-radius: 5px;
-  position: relative;
 }
 
+/* MODIFIED: This is the time label (8:00 AM, 9:00 AM, etc.) */
 .calendar-admin-time-slot .calendar-admin-time {
   flex: 0 0 80px;
+  /* 80px width */
   font-size: 14px;
   font-weight: bold;
   color: #666;
+  padding: 5px 0;
+  /* Give it a little padding */
 }
 
-.calendar-admin-time-slot .calendar-admin-appointments {
+/* NEW: This is the visual, 1-hour-tall row in the background grid. */
+.calendar-admin-time-slot-row {
   flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  /* Takes up the rest of the width */
+  border-left: 1px solid #f0f0f0;
+  /* Adds a vertical line */
+  box-sizing: border-box;
+  /* Ensures height includes border */
 }
 
-/* Appointment Blocks */
+/* REMOVED: The old .calendar-admin-appointments class is no longer used */
+
+
+/* NEW: This container sits on top of the grid and holds all appointments */
+.calendar-admin-appointments-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* This must match the width of .calendar-admin-time (80px) */
+  padding-left: 80px;
+}
+
+/* MODIFIED: This is the most important change.
+  The appointment must be position: absolute.
+*/
 .calendar-admin-appointment {
-  position: relative;
+  position: absolute;
+  /* This is the key change */
+
+  /* Calculate width: 100% of the overlay - some padding.
+    The 80px from padding-left (on overlay) + 10px right margin.
+  */
+  width: calc(100% - 90px);
+
+  z-index: 10;
+  /* Make sure it's above the grid */
+  box-sizing: border-box;
+  /* Ensures height/padding are calculated correctly */
+
+  /* Your existing styles */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -140,19 +189,33 @@
   font-size: 12px;
   font-weight: bold;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  /* Hides text that overflows the block */
 }
 
 .calendar-admin-appointment:hover {
   background-color: #c3e6cb;
   border-color: #a4d6aa;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  z-index: 11;
+  /* Bring to front on hover */
 }
 
 .calendar-admin-appointment span {
   margin: 2px 0;
+  white-space: nowrap;
+  /* Prevents long service lists from wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
-/* calendar.css */
+
+/* ==================================================================
+  MODAL & FLOATING BUTTON (Unchanged)
+==================================================================
+*/
+
 .calendar-modal-overlay {
   position: fixed;
   top: 0;
@@ -217,7 +280,11 @@
   background-color: darkred;
 }
 
-/* Responsive Design */
+/* ==================================================================
+  RESPONSIVE DESIGN (Unchanged)
+==================================================================
+*/
+
 @media screen and (max-width: 768px) {
   .calendar-admin-header {
     flex-direction: column;
