@@ -1,6 +1,16 @@
-/* === CALENDAR.CSS (Full File) === */
+/**
+ * ==================================================================
+ * CALENDAR.CSS
+ * * Styles for the Technician Calendar component, including the 
+ * page layout, header, calendar grid, appointment blocks,
+ * and modal.
+ * ==================================================================
+ */
 
-/* Ensure styles only apply to this component */
+/* * 1.0 Page Layout & Header
+ * ------------------------------------------------------------------
+ */
+
 .calendar-admin-page-container {
   font-family: Arial, sans-serif;
   max-width: 1200px;
@@ -10,7 +20,6 @@
   color: #333;
 }
 
-/* Header Navigation */
 .calendar-admin-header {
   display: flex;
   justify-content: space-between;
@@ -37,15 +46,18 @@
   background-color: #0056b3;
 }
 
-/* Datepicker Wrapper */
+/* * 2.0 Datepicker
+ * ------------------------------------------------------------------
+ */
+
 .calendar-datepicker-wrapper {
   flex: 2;
   display: flex;
   justify-content: center;
   z-index: 1001;
+  /* Sits above calendar grid, below modal */
 }
 
-/* DatePicker Styles */
 .calendar-custom-datepicker {
   font-size: 16px;
   padding: 10px 20px;
@@ -67,7 +79,14 @@
   outline: none;
 }
 
-/* Calendar Container */
+/* * 3.0 Calendar Grid Structure
+ * ------------------------------------------------------------------
+ * This section defines the main calendar layout. It uses a
+ * relative wrapper to hold two layers:
+ * 1. A background grid of time slots (.calendar-admin-time-slots-grid)
+ * 2. An absolute overlay for appointments (.calendar-admin-appointments-overlay)
+ */
+
 .calendar-admin-calendar {
   display: flex;
   gap: 20px;
@@ -94,92 +113,65 @@
   padding-bottom: 8px;
 }
 
-/* ==================================================================
-  CALENDAR GRID & OVERLAY STRUCTURE (NEW & MODIFIED)
-  This is the new structure that replaced your old time slot styles
-==================================================================
-*/
-
-/* NEW: This wrapper holds both the grid and the appointment overlay.
-  It's the "anchor" for our absolute positioning.
-*/
+/* 3.1 Relative Wrapper */
 .calendar-admin-slots-wrapper {
   position: relative;
 }
 
-/* NEW: This is the container for the background grid rows */
+/* 3.2 Background Grid */
 .calendar-admin-time-slots-grid {
   display: flex;
   flex-direction: column;
 }
 
-/* MODIFIED: This is now just a background row. */
 .calendar-admin-time-slot {
   display: flex;
   align-items: flex-start;
-  /* Keeps time aligned at the top */
-  /* We use border-bottom to create the hourly lines */
   border-bottom: 1px solid #f0f0f0;
   background-color: #fafafa;
 }
 
-/* MODIFIED: This is the time label (8:00 AM, 9:00 AM, etc.) */
 .calendar-admin-time-slot .calendar-admin-time {
   flex: 0 0 80px;
-  /* 80px width */
+  /* Fixed 80px width for time column */
   font-size: 14px;
   font-weight: bold;
   color: #666;
   padding: 5px 0;
-  /* Give it a little padding */
 }
 
-/* NEW: This is the visual, 1-hour-tall row in the background grid. */
 .calendar-admin-time-slot-row {
   flex: 1;
-  /* Takes up the rest of the width */
+  /* Takes up remaining width */
   border-left: 1px solid #f0f0f0;
-  /* Adds a vertical line */
   box-sizing: border-box;
-  /* Ensures height includes border */
+  /* Height is set inline via React (e.g., 60px) */
 }
 
-/* REMOVED: The old .calendar-admin-appointments class is no longer used */
+/* * 4.0 Appointment Blocks
+ * ------------------------------------------------------------------
+ * Appointments are absolutely positioned within the overlay.
+ * Their 'top' and 'height' are set via inline styles from React.
+ */
 
-
-/* NEW: This container sits on top of the grid and holds all appointments */
+/* 4.1 Appointment Overlay (Sits on top of the grid) */
 .calendar-admin-appointments-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  /* This must match the width of .calendar-admin-time (80px) */
+  /* Must match the 80px width of the time column */
   padding-left: 80px;
 }
 
-/* MODIFIED: This is the most important change.
-  The appointment must be position: absolute.
-*/
+/* 4.2 Individual Appointment Block */
 .calendar-admin-appointment {
   position: absolute;
-  /* This is the key change */
-
-  /* Calculate width: 100% of the overlay - some padding.
-    The 80px from padding-left (on overlay) + 10px right margin.
-  */
+  /* Width calc accounts for 80px offset + 10px right margin */
   width: calc(100% - 90px);
-
   z-index: 10;
-  /* Make sure it's above the grid */
   box-sizing: border-box;
-  /* Ensures height/padding are calculated correctly */
-
-  /* Your existing styles */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
   background-color: #d4edda;
   border: 1px solid #c3e6cb;
@@ -190,40 +182,36 @@
   font-weight: bold;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  /* Hides text that overflows the block */
+  /* Clips content in short blocks */
 }
 
+/* 4.3 Appointment Hover State (Expands to show all content) */
 .calendar-admin-appointment:hover {
-  /* Add !important to override the inline style 
-    set by React.
-  */
-  height: auto !important; 
-  
-  /* Make sure the minimum height is still reasonable */
-  min-height: 60px; /* or whatever your 1-hour height is */
-
-  z-index: 12; 
+  /* Overrides inline style to auto-fit content */
+  height: auto !important;
+  /* Ensures it's still at least 1 hour tall visually */
+  min-height: 60px;
+  z-index: 12;
+  /* Sits above other appointments */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  
-  /* Your existing hover styles */
   background-color: #c3e6cb;
   border-color: #a4d6aa;
 }
 
+/* 4.4 Appointment Content (Text) */
 .calendar-admin-appointment span {
+  display: block;
+  /* Stacks text vertically from the top */
   margin: 2px 0;
   white-space: nowrap;
-  /* Prevents long service lists from wrapping */
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
 }
 
-
-/* ==================================================================
-  MODAL & FLOATING BUTTON (Unchanged)
-==================================================================
-*/
+/* * 5.0 Modal & Floating Action Button (FAB)
+ * ------------------------------------------------------------------
+ */
 
 .calendar-modal-overlay {
   position: fixed;
@@ -247,10 +235,7 @@
   width: 90%;
   cursor: auto;
   max-height: 90vh;
-  /* Limit height to viewport */
   overflow-y: auto;
-  /* Add vertical scroll if needed */
-  /* So inside the modal isn't pointer */
 }
 
 .calendar-add-appt-button {
@@ -283,16 +268,16 @@
 .calendar-add-appt-button.open {
   background-color: crimson;
   z-index: 1003;
+  /* Sits above modal overlay */
 }
 
 .calendar-add-appt-button.open:hover {
   background-color: darkred;
 }
 
-/* ==================================================================
-  RESPONSIVE DESIGN (Unchanged)
-==================================================================
-*/
+/* * 6.0 Responsive Design
+ * ------------------------------------------------------------------
+ */
 
 @media screen and (max-width: 768px) {
   .calendar-admin-header {
