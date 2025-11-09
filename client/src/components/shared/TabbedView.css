@@ -6,40 +6,84 @@
 .tabbed-view-tabs {
   display: flex;
   justify-content: center;
-  border-bottom: 2px solid #e0e0e0;
   margin-bottom: 30px;
+  border-bottom: 1px solid #eee;
 }
 
 .tabbed-view-tab {
-  padding: 12px 25px;
+  padding: 16px 24px;
   font-size: 1.1em;
   cursor: pointer;
   color: #777;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: color 0.3s, transform 0.2s;
+  letter-spacing: 0.5px;
   text-align: center;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+
+  /* --- NEW: Button Style Reset --- */
+  /* This makes our <button> look like the original <div> */
+  border: none;
+  background: none;
+  font-family: inherit;
+  /* Ensure font is inherited */
+  margin: 0;
 }
 
-.tabbed-view-tab:hover {
-  transform: scale(1.05);
+/* --- NEW: Focus Style for Accessibility --- */
+/* Shows a ring when user navigates with keyboard */
+.tabbed-view-tab:focus-visible {
+  outline: 2px solid #b03a2e;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-.tabbed-view-active {
-  color: #fff;
+/* Create the underline element */
+.tabbed-view-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  /* Sits just on top of the container's border */
+  left: 0;
+  width: 100%;
+  height: 3px;
   background-color: #b03a2e;
-  font-weight: bold;
-  text-transform: none;
-  box-shadow: inset 0 -2px 0 0 #fff;
+  transform: scaleX(0);
+  /* Start scaled to 0 */
+  transform-origin: bottom center;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Subtle hover: slightly darker text */
+.tabbed-view-tab:hover {
+  background-color: rgba(240, 236, 230, 0.6);
+  color: #333;
+}
+
+/* Active tab styles */
+.tabbed-view-active {
+  color: #b03a2e;
+  font-weight: 600;
+}
+
+/* Animate the ::after element to 100% width */
+.tabbed-view-active::after {
+  transform: scaleX(1);
 }
 
 .tabbed-view-content {
   padding: 0px;
   background-color: transparent;
-  border-radius: 8px;
 }
 
-/* Responsive Example */
+/* --- NEW: Rule for State Preservation --- */
+/* This hides the inactive panels instead of unmounting them */
+.tabbed-view-panel[hidden] {
+  display: none;
+}
+
+/* --- Improved Responsive Design --- */
 @media (max-width: 600px) {
   .tabbed-view-tabs {
     flex-wrap: wrap;
@@ -47,7 +91,8 @@
   }
 
   .tabbed-view-tab {
-    width: 50%;
-    text-align: center;
+    flex-basis: 50%;
+    flex-shrink: 0;
+    padding: 12px 10px;
   }
 }
