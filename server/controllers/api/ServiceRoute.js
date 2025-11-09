@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
           attributes: ["id", "name"],
         },
       ],
-      order: [["category_id", "ASC"], ["id", "ASC"]],
+      order: [["category_id", "ASC"], ["name", "ASC"]],
     });
 
     // Serialize the data
