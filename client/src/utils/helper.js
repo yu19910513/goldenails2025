@@ -5,11 +5,11 @@ import { DateTime } from "luxon";
  * - If the price ends with 1, 6, or 9 and less than 1000, it subtracts 1 and appends a "+".
  * - If the price is 1000 or more, it splits the price into a range format.
  * - Otherwise, it returns the price as a standard dollar amount.
- * 
+ *
  * @param {number} price - The price to format.
  * @returns {string} - The formatted price string.
  * @throws {Error} - Throws if the input price is not a number.
- * 
+ *
  * @example
  * formatPrice(156); // "$155+"
  * formatPrice(1020); // "$10 - 20"
@@ -35,13 +35,13 @@ const formatPrice = (price) => {
 
 /**
  * Calculates the total time required for all selected services.
- * 
+ *
  * @param {Object} selectedServices - An object where keys are category IDs and values are arrays of service objects.
  * @param {Array<Object>} selectedServices[categoryId] - The array of service objects in a category.
  * @param {number} selectedServices[categoryId].time - The time required for each service.
  * @returns {number} - The total time required for all selected services.
  * @throws {Error} - Throws if `selectedServices` is not an object or if services are not arrays.
- * 
+ *
  * @example
  * const selectedServices = {
  *   1: [
@@ -94,16 +94,16 @@ const calculateTotalTimePerAppointment = (services) => {
 
 /**
  * Calculates the total amount for selected services.
- * 
+ *
  * The function iterates over the `selectedServices` object, which is expected to have
  * categories as keys and an array of service objects as values. Each service object should
  * have a `price` property. The total price of all services is summed and returned.
- * 
+ *
  * @param {Object} selectedServices - An object where keys are category IDs and values are arrays of service objects.
  * Each service object should contain a `price` property representing the service's cost.
  * @throws {Error} Will throw an error if `selectedServices` is not an object or if any service list is not an array.
  * @throws {Error} Will throw an error if a service object does not have a valid `price` property.
- * 
+ *
  * @returns {number} The total amount of all selected services.
  */
 const calculateTotalAmount = (selectedServices) => {
@@ -286,12 +286,12 @@ const now = () => {
 
 /**
 * Sends a cancellation notification to the customer and technician regarding an appointment.
-* 
-* This function checks that the appointment and customer details are valid. If they are, 
-* it creates a message containing the necessary details and sends a cancellation 
-* notification via the NotificationService. If any required details are missing or invalid, 
+*
+* This function checks that the appointment and customer details are valid. If they are,
+* it creates a message containing the necessary details and sends a cancellation
+* notification via the NotificationService. If any required details are missing or invalid,
 * it logs an error and stops further execution.
-* 
+*
 * @param {Object} appointment - The appointment details for the notification.
 * @param {string} appointment.date - The date of the appointment.
 * @param {string} appointment.start_service_time - The start time of the appointment.
@@ -300,9 +300,9 @@ const now = () => {
 * @param {string} appointment.Customer.name - The name of the customer.
 * @param {string} appointment.Customer.phone - The phone number of the customer.
 * @param {string} appointment.Customer.email - The email address of the customer.
-* 
+*
 * @throws {Error} If there is a failure in sending the cancellation notification.
-* 
+*
 * @returns {void} This function does not return a value. It sends a notification asynchronously.
 */
 const sendCancellationNotification = async (appointment) => {
@@ -467,7 +467,7 @@ const areCommonValuesEqual = (control, test) => {
 
 /**
  * Returns business hours for a given date, using America/Los_Angeles time zone.
- * 
+ *
  * - On Sundays, returns { start: 11, end: 17 }
  * - On other days, returns { start: 9, end: 19 }
  *
@@ -484,7 +484,7 @@ const getBusinessHours = (dateInput) => {
 }
 
 /**
- * Sanitizes an object by trimming whitespace from all string values, 
+ * Sanitizes an object by trimming whitespace from all string values,
  * converting the "name" field to uppercase, and converting the "email" field to lowercase.
  * All other fields are trimmed but remain unchanged.
  *
@@ -494,7 +494,7 @@ const getBusinessHours = (dateInput) => {
  *   - The "email" field will be trimmed and converted to lowercase.
  *   - Other string fields will be trimmed.
  *   - Non-string fields will remain unchanged.
- * 
+ *
  * @example
  * const input = {
  *   name: "  John Doe  ",
@@ -502,7 +502,7 @@ const getBusinessHours = (dateInput) => {
  *   email: "  ExAMPLE@EMAIL.COM  ",
  *   address: "123 Main St"
  * };
- * 
+ *
  * const sanitizedInput = sanitizeObjectInput(input);
  * console.log(sanitizedInput);
  * // Output:
@@ -541,14 +541,14 @@ const sanitizeObjectInput = (object) => {
 
 /**
  * Checks if a given JWT token is valid by verifying its structure and expiration.
- * 
+ *
  * This function:
  * - Validates that the token exists and is a string.
  * - Ensures the token has three parts separated by dots (standard JWT format).
  * - Decodes the payload part of the token from base64 URL format.
  * - Parses the JSON payload and checks for a valid numeric "exp" (expiration time) field.
  * - Returns true if the token is not expired based on the current time.
- * 
+ *
  * @param {string | null | undefined} token - The JWT token to validate.
  * @returns {boolean} True if the token is a valid JWT and not expired, false otherwise.
  */
@@ -598,7 +598,7 @@ const isTokenValid = (token) => {
  *   Duplicate objects with the same `id` represent repeated instances of that type.
  * @param {number} size - Number of groups to distribute items into.
  *   Will be auto-increased if fewer than the maximum number of duplicates of any id.
- * @returns {Array<Array<{id: string, time: number}>>} 
+ * @returns {Array<Array<{id: string, time: number}>>}
  *   Array of groups, each group being an array of items.
  *
  * @example
@@ -899,19 +899,37 @@ const buildNotificationData = (
 };
 
 /**
- * Calculates the common available time slots for a group of assigned technicians.
+ * Computes common available time slots across assigned technicians for a given date.
  *
- * This function finds the intersection of each technician's availability for a given
- * date and set of services. It operates on pre-fetched schedule data to ensure
- * it does not perform any new I/O or network requests.
+ * For each technician in `assignedTechs`, this function calculates their available
+ * slots for the requested services on `customerDate` (using `calculateAvailableSlots`),
+ * then intersects those slot sets to produce times that all assigned technicians share.
+ * It operates entirely on pre-fetched schedule data and does not perform I/O.
  *
- * @param {Array<object>} assignedTechs An array of technician objects assigned to the appointments.
- * @param {Array<Array<object>>} appointments An array of appointment objects (service groups), corresponding to each technician in `assignedTechs`.
- * @param {string} customerDate The target date for finding slots, typically in 'YYYY-MM-DD' format.
- * @param {Map<number, Array<object>>} allTechnicianSchedules A map containing pre-fetched appointment data for all relevant technicians. The key is the technician ID, and the value is an array of their existing appointment objects.
- * @returns {Array<Date>} An array of `Date` objects representing the time slots available for all assigned technicians. Returns an empty array if no common slots exist.
+ * Notes:
+ * - Business hours are derived via `getBusinessHours(customerDate)`.
+ * - Weekly unavailability and vacation ranges are respected by `calculateAvailableSlots`.
+ * - `bufferTimeHours` filters out slots earlier than (now + buffer). It is typically
+ *   non-zero only when computing availability for "today" (decided upstream).
+ *
+ * @param {Array<object>} assignedTechs - Technicians assigned per concurrent appointment.
+ * @param {Array<Array<object>>} appointments - Service groups per technician (same index as `assignedTechs`).
+ * @param {string} customerDate - Target date in "YYYY-MM-DD" format.
+ * @param {Map<number, Array<object>>} allTechnicianSchedules - Map of technician ID → existing appointments.
+ * @param {number} [bufferTimeHours=0] - Hours to exclude from the start of the day based on current time.
+ * @returns {Array<Date>} Common slot start times as Date objects. Empty if no intersection.
+ *
+ * @example
+ * // Two technicians with overlapping availability on 2025-10-20
+ * const slots = getCommonAvailableSlots(
+ *   [{ id: 10, name: 'Alice' }, { id: 20, name: 'Bob' }],
+ *   [servicesForAlice, servicesForBob],
+ *   '2025-10-20',
+ *   new Map([[10, aliceAppointments], [20, bobAppointments]]),
+ *   2 // apply a 2-hour buffer when relevant
+ * );
  */
-const getCommonAvailableSlots = (assignedTechs, appointments, customerDate, allTechnicianSchedules) => {
+const getCommonAvailableSlots = (assignedTechs, appointments, customerDate, allTechnicianSchedules, bufferTimeHours = 0) => {
   let commonSlots = null;
 
   for (let i = 0; i < assignedTechs.length; i++) {
@@ -926,7 +944,8 @@ const getCommonAvailableSlots = (assignedTechs, appointments, customerDate, allT
       groupServicesByCategory(appt),
       customerDate,
       getBusinessHours(customerDate),
-      tech
+      tech,
+      bufferTimeHours
     );
 
     if (commonSlots === null) {
