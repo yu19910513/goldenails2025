@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
+    "test:coverage": "jest --coverage --coverageReporters=text-summary --coverageReporters=html --coverageReporters=lcov",
     "dev": "vite",
     "build": "vite build --emptyOutDir",
     "lint": "eslint .",

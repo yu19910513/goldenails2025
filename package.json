@@ -16,6 +16,7 @@
   "type": "commonjs",
   "scripts": {
     "test": "concurrently \"cd server && npm run test\" \"cd client && npm run test\"",
+    "coverage": "concurrently \"cd server && npm run test:coverage\" \"cd client && npm run test:coverage\"",
     "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
     "start:dev": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
     "start:prod": "node server/server.js",
