@@ -44,54 +44,56 @@ const sendSMS = async (recipientPhoneNumber, message) => {
  * @returns {Promise<Object|undefined>} Returns { success: false, error: string } on failure,
  * otherwise returns undefined if the email is sent successfully.
  */
-const sendEmail = async (email_object) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.BUSINESS_EMAIL, // Sender email
-                pass: process.env.APP_PASSWORD, // App password
-            },
-        });
+const emailApi = {
+    sendEmail: async (email_object) => {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.BUSINESS_EMAIL, // Sender email
+                    pass: process.env.APP_PASSWORD, // App password
+                },
+            });
 
-        const mailOptions = {
-            from: process.env.BUSINESS_EMAIL,
-            to: email_object.address, // Supports string or array
-            subject: email_object.subject,
-            text: email_object.text, // Optional plain text fallback
-            html: email_object.html, // HTML version
-        };
+            const mailOptions = {
+                from: process.env.BUSINESS_EMAIL,
+                to: email_object.address, // Supports string or array
+                subject: email_object.subject,
+                text: email_object.text, // Optional plain text fallback
+                html: email_object.html, // HTML version
+            };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Email sent successfully to ${email_object.address}:`, info.response);
-    } catch (error) {
-        console.error("Failed to send email:", error.message);
-        // throw error; // Propagate error
-        return { success: false, error: error.message };
+            const info = await transporter.sendMail(mailOptions);
+            console.log(`Email sent successfully to ${email_object.address}:`, info.response);
+        } catch (error) {
+            console.error("Failed to send email:", error.message);
+            // throw error; // Propagate error
+            return { success: false, error: error.message };
+        }
     }
 };
 
 /**
  * Sends an email notification to the specified recipients with appointment details.
- * 
+ *
  * @param {Array<string>} recipients - An array of email addresses to which the email should be sent.
  * @param {string} subject - The subject of the email.
  * @param {string} role - The role associated with the email (e.g., "admin", "user").
  * @param {Object} data_object - The data object containing the appointment details to be included in the email.
- * 
+ *
  * @returns {void} Returns nothing. If no valid email recipients are provided, it logs a warning.
- * 
+ *
  * @example
  * sendEmailNotification(
- *   ['example@example.com'], 
- *   'Appointment Reminder', 
- *   'admin', 
+ *   ['example@example.com'],
+ *   'Appointment Reminder',
+ *   'admin',
  *   { appointmentDate: '2025-03-01', patientName: 'John Doe' }
  * );
  */
 const sendEmailNotification = (recipients, subject, role, data_object) => {
     if (!recipients.length) return console.warn(`No valid email provided for ${role}. Skipping email.`);
-    sendEmail({
+    emailApi.sendEmail({
         address: recipients,
         subject,
         text: appointmentMessage(data_object, role),
@@ -102,6 +104,4 @@ const sendEmailNotification = (recipients, subject, role, data_object) => {
     });
 };
 
-
-
-module.exports = { sendSMS, sendEmail, sendEmailNotification };
+module.exports = { sendSMS, sendEmail: emailApi.sendEmail, sendEmailNotification, emailApi };
