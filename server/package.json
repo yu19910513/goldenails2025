@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "jest",
+    "test:coverage": "jest --coverage --coverageReporters=text-summary --coverageReporters=html --coverageReporters=lcov",
     "start": "node server.js",
     "watch": "nodemon"
   },
