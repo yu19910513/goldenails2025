@@ -1,6 +1,6 @@
 export default {
     transform: {
-      '^.+\\.[t|j]sx?$': 'babel-jest',
+      '^.+\\.[tj]sx?$': 'babel-jest',
     },
   };
   
