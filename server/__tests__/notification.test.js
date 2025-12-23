@@ -1,5 +1,6 @@
 // Importing necessary modules
-const { sendSMS, sendEmail, sendEmailNotification } = require('../utils/notification'); // Adjust the path
+const notification = require('../utils/notification'); // Adjust the path
+const { sendSMS, sendEmailNotification } = notification;
 const twilio = require('twilio');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
@@ -8,6 +9,9 @@ dotenv.config();
 // Mocking external dependencies
 jest.mock('twilio');
 jest.mock('nodemailer');
+jest.mock('../utils/helper', () => ({
+    generateHtmlFromTemplate: jest.fn(() => '<div>Mock HTML</div>')
+}));
 
 // Test Suite
 describe('Notification Functions', () => {
@@ -35,6 +39,23 @@ describe('Notification Functions', () => {
                 body: message,
                 from: `+1${process.env.TWILIO_NUMBER}`,
                 to: recipientPhoneNumber,
+            });
+        });
+
+        it('should normalize recipient number by prepending +1 when missing +', async () => {
+            const mockCreate = jest.fn().mockResolvedValue({ sid: 'mockSid2' });
+            twilio.mockImplementation(() => ({ messages: { create: mockCreate } }));
+
+            const recipientPhoneNumber = '5551234567'; // no leading +
+            const message = 'Hello';
+
+            const result = await sendSMS(recipientPhoneNumber, message);
+
+            expect(result).toEqual({ sid: 'mockSid2' });
+            expect(mockCreate).toHaveBeenCalledWith({
+                body: message,
+                from: `+1${process.env.TWILIO_NUMBER}`,
+                to: `+1${recipientPhoneNumber}`,
             });
         });
 
@@ -68,7 +89,7 @@ describe('Notification Functions', () => {
                 html: '<h1>Test HTML</h1>',
             };
 
-            await sendEmail(email_object);
+            await notification.sendEmail(email_object);
 
             expect(mockSendMail).toHaveBeenCalledWith({
                 from: process.env.BUSINESS_EMAIL,
@@ -90,7 +111,7 @@ describe('Notification Functions', () => {
                 html: '<h1>Test HTML</h1>',
             };
 
-            const result = await sendEmail(email_object);
+            const result = await notification.sendEmail(email_object);
 
             expect(result).toEqual({
                 success: false,
@@ -101,7 +122,7 @@ describe('Notification Functions', () => {
 
     // Test for sendEmailNotification function
     describe('sendEmailNotification', () => {
-        it.skip('should send an email notification with valid recipients', async () => {
+        it('should send an email notification with valid recipients', async () => {
             const email_object = {
                 address: ['test@example.com'],
                 subject: 'Appointment Reminder',
@@ -110,7 +131,7 @@ describe('Notification Functions', () => {
             };
 
             const mockSendEmail = jest.fn().mockResolvedValue(undefined);
-            sendEmail.mockImplementation(mockSendEmail);
+            jest.spyOn(notification.emailApi, 'sendEmail').mockImplementation(mockSendEmail);
 
             const data_object = { appointmentDate: '2025-03-01', patientName: 'John Doe' };
             const role = 'user';
@@ -133,6 +154,3 @@ describe('Notification Functions', () => {
     });
 
 });
-
-
-
