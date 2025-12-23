@@ -42,6 +42,23 @@ describe('Notification Functions', () => {
             });
         });
 
+        it('should normalize recipient number by prepending +1 when missing +', async () => {
+            const mockCreate = jest.fn().mockResolvedValue({ sid: 'mockSid2' });
+            twilio.mockImplementation(() => ({ messages: { create: mockCreate } }));
+
+            const recipientPhoneNumber = '5551234567'; // no leading +
+            const message = 'Hello';
+
+            const result = await sendSMS(recipientPhoneNumber, message);
+
+            expect(result).toEqual({ sid: 'mockSid2' });
+            expect(mockCreate).toHaveBeenCalledWith({
+                body: message,
+                from: `+1${process.env.TWILIO_NUMBER}`,
+                to: `+1${recipientPhoneNumber}`,
+            });
+        });
+
         it('should return an error object if SMS fails', async () => {
             const mockCreate = jest.fn().mockRejectedValue(new Error('Twilio error'));
             twilio.mockImplementation(() => ({ messages: { create: mockCreate } }));
