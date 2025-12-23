@@ -34,17 +34,42 @@ const sendSMS = async (recipientPhoneNumber, message) => {
 
 
 /**
- * Sends an email using Nodemailer with a Gmail transporter.
+ * Lightweight email delivery wrapper around Nodemailer.
  *
- * @param {Object} email_object - Object containing email details.
- * @param {string|string[]} email_object.address - Recipient email address(es).
- * @param {string} email_object.subject - Subject line of the email.
- * @param {string} [email_object.text] - Plain text body of the email (optional).
- * @param {string} email_object.html - HTML body of the email.
- * @returns {Promise<Object|undefined>} Returns { success: false, error: string } on failure,
- * otherwise returns undefined if the email is sent successfully.
+ * Environment variables required:
+ * - BUSINESS_EMAIL: Gmail address used as sender (SMTP username)
+ * - APP_PASSWORD: Gmail App Password for SMTP auth
+ *
+ * @typedef {Object} EmailPayload
+ * @property {string|string[]} address - Recipient(s); accepts a single address or an array.
+ * @property {string} subject - Subject line of the email.
+ * @property {string} [text] - Optional plain-text body used as a fallback.
+ * @property {string} html - HTML body of the email.
+ *
+ * @typedef {Object} SendEmailError
+ * @property {false} success - Indicates failure.
+ * @property {string} error - Human-readable error message.
+ *
+ * @typedef {undefined|SendEmailError} SendEmailResult
+ *
+ * @example
+ * await emailApi.sendEmail({
+ *   address: ['user@example.com', 'other@example.com'],
+ *   subject: 'Appointment Reminder',
+ *   text: 'Your appointment is tomorrow at 10:00 AM.',
+ *   html: '<p>Your appointment is <strong>tomorrow</strong> at 10:00 AM.</p>'
+ * });
  */
 const emailApi = {
+    /**
+     * Sends an email using Gmail SMTP via Nodemailer.
+     *
+     * Creates a transporter on each invocation. Returns `undefined` on success,
+     * or `{ success: false, error }` on failure. Errors are captured and not thrown.
+     *
+     * @param {EmailPayload} email_object - Email content and recipients.
+     * @returns {Promise<SendEmailResult>} Resolves to `undefined` on success, or an error object on failure.
+     */
     sendEmail: async (email_object) => {
         try {
             const transporter = nodemailer.createTransport({
