@@ -196,7 +196,8 @@ const calculateAvailableSlots = (
     .filter(day => day !== "") // Remove empty values
     .map(Number)
     .filter(day => !isNaN(day) && day >= 0 && day <= 6);
-  const selectedWeekday = (new Date(selectedDate).getDay() + 1) % 7;
+  // Use Luxon to avoid environment timezone differences; map Sunday -> 0
+  const selectedWeekday = DateTime.fromISO(selectedDate, { zone: 'America/Los_Angeles' }).weekday % 7;
 
   if (appointments.length !== 0) {
     const filteredAppointments = appointments.filter(
