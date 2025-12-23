@@ -19,6 +19,9 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
 
+      - name: Install dependencies (root)
+        run: npm install
+
       - name: Install dependencies (server)
         run: npm install
         working-directory: server
